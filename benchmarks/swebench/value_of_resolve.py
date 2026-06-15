@@ -12,10 +12,16 @@ from __future__ import annotations
 
 import glob
 import json
+from pathlib import Path
+
+# Anchor eval globs on the repo root so the scorer reproduces from any CWD
+# (verify_criteria.py runs it with cwd=ROOT; a bare standalone invocation from
+# elsewhere would otherwise silently get empty results).
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _L(pattern):
-    fs = [x for x in glob.glob(pattern) if "bak" not in x and "invalid" not in x]
+    fs = [x for x in glob.glob(str(ROOT / pattern)) if "bak" not in x and "invalid" not in x]
     if not fs:
         return None
     f = max(fs, key=lambda p: sum(1 for _ in open(p)))

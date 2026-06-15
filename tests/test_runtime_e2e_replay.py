@@ -27,8 +27,9 @@ import pytest
 from code_capsules.controller.runtime import CodeCapsulesRunner, RunnerPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
-# Exact paths (NOT globs): there is a quarantined *.CONTAMINATED-MIXED.jsonl in
-# the same directory that a glob would sort ahead of the clean held-out file.
+# Exact paths (NOT globs): evals/leakfree/ also holds a quarantined
+# *.RATELIMITED-MIXED.jsonl that a broad *.jsonl glob would pick up alongside
+# the clean held-out files.
 FIRST150 = ROOT / "evals/leakfree/exp4_lever_floor100_siginject.jsonl"
 HELD_OUT = ROOT / "evals/leakfree/exp4_lever_second150.jsonl"
 
