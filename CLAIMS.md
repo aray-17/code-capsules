@@ -29,7 +29,7 @@ same data split, same scorer across systems.
 | Claim | Result | Scorer | Evidence |
 |---|---|---|---|
 | Head-to-head vs. Agentless (Pareto) | Code-Capsules 136/300 resolved @ \$0.436/inst vs. Agentless 125/300 @ \$0.452 — **more resolved at lower cost** | [`benchmarks/swebench/h2h_combine_score.py`](benchmarks/swebench/h2h_combine_score.py) | [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), [`tb_forcestage2_second150.jsonl`](evals/leakfree/tb_forcestage2_second150.jsonl), [`evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl`](evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl) |
-| Calibrated cross-tier Pareto menu | cost-min 57 @ \$0.48 · balanced 66 @ \$0.93 · quality 77 @ \$0.91 · quality-max 92 @ \$0.78 · ceiling 96 @ \$0.94 (quality-max out-resolves quality at lower \$/resolve) | [`benchmarks/swebench/cross_tier_pareto_menu.py`](benchmarks/swebench/cross_tier_pareto_menu.py) | [`evals/p10_sonnet_p8c_n150_20260515T235913.jsonl`](evals/p10_sonnet_p8c_n150_20260515T235913.jsonl), [`evals/p9_opus_implicit20_n150_combined_20260527.jsonl`](evals/p9_opus_implicit20_n150_combined_20260527.jsonl) |
+| Calibrated cross-tier Pareto menu | cost-min 57 @ \$0.48 · balanced 66 @ \$0.93 · quality 77 @ \$0.91 · quality-max 92 @ \$0.78 · ceiling 96 @ \$0.94 (quality-max out-resolves quality at lower \$/resolve) | [`benchmarks/swebench/cross_tier_pareto_menu.py`](benchmarks/swebench/cross_tier_pareto_menu.py) | one committed JSONL per cell: cost-min [`evals/p10_sonnet_p8c_n150_20260515T235913.jsonl`](evals/p10_sonnet_p8c_n150_20260515T235913.jsonl), balanced [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), quality (leak-free re-run) [`evals/leakfree/exp4_lever_floor100_siginject.jsonl`](evals/leakfree/exp4_lever_floor100_siginject.jsonl), quality-max [`evals/p9_opus_implicit20_n150_combined_20260527.jsonl`](evals/p9_opus_implicit20_n150_combined_20260527.jsonl), ceiling [`evals/p9_opus_floor_n150_combined_20260527.jsonl`](evals/p9_opus_floor_n150_combined_20260527.jsonl) |
 
 ## Mechanism claims
 
@@ -81,8 +81,9 @@ evidence [`evals/cross_vendor_humaneval_n164_postfix_20260525.csv`](evals/cross_
 [`evals/cross_vendor_mbpp_n500_postfix_20260525.csv`](evals/cross_vendor_mbpp_n500_postfix_20260525.csv).
 
 **C12. Plan-then-execute helps every model; critique helps only some.**
-Floor → plan-then-execute is +7pp on Sonnet and +7pp on gpt-5-codex;
-two-pass critique is flat on codex. Scorer
+Over the signaled-budget baseline, plan-then-execute adds +6.7pp on both
+Sonnet (37.3 → 44.0%) and gpt-5-codex (20.7 → 27.3%); two-pass critique
+adds further on Sonnet but is flat on gpt-5-codex (−0.7pp). Scorer
 [`benchmarks/swebench/claim12_plan_critique_lift.py`](benchmarks/swebench/claim12_plan_critique_lift.py).
 
 ## Negative results
@@ -106,9 +107,15 @@ scored 0/77; the canonical `bin/test` harness recovers Agentless to
 31/77. Scorer
 [`benchmarks/swebench/sympy_evalbug_gate.py`](benchmarks/swebench/sympy_evalbug_gate.py).
 
-**C11. Tier escalation has steeply diminishing economics.** Over a
-\$1.40/resolve base, recovering additional resolves by escalating tiers
-costs \$2.20, then \$3.07, then \$7.51 per recovered resolve. Scorer
+**C11. Tier escalation has steeply diminishing economics.** Against a
+\$1.40/resolve base (the 2-config diverse-select), escalating an
+agreement-doomed set to a stronger tier costs far more per recovered
+resolve — and the figure depends on *which* doomed set you escalate, not
+on a single sequential cascade. Escalating the Haiku-doomed set to Opus
+is the cheapest at ~\$2.20/recovered resolve; escalating the Sonnet-doomed
+set to Opus costs ~\$3.07–\$7.51 depending on how many configs you run.
+These are distinct, non-comparable escalation options over different
+doomed sets. Scorer
 [`benchmarks/swebench/value_of_resolve.py`](benchmarks/swebench/value_of_resolve.py).
 
 ## Reproducibility notes

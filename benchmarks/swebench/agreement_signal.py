@@ -15,12 +15,19 @@ from __future__ import annotations
 import glob
 import json
 from itertools import combinations
+from pathlib import Path
+
+# Anchor every eval glob on the repo root so the scorer reproduces from ANY
+# working directory. verify_criteria.py invokes it with cwd=ROOT, but a reader
+# running the bare `python3 benchmarks/swebench/agreement_signal.py` from
+# elsewhere would otherwise silently get empty results.
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_configs(pattern="evals/p10_sonnet_*n150*.jsonl"):
     import re
     configs = {}
-    for f in sorted(glob.glob(pattern)):
+    for f in sorted(glob.glob(str(ROOT / pattern))):
         # EXCLUDE same-strategy variance reruns (implicit40_var2/var3, twopass_*_var2/var3):
         # a reroll resolving an instance is sampling noise, not a recoverable strategy, and
         # absorbing it into the reference set spuriously depresses abandon precision (98.5%->90.8%).
@@ -102,7 +109,7 @@ def opus_tier_boundary():
     0/65), so robust to any siginject give-ups."""
     import glob as _g, json as _j
     def L(p):
-        f = sorted(x for x in _g.glob(p) if "bak" not in x and "invalid" not in x)[0]
+        f = sorted(x for x in _g.glob(str(ROOT / p)) if "bak" not in x and "invalid" not in x)[0]
         d = {}
         for line in open(f):
             line = line.strip()
@@ -117,7 +124,7 @@ def opus_tier_boundary():
     # recovery; the 05-27 re-run graded 18 of those 19 (11 resolved), 0 regressions.
     # Globbing 2026052[67]* + sorted()[0] silently picked the incomplete 05-26 file.
     of = L("evals/p9_opus_floor_n150_combined_20260527.jsonl")
-    osig_files = _g.glob("evals/opus_siginject_agreementfail65.jsonl")
+    osig_files = _g.glob(str(ROOT / "evals/opus_siginject_agreementfail65.jsonl"))
     if not osig_files:
         print("\n=== OPUS-TIER boundary: opus siginject sweep not found, skipping ==="); return
     osig = L("evals/opus_siginject_agreementfail65.jsonl")
@@ -146,7 +153,7 @@ def haiku_to_high_escalation():
     collapses on Haiku). Answers 'did we try Haiku->Opus?' (2026-06-04)."""
     import glob as _g, json as _j
     def L(p):
-        fs=[x for x in _g.glob(p) if 'bak' not in x and 'invalid' not in x]
+        fs=[x for x in _g.glob(str(ROOT / p)) if 'bak' not in x and 'invalid' not in x]
         if not fs: return None
         d={}
         for line in open(sorted(fs)[0]):
