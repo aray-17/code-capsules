@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code-Capsules evidence explorer</title>
+<style>
+  :root { --ok:#1a7f37; --bad:#b42318; --line:#d8dee4; --mut:#57606a; --bg:#fff; --code:#f6f8fa; --accent:#0969da; --accentbg:#ddf4ff; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#1f2328; margin:0; background:#f6f8fa; }
+  header { padding:22px 28px 0; border-bottom:1px solid var(--line); background:var(--bg); }
+  h1 { margin:0 0 4px; font-size:21px; }
+  .sub { color:var(--mut); font-size:13.5px; max-width:92ch; }
+  .sub code { background:var(--code); padding:1px 5px; border-radius:4px; font-size:12px; }
+  .summary { display:inline-block; margin:10px 0; padding:4px 12px; border-radius:999px; font-weight:600; background:#eafff0; color:var(--ok); border:1px solid #abefc6; }
+  .summary.partial { background:#fff5f5; color:var(--bad); border-color:#ffc9c9; }
+  .tabs { margin-top:8px; display:flex; gap:4px; }
+  .tab { padding:8px 16px; border:1px solid var(--line); border-bottom:none; border-radius:8px 8px 0 0; cursor:pointer; background:var(--code); color:var(--mut); font-weight:600; font-size:14px; }
+  .tab.active { background:var(--bg); color:#1f2328; position:relative; top:1px; }
+  main { display:flex; gap:18px; align-items:flex-start; padding:18px 28px 60px; max-width:1500px; }
+  .left { flex:1 1 540px; min-width:0; }
+  .right { flex:1 1 520px; position:sticky; top:14px; max-height:calc(100vh - 28px); overflow:auto;
+           background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  .view { display:none; } .view.active { display:block; }
+
+  .claim { border:1px solid var(--line); border-radius:10px; margin:0 0 12px; overflow:hidden; background:var(--bg); }
+  .chead { display:flex; align-items:center; gap:10px; padding:13px 15px; cursor:pointer; }
+  .chead:hover { background:#fafbfc; }
+  .badge { font-size:12px; font-weight:700; padding:3px 9px; border-radius:6px; white-space:nowrap; }
+  .badge.PASS, .kind.claim-evidence { background:#eafff0; color:var(--ok); border:1px solid #abefc6; }
+  .badge.FAIL { background:#fff5f5; color:var(--bad); border:1px solid #ffc9c9; }
+  .cid { font-weight:700; color:var(--mut); width:34px; }
+  .ctitle { font-weight:600; flex:1; font-size:14px; }
+  .csec { color:var(--mut); font-size:11.5px; font-family:ui-monospace,monospace; }
+  .cbody { display:none; padding:0 15px 14px; } .cbody.open { display:block; }
+  .row { margin:11px 0; } .lbl { font-size:11px; font-weight:700; color:var(--mut); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px; }
+  code.cmd, pre.repro { display:block; background:var(--code); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; overflow-x:auto; }
+  pre.repro { white-space:pre-wrap; max-height:280px; overflow-y:auto; margin:6px 0 0; }
+  details > summary { cursor:pointer; color:var(--accent); font-size:13px; margin-top:6px; }
+
+  .filebtn { display:block; width:100%; text-align:left; font:inherit; font-size:12.5px; margin:4px 0; padding:7px 10px; border:1px solid var(--line); border-radius:7px; background:var(--bg); cursor:pointer; }
+  .filebtn:hover { border-color:var(--accent); background:#fbfdff; }
+  .filebtn.active { border-color:var(--accent); background:var(--accentbg); }
+  .filebtn .fl { font-weight:600; }
+  .filebtn .fp { font-family:ui-monospace,monospace; color:var(--mut); font-size:11px; }
+  .filebtn .fs { color:var(--mut); font-size:11.5px; }
+  .filebtn .matchnote { color:var(--accent); font-size:11.5px; margin-top:3px; }
+
+  .controls { display:flex; gap:10px; align-items:center; margin:2px 0 12px; flex-wrap:wrap; }
+  .controls input[type=search], .controls select { font:inherit; padding:7px 10px; border:1px solid var(--line); border-radius:7px; }
+  .kind { font-size:11px; font-weight:700; padding:2px 7px; border-radius:5px; margin-left:8px; }
+  .kind.supporting { background:#eef1f4; color:var(--mut); border:1px solid var(--line); }
+  .fmt { font-size:10.5px; font-weight:700; color:var(--mut); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:6px; }
+  .cl { font-size:11px; font-weight:700; padding:1px 6px; border-radius:5px; background:var(--accentbg); color:#0a3069; border:1px solid #b6e3ff; margin-left:4px; }
+
+  .dlabel { font-size:17px; font-weight:700; margin:0 0 2px; }
+  .dpath { font-family:ui-monospace,monospace; font-size:12px; color:var(--mut); margin-bottom:8px; word-break:break-all; }
+  .dpath a, .stat a { color:var(--accent); text-decoration:none; } .dpath a:hover { text-decoration:underline; }
+  .dstats { margin:8px 0; } .stat { display:inline-block; margin-right:14px; font-size:13px; color:var(--mut); }
+  .schema { color:var(--mut); font-size:11.5px; font-family:ui-monospace,monospace; word-break:break-word; margin-top:4px; }
+  .pager { display:flex; align-items:center; gap:10px; margin:10px 0 4px; }
+  .pager button { font:inherit; padding:5px 12px; border:1px solid var(--line); border-radius:7px; background:var(--bg); cursor:pointer; }
+  .pager button:disabled { color:#aab; cursor:default; }
+  .pager .pinfo { font-size:12.5px; color:var(--mut); }
+  .tablewrap { overflow-x:auto; border:1px solid var(--line); border-radius:6px; }
+  table.rows { border-collapse:collapse; font-size:12px; width:100%; }
+  table.rows th, table.rows td { border:1px solid var(--line); padding:3px 7px; text-align:left; font-family:ui-monospace,monospace; white-space:nowrap; max-width:320px; overflow:hidden; text-overflow:ellipsis; }
+  table.rows td:hover { overflow:visible; white-space:normal; word-break:break-all; background:#fffbe6; }
+  table.rows th { background:#eef1f4; position:sticky; top:0; }
+  .placeholder { color:var(--mut); font-size:14px; padding:24px 4px; text-align:center; }
+  .miss { color:var(--bad); }
+  .note { color:var(--mut); font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Code-Capsules evidence explorer</h1>
+  <div class="sub">Every key claim in the paper reproduces offline from committed eval data. The
+  <b>Claims</b> tab pairs each claim with the value reproduced from that data; the <b>Eval runs</b>
+  tab is a labelled, searchable catalog of every run. Click any file to inspect it in the panel on
+  the right. Build the data with <code>bash benchmarks/explore.sh</code> (or
+  <code>python3 benchmarks/verify_criteria.py &amp;&amp; python3 benchmarks/build_evidence_index.py</code>),
+  served from the repo root over http (not file://).</div>
+  <div id="summary" class="summary">loading...</div>
+  <div class="tabs">
+    <div class="tab active" data-view="claims">Claims</div>
+    <div class="tab" data-view="catalog">Eval runs</div>
+  </div>
+</header>
+<main>
+  <div class="left">
+    <div id="claims" class="view active"></div>
+    <div id="catalog" class="view"></div>
+  </div>
+  <aside class="right" id="detail"><div class="placeholder">Select a claim's evidence file or an eval run to inspect it here.</div></aside>
+</main>
+<script>
+const BASE = "../../";
+const PAGE_SIZE = 50;
+let EVID = null, ACTIVE = null;
+
+const COL_HIDE = new Set(["eval_stdout"]);
+const COL_ORDER = ["instance_id","task_id","repo","provider","model","mode","resolved","outcome",
+  "gold_resolved","shipped_gold_resolved","cost_usd","lever_cost_usd","num_turns","actual_turns",
+  "turn_budget","escalated","has_patch","lever_decision","selected_config","selected_grade","final_tier","error"];
+
+function el(tag, cls, txt){ const e=document.createElement(tag); if(cls)e.className=cls; if(txt!==undefined)e.textContent=txt; return e; }
+async function getText(p){ const r=await fetch(BASE+p, {cache:"no-store"}); if(!r.ok) throw new Error(r.status+" "+r.statusText); return r.text(); }
+async function getJSON(p){ return JSON.parse(await getText(p)); }
+
+function parseCSV(text){
+  const recs=[]; let row=[], field="", inq=false;
+  for(let i=0;i<text.length;i++){ const ch=text[i];
+    if(inq){ if(ch==='"'){ if(text[i+1]==='"'){field+='"';i++;} else inq=false; } else field+=ch; }
+    else if(ch==='"') inq=true;
+    else if(ch===','){ row.push(field); field=""; }
+    else if(ch==='\n'){ row.push(field); recs.push(row); row=[]; field=""; }
+    else if(ch!=='\r') field+=ch;
+  }
+  if(field.length||row.length){ row.push(field); recs.push(row); }
+  if(!recs.length) return [];
+  const head=recs[0], out=[];
+  for(let r=1;r<recs.length;r++){ if(recs[r].length===1&&recs[r][0]==="") continue; const o={}; head.forEach((h,j)=>o[h]=recs[r][j]); out.push(o); }
+  return out;
+}
+async function loadRows(path){
+  const text=await getText(path);
+  if(path.toLowerCase().endsWith(".csv")) return parseCSV(text);
+  const rows=[]; for(const line of text.split("\n")){ const s=line.trim(); if(s){ try{rows.push(JSON.parse(s));}catch(_){}}} return rows;
+}
+function cellText(v, col){
+  if(v===undefined||v===null) return "";
+  if(typeof v==="object") v=JSON.stringify(v);
+  else if(typeof v==="number" && /cost/.test(col)) return v.toFixed(4);
+  v=String(v); return v.length>200 ? v.slice(0,200)+"..." : v;
+}
+function columnsFor(f, rows){
+  const cols = (f && f.columns && f.columns.length) ? f.columns : (rows[0]?Object.keys(rows[0]):[]);
+  const present = COL_ORDER.filter(c=>cols.includes(c));
+  const rest = cols.filter(c=>!present.includes(c) && !COL_HIDE.has(c));
+  return present.concat(rest);
+}
+function renderRows(rows, cols){
+  const t=el("table","rows"), hr=el("tr"); cols.forEach(c=>hr.appendChild(el("th",null,c))); t.appendChild(hr);
+  rows.forEach(r=>{ const tr=el("tr"); cols.forEach(c=>tr.appendChild(el("td",null,cellText(r[c],c)))); t.appendChild(tr); });
+  return t;
+}
+
+const detail=document.getElementById("detail");
+function setActive(path){ ACTIVE=path; document.querySelectorAll(".filebtn").forEach(b=>b.classList.toggle("active", b.dataset.path===path)); }
+
+async function openDetail(f, seed){
+  setActive(f.path);
+  detail.innerHTML="";
+  detail.appendChild(el("div","dlabel", f.label || f.path.split("/").pop()));
+  const pr=el("div","dpath"); pr.appendChild(el("span",null,f.path+"  "));
+  const a=el("a",null,"open raw"); a.href=BASE+f.path; a.target="_blank"; a.rel="noopener"; pr.appendChild(a); detail.appendChild(pr);
+  if(f.claims && f.claims.length){ const cb=el("div","note"); cb.appendChild(el("span",null,"backs: "));
+    f.claims.forEach(c=>{ const s=el("span","cl", c.id); s.title=c.title; cb.appendChild(s); }); detail.appendChild(cb); }
+  const st=el("div","dstats");
+  st.appendChild(el("span","stat", f.n_rows+" rows"));
+  if(f.resolved!=null) st.appendChild(el("span","stat", f.resolved+" resolved ("+f.resolved_pct+"%)"));
+  if(f.mean_cost!=null) st.appendChild(el("span","stat", "mean $"+f.mean_cost+"/row"));
+  st.appendChild(el("span","fmt", (f.format||"jsonl").toUpperCase())); detail.appendChild(st);
+  if(f.repos && f.repos.length){ const d=el("details"); d.appendChild(el("summary",null, f.repos.length+" repositories / providers"));
+    d.appendChild(el("div","note", f.repos.join(", "))); detail.appendChild(d); }
+  if(f.columns && f.columns.length){ const d=el("details"); d.appendChild(el("summary",null, "schema ("+f.columns.length+" columns)"));
+    d.appendChild(el("div","schema", f.columns.join(", "))); detail.appendChild(d); }
+  const host=el("div"); detail.appendChild(host); host.appendChild(el("div","note","loading rows..."));
+  try {
+    const rows=await loadRows(f.path); const cols=columnsFor(f, rows); host.innerHTML="";
+    // Row-level grep: filter the loaded rows by any field (case-insensitive).
+    const gw=el("div","controls");
+    const grep=el("input"); grep.type="search"; grep.placeholder="grep rows (matches any field, e.g. sympy, RESOLVED)"; grep.style.flex="1";
+    if(seed) grep.value=seed;
+    const gc=el("span","note"); gw.appendChild(grep); gw.appendChild(gc); host.appendChild(gw);
+    const pager=el("div","pager"), prev=el("button",null,"prev"), next=el("button",null,"next"), info=el("span","pinfo");
+    pager.appendChild(prev); pager.appendChild(next); pager.appendChild(info); host.appendChild(pager);
+    const tbl=el("div"); host.appendChild(tbl);
+    let page=0, view=rows;
+    function draw(){
+      const pages=Math.max(1, Math.ceil(view.length/PAGE_SIZE));
+      const slice=view.slice(page*PAGE_SIZE,(page+1)*PAGE_SIZE);
+      tbl.innerHTML=""; const w=el("div","tablewrap"); w.appendChild(renderRows(slice, cols)); tbl.appendChild(w);
+      info.textContent = view.length ? ("rows "+(page*PAGE_SIZE+1)+"-"+Math.min((page+1)*PAGE_SIZE,view.length)+" of "+view.length+"  (page "+(page+1)+"/"+pages+")") : "0 rows";
+      prev.disabled = page<=0; next.disabled = page>=pages-1;
+    }
+    function applyGrep(){
+      const q=grep.value.trim().toLowerCase();
+      view = q ? rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q)) : rows;
+      gc.textContent = q ? (view.length+" of "+rows.length+" rows match \""+grep.value.trim()+"\"") : "";
+      page=0; draw();
+    }
+    prev.onclick=()=>{ if(page>0){page--;draw();} };
+    next.onclick=()=>{ const pages=Math.ceil(view.length/PAGE_SIZE); if(page<pages-1){page++;draw();} };
+    grep.oninput=applyGrep;
+    applyGrep();
+  } catch(e){ host.innerHTML=""; host.appendChild(el("div","miss","could not load "+f.path+": "+e.message+" (serve the repo root over http; file:// blocks fetch).")); }
+}
+
+function claimCard(c){
+  const card=el("div","claim"), head=el("div","chead");
+  head.appendChild(el("span","badge "+c.status, c.status));
+  head.appendChild(el("span","cid", c.id));
+  head.appendChild(el("span","ctitle", c.title));
+  head.appendChild(el("span","csec", c.section));
+  const body=el("div","cbody");
+  let r=el("div","row"); r.appendChild(el("div","lbl","Paper claims")); r.appendChild(el("div",null,c.paper)); body.appendChild(r);
+  if(c.markers&&c.markers.length){ r=el("div","row"); r.appendChild(el("div","lbl","Load-bearing numbers checked")); r.appendChild(el("code","cmd", c.markers.join("   |   "))); body.appendChild(r); }
+  r=el("div","row"); r.appendChild(el("div","lbl","Reproduced from the committed data")); r.appendChild(el("code","cmd", c.cmd));
+  if(c.reproduced){ const d=el("details"); d.appendChild(el("summary",null,"show scorer output (the proof)")); d.appendChild(el("pre","repro", c.reproduced)); r.appendChild(d); }
+  body.appendChild(r);
+  r=el("div","row"); r.appendChild(el("div","lbl","Evidence runs (click to inspect on the right)"));
+  const ours=(EVID?EVID.files:[]).filter(f=>f.claims.some(x=>x.id===c.id));
+  if(!ours.length) r.appendChild(el("span","note","(run build_evidence_index.py to list evidence files)"));
+  ours.forEach(f=>{ const b=el("button","filebtn"); b.dataset.path=f.path;
+    b.appendChild(el("div","fl", f.label||f.path.split("/").pop()));
+    b.appendChild(el("div","fp", f.path));
+    const sm=[f.n_rows+" rows"]; if(f.resolved!=null) sm.push(f.resolved+" resolved ("+f.resolved_pct+"%)"); if(f.mean_cost!=null) sm.push("$"+f.mean_cost+"/row");
+    b.appendChild(el("div","fs", sm.join("  .  ")));
+    b.onclick=()=>openDetail(f); r.appendChild(b); });
+  body.appendChild(r);
+  if(c.missing_markers&&c.missing_markers.length) body.appendChild(el("div","miss","missing markers: "+c.missing_markers.join(", ")));
+  head.onclick=()=>body.classList.toggle("open");
+  card.appendChild(head); card.appendChild(body); return card;
+}
+
+function catalog(){
+  const root=document.getElementById("catalog"); root.innerHTML="";
+  const files=EVID?EVID.files:[];
+  const ctr=el("div","controls");
+  const search=el("input"); search.type="search"; search.placeholder="filter by file / label / repo / claim (e.g. sympy, C5, opus, cross-vendor)"; search.style.minWidth="360px";
+  const sel=el("select"); ["all kinds","claim-evidence","supporting"].forEach(o=>{ const op=el("option",null,o); op.value=o; sel.appendChild(op); });
+  const count=el("span","note"); ctr.appendChild(search); ctr.appendChild(sel); ctr.appendChild(count); root.appendChild(ctr);
+  const list=el("div"); root.appendChild(list);
+  function draw(){
+    const q=search.value.trim().toLowerCase(), kind=sel.value; list.innerHTML=""; let shown=0;
+    files.forEach(f=>{
+      if(kind!=="all kinds" && f.kind!==kind) return;
+      const repos=f.repos||[];
+      const hay=(f.path+" "+(f.label||"")+" "+repos.join(" ")+" "+f.claims.map(c=>c.id+" "+c.title).join(" ")).toLowerCase();
+      if(q && !hay.includes(q)) return; shown++;
+      const b=el("button","filebtn"); b.dataset.path=f.path;
+      const top=el("div","fl"); top.appendChild(el("span",null,f.label||f.path.split("/").pop()));
+      top.appendChild(el("span","kind "+f.kind, f.kind==="claim-evidence"?"claim evidence":"supporting"));
+      top.appendChild(el("span","fmt", (f.format||"jsonl").toUpperCase()));
+      f.claims.forEach(c=>top.appendChild(el("span","cl", c.id)));
+      b.appendChild(top);
+      b.appendChild(el("div","fp", f.path));
+      const m=[f.n_rows+" rows"]; if(f.resolved!=null) m.push(f.resolved+" resolved ("+f.resolved_pct+"%)"); if(f.mean_cost!=null) m.push("mean $"+f.mean_cost+"/row"); if(repos.length) m.push(repos.length+" repo/provider");
+      b.appendChild(el("div","fs", m.join("  .  ")));
+      // Transparency: if the query matched repos/instances INSIDE the file (not its
+      // name/label), say so -- otherwise the hit looks unrelated to the query.
+      if(q){ const mr=repos.filter(r=>r.toLowerCase().includes(q)); const vis=f.path.toLowerCase().includes(q)||(f.label||"").toLowerCase().includes(q);
+        if(mr.length && !vis) b.appendChild(el("div","matchnote","contains "+mr.join(", ")+" -- click to grep these rows")); }
+      b.onclick=()=>openDetail(f, q); list.appendChild(b);
+    });
+    count.textContent=shown+" of "+files.length+" eval runs";
+  }
+  search.oninput=draw; sel.onchange=draw; draw();
+}
+
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active"); document.getElementById(t.dataset.view).classList.add("active");
+});
+
+(async function(){
+  try { EVID=await getJSON("benchmarks/explorer/evidence_index.json"); } catch(e){ EVID=null; }
+  try {
+    const data=await getJSON("benchmarks/claims_results.json");
+    const s=data.summary, sm=document.getElementById("summary");
+    sm.textContent=s.pass+"/"+s.total+" claims reproduce offline"+(EVID?("  .  "+EVID.n_files+" eval runs catalogued"):"");
+    if(s.pass<s.total) sm.classList.add("partial");
+    const host=document.getElementById("claims"); host.innerHTML="";
+    data.claims.forEach(c=>host.appendChild(claimCard(c)));
+  } catch(e){
+    const host=document.getElementById("claims"); host.textContent="";
+    const p=el("p","miss");
+    p.appendChild(el("span",null,"Could not load benchmarks/claims_results.json ("+e.message+"). "));
+    p.appendChild(el("span",null,"Run: bash benchmarks/explore.sh (it builds the data, serves the repo root, and opens this page). Opening the file directly does not work; file:// blocks fetch."));
+    host.appendChild(p);
+  }
+  if(EVID) catalog();
+  else document.getElementById("catalog").appendChild(el("p","miss","Run python3 benchmarks/build_evidence_index.py to populate the eval-run catalog, then reload."));
+})();
+</script>
+</body>
+</html>

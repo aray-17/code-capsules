@@ -1,0 +1,6 @@
+{"instance_id": "psf__requests-1963", "floor_resolved": true, "plan_resolved": true, "repro_valid": true, "selected_config": "floor", "selected_resolved": true, "oracle_union": true, "dur_s": 319}
+{"instance_id": "psf__requests-2317", "floor_resolved": false, "plan_resolved": false, "repro_valid": false, "selected_config": "floor(fallback)", "selected_resolved": false, "oracle_union": false, "dur_s": 737}
+{"instance_id": "pydata__xarray-4493", "floor_resolved": false, "plan_resolved": false, "repro_valid": false, "selected_config": "floor(fallback)", "selected_resolved": false, "oracle_union": false, "dur_s": 245}
+{"instance_id": "pylint-dev__pylint-6506", "floor_resolved": false, "plan_resolved": false, "repro_valid": true, "selected_config": "floor", "selected_resolved": false, "oracle_union": false, "dur_s": 201}
+{"instance_id": "pytest-dev__pytest-11143", "floor_resolved": false, "plan_resolved": false, "repro_valid": true, "selected_config": "floor", "selected_resolved": false, "oracle_union": false, "dur_s": 210}
+{"instance_id": "pytest-dev__pytest-5227", "floor_resolved": false, "plan_resolved": false, "repro_valid": true, "selected_config": "floor", "selected_resolved": false, "oracle_union": false, "dur_s": 481}

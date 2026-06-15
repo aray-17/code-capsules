@@ -1,0 +1,268 @@
+# Code-Capsules routing policy
+# Load with: from controller.yaml_dsl import load_policy; cfg = load_policy("policy.yaml")
+# All values shown are defaults from RoutingConfig. Override only what you need.
+
+routing:
+  # ── Routing thresholds ──────────────────────────────────────────────────────
+  # score_v2 < fine_threshold              → FINE  (1 LLM call, 1 write)
+  # score_v2 >= compound_threshold + gates → COMPOUND (batched reads + parallel edits)
+  # else                                   → SEQUENTIAL
+  fine_threshold: 0.20
+  compound_threshold: 0.45
+
+  # bash_ratio > bash_sequential_threshold → force SEQUENTIAL (hard override)
+  # Empirically set from Phase 2 sweep (674 traces). Validate in Phase 6.
+  bash_sequential_threshold: 0.40
+
+  # Minimum predicted/observed par_ratio to consider COMPOUND
+  par_ratio_threshold: 0.15
+
+  # ── COMPOUND gating (all must pass) ────────────────────────────────────────
+  compound_gate:
+    # Only these task types are eligible for COMPOUND routing.
+    # Set to [] to allow any task type.
+    task_type_whitelist: [refactor, new_feature]
+
+    # Minimum distinct files touched (observed) or predicted (pre-routing).
+    min_distinct_files: 2
+
+    # Minimum read-before-write ratio.
+    min_rbw_ratio: 0.10
+
+  # ── Formula weights (score_v2) ──────────────────────────────────────────────
+  # Positive: increases score toward COMPOUND/SEQUENTIAL
+  # Negative: decreases score toward FINE
+  # Winner from Phase 2 Pareto sweep (99.7% accuracy on 674 traces).
+  formula_weights:
+    parallelizable_ratio: 0.40
+    context_load_ratio: 0.20
+    read_before_write_ratio: 0.20
+    tool_calls_per_turn: 0.10
+    write_concentration: -0.10
+
+  # ── Quality gate ────────────────────────────────────────────────────────────
+  quality_gate:
+    # mode: python  → PythonQualityGate (ast.parse + exec, for Python benchmarks)
+    # mode: binary  → BinaryQualityGate (all-or-nothing, for SWE-bench resolved)
+    # For other languages: subclass BaseQualityGate, add mode key here.
+    mode: python
+    lint_weight: 0.10   # bonus added to score when ast.parse succeeds
+
+  # ── Workload routing (extension primitives) ─────────────────────────────────
+  # The WorkloadClassifier + RoutingStrategy that map a task to a variant.
+  # classifier/routing_strategy are registry names; routes map class labels to
+  # shipped variant names; default is the fallback variant. Materialise with
+  # controller.routing_strategies.build_routing(load_policy("policy.yaml")).
+  # The classes below come from the shipped SWE-bench repo→class table
+  # (classifier: yaml_mapping); per-class variant guidance from the paper's
+  # cross-tier + stratified findings. Deployers tune these.
+  classifier: yaml_mapping          # shipped repo→workload-class table
+  routing_strategy: rule_based
+  routes:
+    - when: scientific_workload     # sympy / scikit-learn / xarray / astropy
+      use: stuck_signal_injection   # stuck-signal injection: validated scientific-class niche
+  default: two_pass_critique        # fallback: the balanced cost-axis knee
+
+  # ── Scope keywords (for multi-file scope detection) ─────────────────────────
+  # Use scope_keywords to REPLACE the default coding-domain list.
+  # Use scope_keywords_extra to ADD to the default list.
+  # Uncomment to customise:
+  # scope_keywords_extra:
+  #   - all documents
+  #   - entire corpus
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Deployment defaults — the validated menu (held-out + n=300 deep evaluation, 2026-06-10)
+# ──────────────────────────────────────────────────────────────────────────────
+# The deployment menu, validated from
+# logged sweeps; SWE-bench Lite first-150 unless noted). Cost source: the
+# LEAK-FREE re-runs under evals/leakfree/ (gold used to SCORE only, never to
+# decide) — for the full disclosure set (in-loop gate leakage; siginject
+# gold-in-loop; FAIL_TO_PASS test IDs in prompts) see the paper's leakage and
+# limitations sections, summarized in CLAIMS.md (claim C7).
+#
+# Numbers are resolved/150 and $/resolve on the one modeled cost surface.
+# Every menu entry beats Agentless (62-63 @ ~$1.06-1.11/res measured);
+# the Opus implicit-budget knee additionally dominates the best Sonnet config on BOTH axes.
+
+deployment_defaults:
+
+  # ── Saturated benchmarks (HumanEval / MBPP / simple bug-fix) ─────────
+  # Sequential single-pass cells — unaffected by the two-pass/siginject
+  # leakage findings. All tiers reach 94-100%; Haiku is the cost-axis winner.
+  # Schema: deployment_defaults[workload_class][tier][knee] -> a CodeCapsulesPolicy
+  # entry (loadable via CodeCapsulesPolicy.from_yaml). `config:` is the legacy
+  # alias for `variant:`; provenance/harness keys (model/source/note/
+  # preselect_top_n/escalating_stage2_mode/force_stage2) ride along and are
+  # tolerated by the loader. pass_rate = resolved/n; cost_per_task = $/attempt.
+  saturated_workload:
+    haiku:
+      recommended:
+        variant: signaled_budget
+        mode: sequential
+        turn_budget: 10
+        pass_rate: 1.00      # observed on HE; 0.94 on MBPP
+        cost_per_task: 0.028
+        source: phase-9 cross-model HE/MBPP evaluation
+        note: "Pareto-dominates Sonnet/Opus at parity quality"
+
+  # ── Hard workloads (SWE-bench Lite class; multi-file bug fix) ────────
+  # The validated deployment menu. Knee names + numbers match the machine-readable
+  # `menu:` block below; these rows carry the KNOBS.
+  hard_workload:
+    sonnet:
+
+      cost_min:
+        # menu: 57/150 @ $0.48/res — cheapest credible
+        variant: relevance_ranker            # relevance ranker: preselect + signaled b=10
+        mode: sequential
+        turn_budget: 10
+        prompt_budget_hint: 10
+        preselect_top_n: 10
+        pass_rate: 0.38                      # 57/150
+        cost_per_task: 0.18
+        source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
+
+      balanced:
+        # menu: 66/150 @ $0.93/res, leak-free (force_stage2); beats Agentless on both axes
+        variant: two_pass_critique           # two-pass critique
+        mode: escalating
+        turn_budget: 10
+        escalating_start_budget: 10
+        escalating_target_budget: 25
+        escalating_stage2_mode: enriched
+        force_stage2: true                   # DEPLOYABLE two-pass: stage 2 runs
+                                             # unconditionally — never reads the gold
+                                             # verdict (replaces the leaky
+                                             # always_escalate; see CLAIMS.md C7)
+        prompt_variant: two_pass_critique
+        pass_rate: 0.44                      # 66/150
+        cost_per_task: 0.41
+        source: leak-free force-stage2 re-runs (evals/leakfree/); see CLAIMS.md C6
+        note: "quality edge vs Agentless is NS at n=300 (p=0.108); the cost edge holds"
+
+      quality:
+        # menu: 77/150 @ $0.91/res — best Sonnet quality; dominated by quality_max
+        variant: unbounded_budget            # unbounded floor @ b=100
+        mode: sequential
+        turn_budget: 100
+        pass_rate: 0.513                     # 77/150
+        cost_per_task: 0.47
+        source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
+
+    opus:
+
+      quality_max:
+        # menu: 92/150 @ $0.78/res — DOMINATES floor@100 on BOTH axes (clean,
+        # no gate/overfit); held-out (second-150) confirmation pending (plan E2)
+        variant: implicit_budget             # implicit budget b=20 (Opus)
+        mode: sequential
+        turn_budget: 20                      # implicit cap — the model never sees it
+        pass_rate: 0.613                     # 92/150
+        cost_per_task: 0.48
+        source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
+
+      ceiling:
+        # menu: 96/150 @ $0.94/res — 93% of the 103/150 (+Opus) capability cap
+        variant: unbounded_budget            # unbounded floor (Opus)
+        mode: sequential
+        turn_budget: 100
+        pass_rate: 0.64                      # 96/150
+        cost_per_task: 0.60
+        source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
+
+# ──────────────────────────────────────────────────────────────────────────────
+# The validated menu as DATA (plan §4 item 6) — read this block programmatically;
+# the deployment_defaults rows above carry the corresponding knobs.
+# resolved/n on SWE-bench Lite first-150; $/resolve on the one modeled cost
+# surface; leak-free cost source evals/leakfree/. Config keys are the functional
+# registry names (see the controller NOTE below); descriptive names in prose.
+# ──────────────────────────────────────────────────────────────────────────────
+menu:
+  cost_min:    {tier: sonnet, config: relevance_ranker,             resolved: 57, n: 150, usd_per_resolve: 0.48,
+                note: "cheapest credible"}
+  balanced:    {tier: sonnet, config: two_pass_critique,         resolved: 66, n: 150, usd_per_resolve: 0.93,
+                note: "66/150 leak-free (force_stage2), $0.41/att $0.93/res; 66-70 across variance runs; beats Agentless on both axes"}
+  quality:     {tier: sonnet, config: unbounded_budget,        resolved: 77, n: 150, usd_per_resolve: 0.91,
+                note: "best Sonnet; dominated by the Opus implicit-budget knee on BOTH axes"}
+  quality_max: {tier: opus,   config: implicit_budget, resolved: 92, n: 150, usd_per_resolve: 0.78,
+                note: "dominates floor@100 on BOTH axes — the only entry that also beats the best single Sonnet variant"}
+  ceiling:     {tier: opus,   config: unbounded_budget,      resolved: 96, n: 150, usd_per_resolve: 0.94,
+                note: "93% of the 103/150 (+Opus) capability cap; 47 genuinely doomed"}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Dominated / retired configs (NOT recommended under the n=300 deep evaluation)
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# Retired by the held-out integration test (first-class negative):
+#   - the single-tier run-both lever (floor+siginject pair): +0 carried vs floor
+#     on BOTH splits, deploy-honest −13/−14, +70-104% cost; select added 0/300.
+#   - siginject as a candidate generator is GOLD-IN-LOOP as historically run
+#     (historical leakage disclosure, CLAIMS.md C7) — any future use needs a
+#     repro-verifier stop.
+#   - GBM/learned abandon predictors: no model cleared the pre-registered
+#     promote tests (the lone lift rode a scoring-contaminated dur_s feature).
+#
+# Composition cells that regress (cross-tier sweeps, unaffected by the leak):
+#   - relevance_ranker + Opus (ANY variant): -6pp to -17pp. DO NOT add ranker on Opus.
+#   - two_pass_critique + relevance_ranker on any tier (neutral or regress)
+#   - stuck_signal_injection + relevance_ranker (regresses on held-out)
+#   - phase_staged_budget on Sonnet (over-constrains the model)
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# Workload capability ceiling (CORRECTED 2026-05-30 + 2026-06-10)
+# ──────────────────────────────────────────────────────────────────────────────
+# The earlier "sympy 0/77 ceiling" was an EVAL ARTIFACT (the harness ran pytest
+# in testbeds whose canonical runner is bin/test); bin/test-scored runs resolve
+# sympy (floor 49/77 held-out; two-pass class 37/77). The real ceiling is
+# instance-level: 47/150 first-150 remain unresolved by EVERY config incl. Opus
+# (capability cap 103/150 = 69%). See CLAIMS.md (C9 ceiling, C10 sympy eval-bug).
+
+# ── The deployable lever (value-of-information cost governor) ─────────────────
+# Read at runtime by controller.runtime.CodeCapsulesRunner.from_policy_file
+# (makes this block LOAD-BEARING, not documentation). This is the THREE-COMPONENT
+# composition:
+#   SOLVERS        = `configs` (the diverse solver pair; run each at a tier)
+#   REPRO-VERIFIER = the deployable grade_fn supplied at runtime to runner.run(
+#                    sampler, grade_fn) -- the QUALITY/SELECT lever; use a non-gold
+#                    repro+regression verifier, NEVER a held-out gate (see README "Extending" + src/code_capsules/api/protocols.py).
+#   GOVERNOR       = the diverse-sample agreement cascade (this block) -- the
+#                    COST/ABANDON lever: K>=2 configs agree on failure -> abandon,
+#                    with the hybrid_regok rescue (no-silent-abandon: replay
+#                    64->77 first-150 / 76->87 held-out at zero added cost).
+# Validated defaults (generalizability eval 2026-06; n=300 replay 2026-06-10):
+# a 2-config diverse ensemble at a single tier, EARLY-TERMINATION on
+# agreement-failure. Model-tier escalation is marginal UNCONDITIONALLY (~1.7x base
+# cost per recovered resolve) but earns its cost GATE-POSITIVE: the `escalation`
+# ladder below encodes the validated regression-gated escalation shape (escalate regok=1 abandons to an
+# Opus floor rung: 84/150 @ $1.60/res; Opus recoveries 20/21 inside regok=1).
+# It SHIPS OFF (mode: "off") -- flip to `mode: gate` only when a resolve is worth
+# the premium. Caveat G4: regok=0 is NOT doom off-django (P(gold|regok=0)=0.37
+# held-out); a non-fired trigger declines with a recorded reason, never asserts doom.
+# NOTE: `configs` keys are the functional registry names (floor =
+# unbounded-budget baseline; siginject = stuck_signal_injection); descriptive names
+# are used in public prose, but DO NOT rename these literal keys (registry-keyed).
+controller:
+  configs: [floor, siginject]      # SOLVERS: the diverse SELECT/agreement ensemble
+  tiers: [sonnet]                  # model ladder, weakest -> strongest
+  governor: hybrid_regok           # agreement | pure_regok | hybrid_regok
+                                   # (hybrid = DEFAULT: rescue a would-be abandon when
+                                   # the selected patch's regression channel is True)
+  ship_gate: repro_or_regok        # | repro_and_regok (precision knob, OFF by default:
+                                   # buys SHIP precision 58->78%/67->77% at -4/-8 res —
+                                   # an auto-merge confidence label, not a default)
+  no_signal: ship_fallback         # ship_fallback | escalate | abandon — the no-reading
+                                   # band (every grade UNKNOWN/NOPATCH is NOT doom):
+                                   # ship_fallback mirrors the no-reproduction fallback
+  min_samples: 2                   # K>=2 for the doomed call (precision: see CLAIMS.md)
+  escalation:                      # replaces bare `escalate_on_agreement` (kept as a
+                                   # deprecated alias: true == {mode: gate}, empty ladder)
+    mode: "off"                    # "off" | gate (quote "off" — bare off is YAML boolean)
+    ladder:                        # rungs AFTER the base (tiers[0] x configs) stage;
+                                   # consulted only when mode: gate
+      - {tier: opus, configs: [floor], trigger: regok_true}   # the regression-gated escalation shape
+    voi: {value_per_resolve: 1.60, cost_per_escalation: 0.42} # default C/V for any
+                                   # trigger: voi rung (escalate iff p*V > C)
+  p_source: null                   # pluggable VOI belief — SHIPS DISABLED until the
+                                   # the promotion criteria are met; to enable:
+                                   # {kind: resolvability_gbm, model: <joblib path>, features: static}

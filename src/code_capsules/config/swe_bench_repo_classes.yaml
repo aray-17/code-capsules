@@ -1,0 +1,41 @@
+# Shipped SWE-bench repo -> workload-class mapping (calibration DATA, not code).
+#
+# This is the reference mapping the YamlMappingClassifier ('yaml_mapping') uses
+# out of the box. It is the framework's domain-data plug-in: the MECHANISM
+# (look up a context key -> class label) is generic; only this table is
+# SWE-bench-specific. Users for other domains ship their own table under the
+# same schema and register a YamlMappingClassifier pointed at it.
+#
+# Repo groupings are ported verbatim from the data-driven stratification used in
+# the paper's per-class analysis (SCIENTIFIC /
+# FRAMEWORK / TOOLING / VISUALIZATION sets, keyed on instance_id.split("__")[0]).
+# The class LABELS use the framework's `*_workload` vocabulary so they line up
+# with the routing routes and deployment_defaults cells.
+
+# Which TaskDescriptor.context field carries the lookup key. The SWE-bench
+# adapter populates context["repo"] with the org prefix (instance_id before
+# "__"), e.g. "matplotlib", "sympy", "django".
+key_field: repo
+
+# Fallback when a repo is not in the mapping below. hard_workload is the
+# SWE-bench-Lite bug-fix class that ships a full cost-quality menu.
+default: hard_workload
+
+mapping:
+  # Scientific codebases (numeric / symbolic; the stuck-signal-injection niche).
+  sympy:          scientific_workload
+  scikit-learn:   scientific_workload
+  pydata:         scientific_workload     # xarray
+  astropy:        scientific_workload
+
+  # Visualization codebases (the relevance-ranker / find-difficulty niche).
+  matplotlib:     visualization_workload
+  mwaskom:        visualization_workload  # seaborn
+
+  # General framework / web / tooling bug-fix repos -> the hard_workload menu.
+  django:         hard_workload
+  sphinx-doc:     hard_workload
+  psf:            hard_workload           # requests
+  pallets:        hard_workload           # flask
+  pylint-dev:     hard_workload           # pylint / astroid
+  pytest-dev:     hard_workload           # pytest

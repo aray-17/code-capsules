@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Environment / secrets — never commit API keys
+.env
+.env.*
+
+# Per-instance evaluation stream archives are NOT distributed here
+# (operational data; contact research@anindaray.com). Guard against
+# accidentally committing them.
+evals/streams/
+
+# LaTeX build droppings (the committed artifact is paper/paper.pdf)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+texput.log

@@ -1,0 +1,6 @@
+{"instance_id": "psf__requests-1963", "floor_resolved": false, "plan_resolved": false, "repro_valid": false, "selected_config": "floor(fallback)", "selected_resolved": false, "oracle_union": false, "dur_s": 422}
+{"instance_id": "pytest-dev__pytest-8365", "floor_resolved": false, "plan_resolved": false, "repro_valid": false, "selected_config": "floor(fallback)", "selected_resolved": false, "oracle_union": false, "dur_s": 803}
+{"instance_id": "scikit-learn__scikit-learn-14087", "floor_resolved": false, "plan_resolved": true, "repro_valid": true, "selected_config": "siginject", "selected_resolved": true, "oracle_union": true, "dur_s": 492}
+{"instance_id": "scikit-learn__scikit-learn-14983", "floor_resolved": false, "plan_resolved": true, "repro_valid": false, "selected_config": "floor(fallback)", "selected_resolved": false, "oracle_union": true, "dur_s": 262}
+{"instance_id": "scikit-learn__scikit-learn-25747", "floor_resolved": true, "plan_resolved": false, "repro_valid": true, "selected_config": "floor", "selected_resolved": true, "oracle_union": true, "dur_s": 535}
+{"instance_id": "sphinx-doc__sphinx-8273", "floor_resolved": false, "plan_resolved": false, "repro_valid": false, "selected_config": "floor(fallback)", "selected_resolved": false, "oracle_union": false, "dur_s": 188}

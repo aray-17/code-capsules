@@ -1,0 +1,4 @@
+{"instance_id": "astropy__astropy-12907", "floor_resolved": true, "plan_resolved": true, "repro_valid": true, "selected_config": "floor", "selected_resolved": true, "oracle_union": true, "dur_s": 238}
+{"instance_id": "scikit-learn__scikit-learn-13496", "floor_resolved": true, "plan_resolved": true, "repro_valid": true, "selected_config": "floor", "selected_resolved": true, "oracle_union": true, "dur_s": 213}
+{"instance_id": "sphinx-doc__sphinx-8595", "floor_resolved": true, "plan_resolved": true, "repro_valid": true, "selected_config": "floor", "selected_resolved": true, "oracle_union": true, "dur_s": 263}
+{"instance_id": "pydata__xarray-4094", "floor_resolved": true, "plan_resolved": true, "repro_valid": true, "selected_config": "floor", "selected_resolved": true, "oracle_union": true, "dur_s": 207}
