@@ -26,8 +26,8 @@ CLAIMS_JSON = ROOT / "benchmarks" / "claims_results.json"
 OUT = ROOT / "benchmarks" / "explorer" / "evidence_index.json"
 
 SOURCES = ["evals/*.jsonl", "evals/leakfree/*.jsonl", "evals/*.csv"]
-SKIP = ("bak", "invalid", "contaminated", "raw_with_errors", "credit_exhausted",
-        "disk_corrupted", "preeval_bug", "dropped", ".preeval")
+SKIP = ("bak", "invalid", "contaminated", "ratelimited", "raw_with_errors",
+        "credit_exhausted", "disk_corrupted", "preeval_bug", "dropped", ".preeval")
 
 RESOLVED_KEYS = ("resolved", "shipped_gold_resolved", "gold_resolved")
 COST_KEYS = ("cost_usd", "lever_cost_usd")
