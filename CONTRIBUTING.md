@@ -49,6 +49,14 @@ The offline suite uses scripted adapters — no API keys required. Live
 evaluation against real models, and the SWE-bench Docker path, are
 reserved for separate benchmarking and are not part of CI.
 
+## Merging
+
+Commits and tags on `main` are signed (SSH) and show as **Verified** on
+GitHub. To keep `main` fully verified, merge pull requests with **Squash
+and merge** or **Create a merge commit** — GitHub signs the resulting
+commit automatically. Avoid **Rebase and merge**: it re-creates the
+commit without a signature, leaving an unverified commit on `main`.
+
 ## Evaluation methodology and operational data
 
 A larger body of operational evaluation work — per-instance stream
