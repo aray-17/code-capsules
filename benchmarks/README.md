@@ -35,26 +35,23 @@ table below is the per-claim index).
 
 | Claim | Scorer | Reproduces |
 |---|---|---|
-| Diverse-agreement governor | `swebench/agreement_signal.py` | 98% in-family precision, recall 100%, Agentless recovers 0 (anti-circularity) |
-| Oracle-relative governor | `swebench/oracle_governor.py` | lever 85/150 @ $118.75 = oracle 86 within one instance; ship precision 58% / 67% |
-| Regression-suite gate | `swebench/regression_gate.py` | first-150 64/70/77, held-out 76/77/87, P(resolve\|green)=0.745, AUC 0.81→0.64 / 0.83 |
-| Model-tier escalation | `swebench/escalation_gate.py` | 20/21 vs 3/17, 84/150 @ $1.60, base $1.40, close 11/17 vs lost 4/32 |
-| Head-to-head vs Agentless | `swebench/h2h_combine_score.py --no-write` | 136/300 @ $0.436 vs 125/300 @ $0.452 (Pareto) |
-| Cross-tier Pareto menu | `swebench/cross_tier_pareto_menu.py` | cost_min 57/$0.48, quality 77/$0.91, quality_max 92/$0.78, ceiling 96/$0.94 |
+| Diverse-agreement governor | `swebench/agreement_signal.py` | best in-family pair (floor+siginject) 90.9% precision, fires on 22 with 2 false terminations; single-config 64.5%; median pair 66.7%; out-of-family independent precision ~22%; oracle union 106/126 (tier-local escalation trigger) |
+| Diverse-select governor | `swebench/oracle_governor.py` | two-config diverse-select 104/126 @ $85.02 ($0.82/res); single-tier run-both retired (84/150 @ ~$1.41/res, dominated by the unbounded floor 111/150 @ $0.63/res); ship precision 75% (first-150) / 77% (held-out) |
+| Regression-suite gate | `swebench/regression_gate.py` | honest single-tier 64 → regok recovers 15 of 28 wrong-abandons → 84 → 99 (12 short of the unbounded floor 111); P(resolve\|green)=0.792 |
+| Model-tier escalation | `swebench/escalation_gate.py` | strong tier recovers 21/21 gate-positive and 15/17 gate-negative → selectivity collapses; reaches 85/150; base operating cost $0.82/res |
+| Head-to-head vs Agentless | `swebench/h2h_combine_score.py --no-write` | Code-Capsules two-pass 172/300 (57.3%) @ $0.436 vs Agentless oracle@k 152/300 (50.7%) @ $0.452; +20 (+6.7pp), McNemar p=0.0055, 14.7% lower $/res |
+| Cross-tier Pareto menu | `swebench/cross_tier_pareto_menu.py` | cost_min 80/$0.34, balanced 98/$0.63, quality 111/$0.64, quality_max 128/$0.56, ceiling 138/$0.65 |
 | Leakage cost deflation | `swebench/leakage_cost_deflation_gate.py` | leaky $0.308 vs honest $0.408 (counts 70 vs 66); ratio 1.32× (see nit below) |
 | Cross-vendor HE/MBPP | `cross_vendor/score.py` | HE 98.2/92.7%, MBPP 53.0/50.2%, ratios 4.8× / 15.9× |
-| Workload ceiling | `swebench/ceiling_union.py` | cross-tier oracle union 103/150 (68.7%); 47 doomed; Opus alone 101/103 |
+| Workload ceiling | `swebench/ceiling_union.py` | oracle union 148/150 (98.7%); only 2 matplotlib instances unreachable; Opus-only union 143/150; cross-vendor adds 5 |
 | sympy eval-bug | `swebench/sympy_evalbug_gate.py` | Agentless sympy 0/77 (pytest) → 31/77 (bin/test) |
-| Plan-helps-all / critique-some | `swebench/claim12_plan_critique_lift.py` | Sonnet & codex floor→plan +7pp; two-pass flat on codex |
-| Value-of-resolve rule | `swebench/value_of_resolve.py` | base $1.40, escalation $2.20 / $3.07 / $7.51 per resolve |
+| Plan-helps-all / critique-adds-lift | `swebench/claim12_plan_critique_lift.py` | Sonnet & codex floor→plan +7pp; two-pass critique adds lift on both vendors (Sonnet +3pp, codex +12pp) |
+| Value-of-resolve rule | `swebench/value_of_resolve.py` | base $0.82/res; Haiku-doomed→Opus 40/49 (82%) @ $1.47; Sonnet-doomed→Opus(1) 21/27 (78%) @ $1.37; Sonnet-doomed→Opus(2) 22/27 (81%) @ $2.71 (band $1.37-$2.71) |
 
 Each scorer is standalone and prints the paper's stated value next to the value it computes,
-so a discrepancy is visible rather than hidden. Two scorers surface verified **paper nits**
-(numbers untouched here, logged for reconciliation): `regression_gate.py` flags a *secondary*
-scope caveat (`0.83 → 0.67` abandon-subset pairing spans two aggregation conventions), and
-`leakage_cost_deflation_gate.py` confirms the deflation ratio is **1.32×**, matching the paper
-(corrected from a 1.31× rounding typo); the underlying costs $0.308 vs $0.408 reproduce exactly. All
-load-bearing numbers are clean.
+so a discrepancy is visible rather than hidden. `leakage_cost_deflation_gate.py` confirms the
+deflation ratio is **1.32×**, matching the paper; the underlying costs $0.308 vs $0.408
+reproduce exactly. All load-bearing numbers are clean.
 
 All scorers live under `benchmarks/` (`benchmarks/swebench/` and `benchmarks/cross_vendor/`);
 each runs as a standalone script from the repo root.

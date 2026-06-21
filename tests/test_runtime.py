@@ -358,13 +358,13 @@ def test_shipped_policy_yaml_parses_with_the_new_surface():
     assert pol.escalation_mode == "off" and pol.escalate_on_agreement is False
     assert len(pol.escalation_ladder) == 1             # the GOV-V2 rung, inert
     assert pol.escalation_ladder[0].trigger == "regok_true"
-    assert pol.escalation_voi == (1.60, 0.42)
+    assert pol.escalation_voi == (1.37, 0.42)
     assert pol.p_source is None and pol.prompt_includes_fail_to_pass is True
     import yaml as _yaml
     raw = _yaml.safe_load((_ROOT / "policy.yaml").read_text())
     assert set(raw["menu"]) == {"cost_min", "balanced", "quality",
                                 "quality_max", "ceiling"}
-    assert raw["menu"]["quality_max"]["resolved"] == 92
+    assert raw["menu"]["quality_max"]["resolved"] == 128
 
 
 if __name__ == "__main__":

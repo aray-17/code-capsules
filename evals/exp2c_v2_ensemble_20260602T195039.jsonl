@@ -1,3 +1,0 @@
-{"instance_id": "psf__requests-1963", "repro_valid": true, "n_repros": 3, "s1_turns": 11, "floor_resolved": true, "repro_pass_s1": true, "escalated": false, "s2_turns": 0, "gated_turns": 11, "gated_resolved": true, "flipped": false, "dur_s": 101}
-{"instance_id": "scikit-learn__scikit-learn-25747", "repro_valid": true, "n_repros": 4, "s1_turns": 11, "floor_resolved": false, "repro_pass_s1": true, "escalated": false, "s2_turns": 0, "gated_turns": 11, "gated_resolved": false, "flipped": false, "dur_s": 49}
-{"instance_id": "scikit-learn__scikit-learn-14087", "repro_valid": true, "n_repros": 4, "s1_turns": 11, "floor_resolved": false, "repro_pass_s1": false, "escalated": true, "s2_turns": 11, "gated_turns": 22, "gated_resolved": false, "flipped": false, "dur_s": 155}

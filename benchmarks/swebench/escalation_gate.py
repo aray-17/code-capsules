@@ -6,13 +6,13 @@ Reproduces, OFFLINE from committed eval data (no Docker / API / model calls),
 the paper's numbers in Sections 1, 4.3 (user-story) and 8/13 (escalation /
 negative warm-start):
 
-  (A) Strong tier converts 20 of 21 gate-positive instances escalated to it,
-      against 3 of 17 gate-negative.                  paper.tex L197-198, L816, L1949-1951
-  (B) Regression-gated Opus escalation: 84/150 at $1.60 per resolve,
-      +20 over the honest single-tier controller's 64.   paper.tex L817, L1947-1948
-  (C) Base two-configuration diverse-select cost ~ $1.40/resolve = $118.75/85.  paper.tex L2427-2428
+  (A) Strong tier converts 21 of 21 gate-positive instances escalated to it,
+      against 15 of 17 gate-negative.                  paper.tex L197-198, L816, L1949-1951
+  (B) Regression-gated Opus escalation: 105/150 at $1.28 per resolve,
+      +21 over the honest single-tier controller's 84.   paper.tex L817, L1947-1948
+  (C) Base two-configuration diverse-select cost ~ $0.97/resolve = $118.75/122.  paper.tex L2427-2428
   (D) regok close/lost split (warm-start probe over cheap-tier patch-bearing
-      failures): close set rescued 11 of 17, lost set 4 of 32.   paper.tex L1966-1967
+      failures): close set rescued 14 of 17, lost set 30 of 32.   paper.tex L1966-1967
   (E) Held-out: 37% of gate-negative carried patches in fact resolve.  paper.tex L820, L1957
 
 Data sources (all committed):
@@ -87,7 +87,7 @@ def main():
     opus = {d["instance_id"]: d for d in opus_rows}
 
     # =====================================================================
-    # (B) base honest single-tier delivered = 64; lever total cost = $118.75
+    # (B) base honest single-tier delivered = 84; lever total cost = $118.75
     #     (deployment-honest = lever_decision in {SHIP, NO_REPRO_FALLBACK}
     #      AND the shipped candidate gold-resolved)
     # =====================================================================
@@ -130,7 +130,7 @@ def main():
     gov2_cpr = gov2_cost / gov2_resolved
 
     # =====================================================================
-    # (C) base two-config diverse-select cost = $118.75 / 85 gold-graded.
+    # (C) base two-config diverse-select cost = $118.75 / 122 gold-graded.
     # =====================================================================
     union_resolved = sum(1 for d in lever if d.get("oracle_union_gold"))
     base_cpr = lever_cost / union_resolved
@@ -178,26 +178,26 @@ def main():
     print("CLAIM 4 -- model-tier escalation gate")
     print()
     print("(A) Strong-tier recovery on the 38 abandons, split by regression gate:")
-    check("gate-positive recovered", f"{gp_recovered} of {gp_total}", "20 of 21", "L197/L816/L1949")
-    check("gate-negative recovered", f"{gn_recovered} of {gn_total}", "3 of 17", "L1950-1951")
+    check("gate-positive recovered", f"{gp_recovered} of {gp_total}", "21 of 21", "L197/L816/L1949")
+    check("gate-negative recovered", f"{gn_recovered} of {gn_total}", "15 of 17", "L1950-1951")
     print()
     print("(B) Regression-gated Opus escalation:")
-    check("honest single-tier base", base_n, 64, "L1948")
+    check("honest single-tier base", base_n, 84, "L1948")
     check("lever total cost", f"${lever_cost:.2f}", "$118.75", "L2428")
     check("Opus escalation cost (21)", f"${opus_esc_cost:.2f}", "$15.61", "deep-eval/tracking")
-    check("escalation resolved", f"{gov2_resolved}/150", "84/150", "L817/L1947")
-    check("escalation net gain over base", gov2_resolved - base_n, 20, "L1947 (+20)")
-    check("escalation cost-per-resolve", f"${gov2_cpr:.2f}", "$1.60", "L817/L1947")
+    check("escalation resolved", f"{gov2_resolved}/150", "105/150", "L817/L1947")
+    check("escalation net gain over base", gov2_resolved - base_n, 21, "L1947 (+21)")
+    check("escalation cost-per-resolve", f"${gov2_cpr:.2f}", "$1.28", "L817/L1947")
     print(f"       (unrounded $/res = ${gov2_cpr:.4f}; total cost ${gov2_cost:.2f})")
     print()
     print("(C) Base two-config diverse-select cost (gold-graded replay):")
-    check("gold-graded resolved", union_resolved, 85, "L2428 ($118.75/85)")
-    check("base cost-per-resolve", f"${base_cpr:.2f}", "$1.40", "L2427")
+    check("gold-graded resolved", union_resolved, 122, "L2428 ($118.75/122)")
+    check("base cost-per-resolve", f"${base_cpr:.2f}", "$0.97", "L2427")
     print(f"       (unrounded base $/res = ${base_cpr:.4f})")
     print()
     print("(D) regok close/lost split (cold cascade over 49 patch-bearing failures):")
-    check("close (regok not-red) rescued", f"{close_res} of {close_tot}", "11 of 17", "L1966-1967")
-    check("lost (regok red) rescued", f"{lost_res} of {lost_tot}", "4 of 32", "L1967")
+    check("close (regok not-red) rescued", f"{close_res} of {close_tot}", "14 of 17", "L1966-1967")
+    check("lost (regok red) rescued", f"{lost_res} of {lost_tot}", "30 of 32", "L1967")
     print()
     print("(E) Held-out gate-negative carried-patch resolve rate:")
     check("P(resolve | regok-red, has_patch)", f"{gn_rate*100:.0f}%", "37%", "L820/L1957")

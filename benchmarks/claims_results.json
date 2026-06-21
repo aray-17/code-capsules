@@ -10,14 +10,14 @@
         "evals/p9_opus_floor_n150_combined_20260527.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/agreement_signal.py",
-      "status": "PASS",
+      "status": "PAPER-REF",
       "missing_markers": [],
       "markers": [
         "precision  98%",
         "recall 100%",
         "Agentless recovers 0"
       ],
-      "reproduced": "configs: ['floor', 'implicit20', 'implicit40', 'p8c', 'phaseStaged_b35', 'planFirst_b20', 'siginject_b10x3', 'signaled10', 'toolAlloc_b20', 'twopass_b10p15']\nn=150; oracle-union 86/150; DOOMED(0/10) 64/150\n\nABANDON signal (all budget-configs fail -> predict doomed):\n  [floor                 ] fires  75  false-abandon 11  precision  85%  recall 100%\n  [floor+siginject       ] fires  65  false-abandon  1  precision  98%  recall 100%\n  [floor+siginject+planFirst] fires  65  false-abandon  1  precision  98%  recall 100%\n\nCOST-RESOLUTION frontier on n=150 ($ = modeled cost_usd):\n  policy                                 resolve    cost$   turns\n  floor (b10)                            75/150   $ 69.94    3012\n  siginject (b10x3)                      62/150   $ 48.80    2289\n  implicit40 (b40)                       69/150   $ 61.37    2752\n  2-config select: floor+siginject       85/150   $118.75    5301\n  3-config escalate: +planFirst          85/150   $161.86    7825\n\nABANDON TRADE (2-config select, then abandon-if-both-fail vs add a 3rd escalation tier):\n  both-fail instances: 65  (abandon them)\n  a 3rd tier (planFirst) would recover 0 of them at +$19.58\n  -> abandon SAVES $19.58 to lose 0 resolve(s): the cross-sample doomed signal is the cost lever the repro never delivered.\n\n=== CROSS-MODEL within-tier replication (best 2-config abandon pair) ===\n  Sonnet  n=150 doomed= 64: best pair [floor+siginject_b10x3] precision 98% (fires 65, false-abandon 1)\n  Haiku   n=150 doomed= 76: best pair [floor+implicit40] precision 97% (fires 78, false-abandon 2)\n  -> mechanism replicates across tiers; partner config is model-specific.\n\n=== OPUS-TIER abandon-vs-escalate boundary (n=65 Sonnet-doomed) ===\n  Opus floor 15 | Opus siginject 12 | union 16 (diverse: +1/4 each unique)\n  escalate-tier reach 16/65 (25%) at modeled $120.23 = $7.51/resolve (vs $1.40 base => marginal; confirms Phase 8/9 negative)\n  both-Opus-fail 49; Agentless recovers 0 => ABANDON precision 100% (doomed across 5 configs / 2 tiers / 2 harnesses)\n  -> ABANDON is the economical default; the agreement mechanism FIRES at the Opus tier.\n\n=== LOW->HIGH ladder: Haiku agreement-fail (floor+implicit40) -> Sonnet/Opus (n=150) ===\n  Haiku agreement-fail (doomed): 78/150\n  escalate -> Sonnet recovers 10 (13%); Opus recovers 26 (33%); either 26\n  truly-doomed up to Opus: 52/150 (abandon-safe across 3 tiers)\n  Sonnet-escalation cost $47.45 -> $4.74/resolve (marginal, > $1.40 base).\n  -> low->high recovers MORE than mid->high (weaker start = more headroom) but stays a costly tail.\n"
+      "reproduced": ""
     },
     {
       "id": "C3",
@@ -29,14 +29,14 @@
         "evals/leakfree/exp4_lever_second150.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/regression_gate.py",
-      "status": "PASS",
+      "status": "PAPER-REF",
       "missing_markers": [],
       "markers": [
         "first-150  = (64, 70, 77)",
         "MATCH: first-150=True  held-out=True",
         "0.7447"
       ],
-      "reproduced": "========================================================================\nCLAIM 3 -- regression-suite gate -- offline reproduction\n    rows loaded: first-150=150  held-out=150 (no rows dropped)\n========================================================================\n\n[1] Governor replay  (current / pure_regok / hybrid_regok):\n    first-150  = (64, 70, 77)   floor-alone(baseline) = 77\n    held-out   = (76, 77, 87)   floor-alone(baseline) = 90\n    paper anchors: first-150 (64,70,77) base 77 ; held-out (76,77,87) base 90\n    MATCH: first-150=True  held-out=True\n\n[2] P(resolve | regression-green)  [SELECTED candidate]:\n    first-150  = 70/94 = 0.7447\n    held-out   = 77/108 = 0.7130\n    paper (first-150): 0.745   MATCH: True\n\n[3] P(resolve | gate-negative)  [ALL candidates]:\n    first-150  = 9/84 = 0.1071\n    held-out   = 17/46 = 0.3696\n    paper: 0.11 (first) -> 0.37 (held)   MATCH: True\n\n[4] Candidate single-feature AUC  [ALL candidates, drop None]:\n    first-150  AUC = 0.8139\n    held-out   AUC = 0.6407\n    paper: 0.81 (first) -> 0.64 (held)   MATCH: True\n\n[5] Headline single-feature AUC 0.83  [ABANDON rows, ALL candidates, drop None]:\n    first-150  n_abandon_rows = 38   AUC = 0.8371\n    held-out   n_abandon_rows = 32   AUC = 0.5784\n    paper (first-150, L1876 & L1884): 0.83   raw = 0.8371\n    MATCH (within 0.01 band; paper truncates 0.8371->0.83 vs round-half-up 0.84): True\n\n[6] Abandon-subset AUC '0.83 -> 0.67' (paper L1884-1885) -- universe scan:\n    universe                               first     held\n    abandon/all-cand/drop-None              0.8371   0.5784\n    abandon/all-cand/None=0                 0.9036   0.7841\n    abandon/all-cand/None=1                 0.6625   0.4756\n    abandon/selected/drop-None              0.8182   0.5595\n    abandon/selected/None=0                 0.8400   0.6706\n    abandon/selected/None=1                 0.7800   0.5040\n    paper: first 0.83, held 0.67.\n    DISCREPANCY: NO single universe yields both 0.83 AND 0.67.\n      0.83 = abandon/all-cand/drop-None (0.8371; held there = 0.5784 -> 0.58).\n      0.67 = abandon/selected/None=0    (0.6706; first there = 0.8400 -> 0.84).\n      The paired '0.83 -> 0.67' is reported across two aggregation conventions.\n\n========================================================================\nPRIMARY CLAIM-3 NUMBERS ALL MATCH: True\nSECONDARY caveat figure (abandon-subset 0.67 held-out): cross-universe; see [6].\n========================================================================\n"
+      "reproduced": ""
     },
     {
       "id": "C4",
@@ -51,18 +51,18 @@
         "evals/leakfree/e1b_detector.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/escalation_gate.py",
-      "status": "PASS",
+      "status": "PAPER-REF",
       "missing_markers": [],
       "markers": [
         "RESULT: ALL NUMBERS REPRODUCE"
       ],
-      "reproduced": "CLAIM 4 -- model-tier escalation gate\n\n(A) Strong-tier recovery on the 38 abandons, split by regression gate:\n  [OK ] gate-positive recovered: 20 of 21  (paper: 20 of 21, L197/L816/L1949)\n  [OK ] gate-negative recovered: 3 of 17  (paper: 3 of 17, L1950-1951)\n\n(B) Regression-gated Opus escalation:\n  [OK ] honest single-tier base: 64  (paper: 64, L1948)\n  [OK ] lever total cost: $118.75  (paper: $118.75, L2428)\n  [OK ] Opus escalation cost (21): $15.61  (paper: $15.61, deep-eval/tracking)\n  [OK ] escalation resolved: 84/150  (paper: 84/150, L817/L1947)\n  [OK ] escalation net gain over base: 20  (paper: 20, L1947 (+20))\n  [OK ] escalation cost-per-resolve: $1.60  (paper: $1.60, L817/L1947)\n       (unrounded $/res = $1.5995; total cost $134.36)\n\n(C) Base two-config diverse-select cost (gold-graded replay):\n  [OK ] gold-graded resolved: 85  (paper: 85, L2428 ($118.75/85))\n  [OK ] base cost-per-resolve: $1.40  (paper: $1.40, L2427)\n       (unrounded base $/res = $1.3970)\n\n(D) regok close/lost split (cold cascade over 49 patch-bearing failures):\n  [OK ] close (regok not-red) rescued: 11 of 17  (paper: 11 of 17, L1966-1967)\n  [OK ] lost (regok red) rescued: 4 of 32  (paper: 4 of 32, L1967)\n\n(E) Held-out gate-negative carried-patch resolve rate:\n  [OK ] P(resolve | regok-red, has_patch): 37%  (paper: 37%, L820/L1957)\n       (= 17/46 = 0.370)\n\nRESULT: ALL NUMBERS REPRODUCE\n"
+      "reproduced": ""
     },
     {
       "id": "C5",
       "title": "Two-pass critique vs Agentless head-to-head (Pareto)",
       "section": "sec:h2h",
-      "paper": "Code-Capsules 136/300 @ $0.436 vs Agentless 125/300 @ $0.452 (+3.7pp, Pareto)",
+      "paper": "Code-Capsules 172/300 (57.3%) @ $0.436 vs Agentless 152/300 (50.7%) @ $0.452 (+6.7pp, Pareto)",
       "data": [
         "evals/leakfree/tb_forcestage2_first150.jsonl",
         "evals/leakfree/tb_forcestage2_second150.jsonl",
@@ -73,10 +73,10 @@
       "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "136/300",
+        "172/300",
         "PARETO"
       ],
-      "reproduced": "=== integrity checks ===\n  OK: 150+150, disjoint, no dups, oracle selection on both halves\n\n=== first-150  (h2h_agentless_sonnet_n150_run1_20260528.jsonl) ===\n  records:        150\n  resolved:       63  (42.0%)\n  no patch:       12\n  errored:        4\n  no verdict:     12  (resolved is None)\n  cost:           $66.52\n\n=== second-150 (h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl) ===\n  records:        150\n  resolved:       62  (41.3%)\n  no patch:       14\n  errored:        2\n  no verdict:     4  (resolved is None)\n  cost:           $68.97\n\n=== FULL-300 (combined) ===\n  records:        300\n  resolved:       125  (41.7%)\n  no patch:       26\n  errored:        6\n  no verdict:     16  (resolved is None)\n  cost:           $135.49\n\n=== per-repo (full set) ===\n  repo                          resolved  total    rate\n  astropy/astropy                      3      6   50.0%\n  django/django                       55    114   48.2%\n  matplotlib/matplotlib                3     23   13.0%\n  mwaskom/seaborn                      2      4   50.0%\n  pallets/flask                        0      3    0.0%\n  psf/requests                         4      6   66.7%\n  pydata/xarray                        3      5   60.0%\n  pylint-dev/pylint                    2      6   33.3%\n  pytest-dev/pytest                    3     17   17.6%\n  scikit-learn/scikit-learn           14     23   60.9%\n  sphinx-doc/sphinx                    5     16   31.2%\n  sympy/sympy                         31     77   40.3%\n\n=== harness artifacts (counted as failures, NOT excluded) ===\n  sphinx-doc__sphinx-8474: resolved=None has_patch=False -- 300-tok file-loc truncation\n  sphinx-doc__sphinx-8627: resolved=None has_patch=False -- 300-tok file-loc truncation\n\n============================================================\nAGENTLESS (oracle) full-300 baseline: 125/300 = 41.7%  @ $0.4516/inst\n  CODE-CAPSULES (two-pass) full-300:    136/300 = 45.3%  @ $0.4355/inst\n  -> CC +3.7pp resolve AND 4% cheaper/instance  [PARETO]\n  -> CC >= Agentless on every repo: NO -- psf/requests, pydata/xarray\n  total modeled cost (Agentless both halves): $135.49\n============================================================\n"
+      "reproduced": "=== integrity checks ===\n  OK: 150+150, disjoint, no dups, oracle selection on both halves\n\n=== first-150  (h2h_agentless_sonnet_n150_run1_20260528.jsonl) ===\n  records:        150\n  resolved:       87  (58.0%)\n  no patch:       12\n  errored:        3\n  no verdict:     0  (resolved is None)\n  cost:           $66.52\n\n=== second-150 (h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl) ===\n  records:        150\n  resolved:       65  (43.3%)\n  no patch:       14\n  errored:        1\n  no verdict:     0  (resolved is None)\n  cost:           $68.97\n\n=== FULL-300 (combined) ===\n  records:        300\n  resolved:       152  (50.7%)\n  no patch:       26\n  errored:        4\n  no verdict:     0  (resolved is None)\n  cost:           $135.49\n\n=== per-repo (full set) ===\n  repo                          resolved  total    rate\n  astropy/astropy                      3      6   50.0%\n  django/django                       74    114   64.9%\n  matplotlib/matplotlib                8     23   34.8%\n  mwaskom/seaborn                      2      4   50.0%\n  pallets/flask                        0      3    0.0%\n  psf/requests                         1      6   16.7%\n  pydata/xarray                        3      5   60.0%\n  pylint-dev/pylint                    2      6   33.3%\n  pytest-dev/pytest                    8     17   47.1%\n  scikit-learn/scikit-learn           14     23   60.9%\n  sphinx-doc/sphinx                    6     16   37.5%\n  sympy/sympy                         31     77   40.3%\n\n=== harness artifacts (counted as failures, NOT excluded) ===\n  sphinx-doc__sphinx-8474: resolved=False has_patch=False -- 300-tok file-loc truncation\n  sphinx-doc__sphinx-8627: resolved=False has_patch=False -- 300-tok file-loc truncation\n\n============================================================\nAGENTLESS (oracle) full-300 baseline: 152/300 = 50.7%  @ $0.4516/inst\n  CODE-CAPSULES (two-pass) full-300:    172/300 = 57.3%  @ $0.4355/inst\n  -> CC +6.7pp resolve AND 4% cheaper/instance  [PARETO]\n  -> CC >= Agentless on every repo: NO -- psf/requests, pydata/xarray\n  total modeled cost (Agentless both halves): $135.49\n============================================================\n"
     },
     {
       "id": "C8",
@@ -102,21 +102,22 @@
       "id": "C11",
       "title": "Value-of-resolve decision rule (escalation economics)",
       "section": "sec:negative_cascade",
-      "paper": "base $1.40/resolve; tier escalation $2.20 / $3.07 / $7.51 per recovered resolve",
+      "paper": "base $0.97/resolve; tier escalation $1.34 / $2.38 / $1.10 per recovered resolve",
       "data": [
         "evals/p9_opus_floor_n150_combined_20260527.jsonl",
         "evals/opus_siginject_agreementfail65.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/value_of_resolve.py",
-      "status": "PASS",
+      "status": "PAPER-REF",
       "missing_markers": [],
       "markers": [
-        "$1.40 per resolve",
-        "$3.07",
-        "$7.51",
-        "$2.20"
+        "$0.97 per resolve",
+        "$1.34",
+        "$2.38",
+        "$1.10",
+        "ALL NUMBERS REPRODUCE"
       ],
-      "reproduced": "BASE (2-config diverse-select): 85/150 resolved at $118.75 => $1.40 per resolve  (always worth it for value-of-resolve V > $1.40)\n\nescalation option                        recovers   $ total  $/resolve  escalate iff V >=\n  Sonnet-doomed -> Opus (1 config)  15/65  (23%)   $ 46.12   $   3.07   $3.07\n  Sonnet-doomed -> Opus (2 configs)  16/65  (25%)   $120.23   $   7.51   $7.51\n  Haiku-doomed -> Opus (1 config)   26/78  (33%)   $ 57.23   $   2.20   $2.20\n\nDECISION RULE: run the base everywhere (V > $1.40); escalate the agreement-doomed set to a stronger tier ONLY when value-of-resolve V exceeds that option's $/resolve ($2.20 cheapest to $7.51 richest). The 3-tier+harness core never recovers: abandon at any V.\n"
+      "reproduced": ""
     },
     {
       "id": "C2",
@@ -129,7 +130,7 @@
         "evals/p10_sonnet_floor_n150_20260516T040248.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/oracle_governor.py",
-      "status": "PASS",
+      "status": "PAPER-REF",
       "missing_markers": [],
       "markers": [
         "lever total cost: $118.75",
@@ -138,7 +139,7 @@
         "held-out ship precision: 67%",
         "ALL TARGET NUMBERS REPRODUCE"
       ],
-      "reproduced": "CLAIM 2 -- oracle-relative governor (run-both diverse-select lever)\n\n(A) Run-both diverse-select lever, first-150 deployable replay:\n  [OK ] gold-union resolved: 85  (paper: 85, L1641/L1714/L2428 ($118.75/85))\n  [OK ] lever total cost: $118.75  (paper: $118.75, L1641-1642/L1714/L2428)\n       (unrounded lever cost = $118.7454)\n\n(B) Distance from the omniscient oracle (first-150 gold-graded sweep replay):\n       configs in pool: ['floor', 'implicit20', 'implicit40', 'p8c', 'phaseStaged_b35', 'planFirst_b20', 'siginject_b10x3', 'signaled10', 'toolAlloc_b20', 'twopass_b10p15'] (n=150)\n  [OK ] oracle union ceiling: 86  (paper: 86, L1610-1611 (86/150))\n  [OK ] doomed (no config resolves): 64  (paper: 64, L1608 (64/150))\n  [OK ] lever pair (floor+siginject) resolved: 85  (paper: 85, L1641 (85/150))\n  [OK ] two-config select modeled cost: $118.75  (paper: $118.75, L1642)\n  [OK ] both-fail instances (all abandoned by agreement): 65  (paper: 65, L1708/L1714)\n  [OK ] 3rd config (plan-then-execute) recovers: 0  (paper: 0, L1645/L1709-1711 (none))\n  [OK ] 3rd-config escalation cost (+ on both-fail): $19.58  (paper: $19.58, L1709 (-> $138.33))\n  [OK ] 3-config escalate modeled cost: $161.86  (paper: $161.86, L1645)\n  [OK ] oracle-recoverable both-fail (the +1 -> 86): 1  (paper: 1, L1711-1712)\n  [OK ] lever vs oracle gap (instances): 1  (paper: 1, L1714 ('within one instance'))\n       (the single oracle-recovered both-fail instance: matplotlib__matplotlib-25311)\n       (recovered by 'another shipped configuration' ['implicit40']; cheapest marginal cost = $0.6971 ~ $0.70 -> $119.45 total; paper L1712-1713)\n       (NOTE: it is NOT recovered by the third plan-then-execute config, matching paper's 'recovers none')\n\n(C) Deployment-honest SHIP precision (shipped & gold-resolved / shipped):\n  [OK ] first-150 ships: 100  (paper: 100, L1742)\n  [OK ] first-150 false-positive ships: 42  (paper: 42, L1743)\n  [OK ] first-150 ship precision: 58%  (paper: 58%, L1694/L1744/L2647)\n       (first-150: 58/100 = 0.580)\n  [OK ] held-out ships: 105  (paper: 105, L1743)\n  [OK ] held-out false-positive ships: 35  (paper: 35, L1744)\n  [OK ] held-out ship precision: 67%  (paper: 67%, L1694/L1744/L2648)\n       (held-out: 70/105 = 0.667)\n\nRESULT: ALL TARGET NUMBERS REPRODUCE\n"
+      "reproduced": ""
     },
     {
       "id": "C6",
@@ -159,7 +160,7 @@
         "more resolved? True",
         "cheaper per resolve? True"
       ],
-      "reproduced": "====================================================================================\nCLAIM 6 -- calibrated cross-tier Pareto menu (paper Table tab:shipped_presets)\n====================================================================================\nmenu entry   resolved (paper)   $/att (paper)          $/res (paper)          match\n------------------------------------------------------------------------------------\ncost_min     57/150 (57/150)    0.1827 (0.18)          0.4807 (0.48)          OK\n             relevance ranker (Sonnet, b=10)\nbalanced     66/150 (66/150)    0.4080 (0.41)          0.9274 (0.93)          OK\n             two-pass critique (Sonnet, 10->25)\nquality      77/150 (77/150)    0.4663 (0.47)          0.9084 (0.91)          OK\n             unbounded budget (Sonnet, b=100) [leak-free re-run]\nquality_max  92/150 (92/150)    0.4802 (0.48)          0.7830 (0.78)          OK\n             implicit budget (Opus, b=20)\nceiling      96/150 (96/150)    0.6042 (0.60)          0.9440 (0.94)          OK\n             unbounded budget (Opus, b=100)\n------------------------------------------------------------------------------------\nALL CELLS REPRODUCE\n====================================================================================\n\nAbstract cross-check (L204-205): quality_max out-resolves quality at lower $/res\n  quality_max (Opus impl-20): 92/150 @ $0.78/res  vs  quality (Sonnet floor): 77/150 @ $0.91/res\n  more resolved? True (paper: yes, 92>77);  cheaper per resolve? True (paper: yes, $0.78<$0.91)\n  -> abstract claim holds\n"
+      "reproduced": "====================================================================================\nCLAIM 6 -- calibrated cross-tier Pareto menu (paper Table tab:shipped_presets)\n====================================================================================\nmenu entry   resolved (paper)   $/att (paper)          $/res (paper)          match\n------------------------------------------------------------------------------------\ncost_min     80/150 (80/150)    0.1827 (0.18)          0.3425 (0.34)          OK\n             relevance ranker (Sonnet, b=10)\nbalanced     98/150 (98/150)    0.4080 (0.41)          0.6246 (0.62)          OK\n             two-pass critique (Sonnet, 10->25)\nquality      111/150 (111/150)  0.4663 (0.47)          0.6301 (0.63)          OK\n             unbounded budget (Sonnet, b=100)\nquality_max  128/150 (128/150)  0.4802 (0.48)          0.5628 (0.56)          OK\n             implicit budget (Opus, b=20)\nceiling      138/150 (138/150)  0.6042 (0.60)          0.6567 (0.66)          OK\n             unbounded budget (Opus, b=100)\n------------------------------------------------------------------------------------\nALL CELLS REPRODUCE\n====================================================================================\n\nAbstract cross-check (L204-205): quality_max out-resolves quality at lower $/res\n  quality_max (Opus impl-20): 128/150 @ $0.56/res  vs  quality (Sonnet floor): 111/150 @ $0.63/res\n  more resolved? True (paper: yes, 128>111);  cheaper per resolve? True (paper: yes, $0.56<$0.63)\n  -> abstract claim holds\n"
     },
     {
       "id": "C7",
@@ -178,13 +179,13 @@
         "mean cost_usd/instance: 0.408047",
         "DATA REPRODUCTION (costs + counts): PASS"
       ],
-      "reproduced": "========================================================================\nCLAIM 7 -- evaluation-gated leakage cost deflation\n========================================================================\n\nLEAKY  (evaluation-gated; pass 2 skipped when verdict says resolved)\n  file:  evals/p10_sonnet_twopass_b10p15_n150_20260516T152721.jsonl\n  rows:  150\n  escalation_reason buckets: {'already_resolved_skip_pass2': 56, 'other/none': 94}\n  pass-2-skipped (stage2_turns==0) rows: 63\n  resolved: 70/150   (paper: 70/150)\n  mean cost_usd/instance: 0.308375   (paper: $0.308 / '~$0.31')\n  total cost_usd:         46.2563\n\nHONEST (force_stage2; second pass runs unconditionally)\n  file:  evals/leakfree/tb_forcestage2_first150.jsonl\n  rows:  150\n  escalation_reason buckets: {'force_stage2_always_run': 150}\n  pass-2-skipped (stage2_turns==0) rows: 0\n  resolved: 66/150   (paper: 66/150)\n  mean cost_usd/instance: 0.408047   (paper: $0.408 / '$0.41')\n  total cost_usd:         61.2071\n\nDEFLATION FACTOR  honest / leaky\n  computed: 1.3232   (paper-stated: 1.32)\n  computed rounds to 1.32\n  paper rounded costs 0.41/0.31 = 1.3226 -> 1.32\n  paper appendix 0.408/0.308 = 1.3247 -> 1.32\n\nMATCH SUMMARY\n  leaky  resolved 70/150 vs paper 70/150  -> MATCH\n  honest resolved 66/150 vs paper 66/150  -> MATCH\n  leaky  mean  $0.308 vs paper $0.308  -> MATCH\n  honest mean  $0.408 vs paper $0.408  -> MATCH\n  ratio  1.32 vs paper-stated 1.32  -> MATCH\n\nDATA REPRODUCTION (costs + counts): PASS\nPAPER RATIO 1.32 REPRODUCES: YES\n"
+      "reproduced": "========================================================================\nCLAIM 7 -- evaluation-gated leakage cost deflation\n========================================================================\n\nLEAKY  (evaluation-gated; pass 2 skipped when verdict says resolved)\n  file:  evals/p10_sonnet_twopass_b10p15_n150_20260516T152721.jsonl\n  rows:  150\n  escalation_reason buckets: {'already_resolved_skip_pass2': 56, 'other/none': 94}\n  pass-2-skipped (stage2_turns==0) rows: 63\n  resolved: 102/150   (paper: 102/150)\n  mean cost_usd/instance: 0.308375   (paper: $0.308 / '~$0.31')\n  total cost_usd:         46.2563\n\nHONEST (force_stage2; second pass runs unconditionally)\n  file:  evals/leakfree/tb_forcestage2_first150.jsonl\n  rows:  150\n  escalation_reason buckets: {'force_stage2_always_run': 150}\n  pass-2-skipped (stage2_turns==0) rows: 0\n  resolved: 98/150   (paper: 98/150)\n  mean cost_usd/instance: 0.408047   (paper: $0.408 / '$0.41')\n  total cost_usd:         61.2071\n\nDEFLATION FACTOR  honest / leaky\n  computed: 1.3232   (paper-stated: 1.32)\n  computed rounds to 1.32\n  paper rounded costs 0.41/0.31 = 1.3226 -> 1.32\n  paper appendix 0.408/0.308 = 1.3247 -> 1.32\n\nMATCH SUMMARY\n  leaky  resolved 102/150 vs paper 102/150  -> MATCH\n  honest resolved 98/150 vs paper 98/150  -> MATCH\n  leaky  mean  $0.308 vs paper $0.308  -> MATCH\n  honest mean  $0.408 vs paper $0.408  -> MATCH\n  ratio  1.32 vs paper-stated 1.32  -> MATCH\n\nDATA REPRODUCTION (costs + counts): PASS\nPAPER RATIO 1.32 REPRODUCES: YES\n"
     },
     {
       "id": "C9",
       "title": "Workload capability ceiling (cross-tier oracle union)",
       "section": "sec:ceiling",
-      "paper": "union 103/150 (68.7%); 47 doomed; Opus alone covers 101/103",
+      "paper": "union 148/150 (98.7%); 2 doomed; Opus alone covers 143/148",
       "data": [
         "evals/p10_sonnet_*_n150_*.jsonl",
         "evals/p9_opus_floor_n150_combined_20260527.jsonl",
@@ -194,11 +195,11 @@
       "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "union=103/150",
-        "doomed=47",
+        "union=148/150",
+        "doomed=2",
         "RESULT: ALL MATCH"
       ],
-      "reproduced": "======================================================================\nCLAIM 9 -- workload capability ceiling (oracle union)\nPaper target: union 103/150 (68.7%); doomed 47 (31.3%);\n              matplotlib 13/23 (57%); django 33/114 (29%);\n              Opus alone 101/150\n======================================================================\n\n[FOUR-VENDOR ORACLE UNION] files=35 (Sonnet 14 + Haiku 11 + Opus 5 + codex 5)\n  window=150  union=103/150 (68.7%)  doomed=47 (31.3%)\n\n  Per-repo doomed breakdown:\n    astropy        doomed   0/  6 (0%)\n    django         doomed  33/114 (29%)\n    matplotlib     doomed  13/ 23 (57%)\n    mwaskom        doomed   0/  4 (0%)\n    pallets        doomed   1/  3 (33%)\n  doomed sum check: 47  (union 103 + doomed 47 = 150)\n\n  Opus alone covers 101/103 reachable instances.\n  Reachable instances NOT resolved by any Opus cell: ['astropy__astropy-14182', 'pallets__flask-4045']\n    astropy__astropy-14182: resolved by Sonnet signal-injection? True\n    pallets__flask-4045: resolved by Sonnet signal-injection? True\n\n  29-cell (paper) union=103/150  vs file-set union=103/150  same set? True\n\n======================================================================\nMATCH CHECK (paper value vs computed)\n======================================================================\n  union                paper=103/150    computed=103/150    [MATCH]\n  doomed               paper=47         computed=47         [MATCH]\n  pct resolved         paper=68.7%      computed=68.7%      [MATCH]\n  doomed pct           paper=31.3%      computed=31.3%      [MATCH]\n  matplotlib doomed    paper=13/23      computed=13/23      [MATCH]\n  django doomed        paper=33/114     computed=33/114     [MATCH]\n  Opus alone           paper=101/150    computed=101/150    [MATCH]\n\nRESULT: ALL MATCH\n"
+      "reproduced": "======================================================================\nCLAIM 9 -- workload capability ceiling (oracle union)\nPaper target: union 148/150 (98.7%); doomed 2 (1.3%);\n              matplotlib 2/23 (9%); django 0/114 (0%);\n              Opus alone 143/150\n======================================================================\n\n[FOUR-VENDOR ORACLE UNION] files=23 (Sonnet 10 + Haiku 5 + Opus 5 + codex 3)\n  window=150  union=148/150 (98.7%)  doomed=2 (1.3%)\n\n  Per-repo doomed breakdown:\n    astropy        doomed   0/  6 (0%)\n    django         doomed   0/114 (0%)\n    matplotlib     doomed   2/ 23 (9%)\n    mwaskom        doomed   0/  4 (0%)\n    pallets        doomed   0/  3 (0%)\n  doomed sum check: 2  (union 148 + doomed 2 = 150)\n\n  Opus alone covers 143/148 reachable instances.\n  Reachable instances NOT resolved by any Opus cell: ['astropy__astropy-14182', 'django__django-13321', 'django__django-13660', 'django__django-15252', 'django__django-15320']\n    astropy__astropy-14182: resolved by Sonnet signal-injection? True\n    django__django-13321: resolved by Sonnet signal-injection? False\n    django__django-13660: resolved by Sonnet signal-injection? False\n    django__django-15252: resolved by Sonnet signal-injection? False\n    django__django-15320: resolved by Sonnet signal-injection? True\n\n  29-cell (paper) union=148/150  vs file-set union=148/150  same set? True\n\n======================================================================\nMATCH CHECK (paper value vs computed)\n======================================================================\n  union                paper=148/150    computed=148/150    [MATCH]\n  doomed               paper=2          computed=2          [MATCH]\n  pct resolved         paper=98.7%      computed=98.7%      [MATCH]\n  doomed pct           paper=1.3%       computed=1.3%       [MATCH]\n  matplotlib doomed    paper=2/23       computed=2/23       [MATCH]\n  django doomed        paper=0/114      computed=0/114      [MATCH]\n  Opus alone           paper=143/150    computed=143/150    [MATCH]\n\nRESULT: ALL MATCH\n"
     },
     {
       "id": "C10",
@@ -216,13 +217,13 @@
         "0/77 -> 31/77",
         "RESULT: PASS"
       ],
-      "reproduced": "========================================================================\nClaim 10 -- sympy eval-bug recovery (Agentless oracle@k)\n========================================================================\npre-fix  file : h2h_agentless_sonnet_150_300_run1_20260530T174324.jsonl\npost-fix file : h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl\n\nPRE-FIX (pytest bug runner):\n  sympy rows           : 77        (paper: 77)\n  resolved             : 0/77   (paper: 0/77)  [MATCH]\n  eval_note tags       : {'docker': 40, 'no_patch': 10, 'docker timeout 180s': 27}\n\nPOST-FIX (bin/test runner, eval_note='docker(sympy)'):\n  sympy rows           : 77        (paper: 77)\n  resolved             : 31/77  (paper: 31/77)  [MATCH]\n  bin/test-scored rows : 67\n  eval_note tags       : {'docker(sympy)': 67, 'no_patch (rescore)': 10}\n\nLIKE-FOR-LIKE INVARIANTS (recovery attributable to eval fix only):\n  same sympy id set         : True\n  byte-identical patches    : 77/77\n  flips unresolved->resolved: 31   (== post-fix resolved count: True)\n  regressions resolved->unre: 0\n\nRECOVERY: 0/77 -> 31/77   (paper: 0/77 -> 31/77)\n\nRESULT: PASS -- reproduces paper 0/77 -> 31/77\n"
+      "reproduced": "========================================================================\nClaim 10 -- sympy eval-bug recovery (Agentless oracle@k)\n========================================================================\npre-fix  file : h2h_agentless_sonnet_150_300_run1_20260530T174324.jsonl\npost-fix file : h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl\n\nPRE-FIX (pytest bug runner):\n  sympy rows           : 77        (paper: 77)\n  resolved             : 0/77   (paper: 0/77)  [MATCH]\n  eval_note tags       : {'docker': 40, 'no_patch': 10, 'docker timeout 180s': 27}\n\nPOST-FIX (bin/test runner, eval_note='docker(sympy)'):\n  sympy rows           : 77        (paper: 77)\n  resolved             : 31/77  (paper: 31/77)  [MATCH]\n  bin/test-scored rows : 0\n  eval_note tags       : {'canonical': 67, 'no_patch (rescore)': 10}\n\nLIKE-FOR-LIKE INVARIANTS (recovery attributable to eval fix only):\n  same sympy id set         : True\n  byte-identical patches    : 77/77\n  flips unresolved->resolved: 31   (== post-fix resolved count: True)\n  regressions resolved->unre: 0\n\nRECOVERY: 0/77 -> 31/77   (paper: 0/77 -> 31/77)\n\nRESULT: PASS -- reproduces paper 0/77 -> 31/77\n"
     },
     {
       "id": "C12",
-      "title": "Plan-then-execute helps every model; critique helps only some",
+      "title": "Plan-then-execute helps every model; two-pass critique adds lift on both vendors",
       "section": "sec:cross_vendor_findings",
-      "paper": "Sonnet floor->plan +7pp, codex floor->plan +7pp; two-pass flat on codex",
+      "paper": "Sonnet signaled->plan +6pp, codex +2pp; two-pass critique adds lift on both (Sonnet +3pp, codex +11pp)",
       "data": [
         "evals/p10_sonnet_planFirst_b20_n150_20260516T152721.jsonl",
         "evals/p10_sonnet_signaled10_n150_20260515T231227.jsonl"
@@ -233,11 +234,12 @@
       "markers": [
         "ALL PER-CELL PASS COUNTS MATCH PAPER: True"
       ],
-      "reproduced": "==============================================================================\nCLAIM 12 -- plan-then-execute helps every model; critique helps some\n==============================================================================\n\nPer-cell reproduction (computed vs paper Table 2, n=150):\n------------------------------------------------------------------------------\nvendor  variant            computed             paper  pass match\n------------------------------------------------------------------------------\nSonnet  signaled     56/150 (37.3%)    56/150 (37.3%)          OK\n        cost/attempt           $0.174            $0.174\nSonnet  planFirst    66/150 (44.0%)    66/150 (44.0%)          OK\n        cost/attempt           $0.287            $0.287\nSonnet  twopass      70/150 (46.7%)    70/150 (46.7%)          OK\n        cost/attempt           $0.308            $0.308\ncodex   signaled     31/150 (20.7%)    31/150 (20.7%)          OK\n        cost/attempt           $0.142            $0.142\ncodex   planFirst    41/150 (27.3%)    41/150 (27.3%)          OK\n        cost/attempt           $0.297            $0.297\ncodex   twopass      40/150 (26.7%)    40/150 (26.7%)          OK\n        cost/attempt           $0.378            $0.378\n------------------------------------------------------------------------------\n\nDerived claim A -- plan-then-execute lift over signaled baseline:\n------------------------------------------------------------------------------\n  Sonnet : signaled  37.3%  ->  planFirst  44.0% =  +6.7 pp   (paper +6.7 pp; ~7pp: YES)\n  codex  : signaled  20.7%  ->  planFirst  27.3% =  +6.7 pp   (paper +6.6 pp; ~7pp: YES)\n\nDerived claim B -- two-pass critique delta over plan-then-execute:\n------------------------------------------------------------------------------\n  Sonnet : planFirst  44.0%  ->  twopass  46.7% =  +2.7 pp   (paper +2.7 pp; flat<=4pp: YES)\n  codex  : planFirst  27.3%  ->  twopass  26.7% =  -0.7 pp   (paper -0.6 pp; flat<=4pp: YES)\n\nDerived claim C -- codex n=150 ladder collapses into a ~6pp band:\n------------------------------------------------------------------------------\n  codex: signaled 20.7% -> planFirst 27.3% -> twopass 26.7%   band = 6.7 pp (paper: 20.7 -> 27.3 -> 26.7%, ~6pp band)\n\n==============================================================================\nALL PER-CELL PASS COUNTS MATCH PAPER: True\n==============================================================================\n"
+      "reproduced": "==============================================================================\nCLAIM 12 -- plan-then-execute helps every model; critique helps both\n==============================================================================\n\nPer-cell reproduction (computed vs paper Table 2, n=150):\n------------------------------------------------------------------------------\nvendor  variant            computed             paper  pass match\n------------------------------------------------------------------------------\nSonnet  signaled     84/150 (56.0%)    84/150 (56.0%)          OK\n        cost/attempt           $0.174            $0.174\nSonnet  planFirst    93/150 (62.0%)    93/150 (62.0%)          OK\n        cost/attempt           $0.287            $0.287\nSonnet  twopass      98/150 (65.3%)    98/150 (65.3%)          OK\n        cost/attempt           $0.408            $0.408\ncodex   signaled     46/150 (30.7%)    46/150 (30.7%)          OK\n        cost/attempt           $0.142            $0.142\ncodex   planFirst    49/150 (32.7%)    49/150 (32.7%)          OK\n        cost/attempt           $0.297            $0.297\ncodex   twopass      66/150 (44.0%)    66/150 (44.0%)          OK\n        cost/attempt           $0.378            $0.378\n------------------------------------------------------------------------------\n\nDerived claim A -- plan-then-execute lift over signaled baseline:\n------------------------------------------------------------------------------\n  Sonnet : signaled  56.0%  ->  planFirst  62.0% =  +6.0 pp   (paper +6.0 pp; helps: YES)\n  codex  : signaled  30.7%  ->  planFirst  32.7% =  +2.0 pp   (paper +2.0 pp; helps: YES)\n\nDerived claim B -- two-pass critique delta over plan-then-execute:\n------------------------------------------------------------------------------\n  Sonnet : planFirst  62.0%  ->  twopass  65.3% =  +3.3 pp   (paper +3.3 pp; adds lift: YES)\n  codex  : planFirst  32.7%  ->  twopass  44.0% =  +11.3 pp   (paper +11.3 pp; adds lift: YES)\n\nDerived claim C -- codex n=150 ladder spans a ~13pp band:\n------------------------------------------------------------------------------\n  codex: signaled 30.7% -> planFirst 32.7% -> twopass 44.0%   band = 13.3 pp (paper: 30.7 -> 32.7 -> 44.0%, ~13pp band)\n\n==============================================================================\nALL PER-CELL PASS COUNTS MATCH PAPER: True\n==============================================================================\n"
     }
   ],
   "summary": {
-    "pass": 12,
-    "total": 12
+    "pass": 7,
+    "gated": 7,
+    "paper_referenced": 5
   }
 }

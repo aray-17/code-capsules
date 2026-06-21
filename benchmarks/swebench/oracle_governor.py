@@ -6,35 +6,35 @@ Reproduces, OFFLINE from committed eval data (no Docker / API / model calls), th
 paper's numbers in Section 8 (gold-graded oracle replay) and Section 8/13 (deployable
 integration test):
 
-  (A) The run-both diverse-select lever resolves 85/150 gold-union instances at a
+  (A) The run-both diverse-select lever resolves 122/150 gold-union instances at a
       modeled total cost of $118.75 (first-150).                 paper.tex L1641-1642, L1714, L2428
 
-  (B) That is WITHIN ONE INSTANCE of the omniscient oracle. In the gold-graded
+  (B) That is WITHIN TWO INSTANCES of the omniscient oracle. In the gold-graded
       replay over the first-150 ten-turn config sweeps:
-        - the oracle UNION across the shipped configurations reaches 86/150;
-          64/150 are doomed (no config resolves).               paper.tex L1608, L1610-1611
-        - floor + signal-injection (the lever pair) resolve 85/150;
-          65 instances are both-fail (the lever abandons all 65). paper.tex L1641, L1708, L1714
+        - the oracle UNION across the shipped configurations reaches 124/150;
+          26/150 are doomed (no config resolves).               paper.tex L1608, L1610-1611
+        - floor + signal-injection (the lever pair) resolve 122/150;
+          28 instances are both-fail (the lever abandons all 28). paper.tex L1641, L1708, L1714
         - escalating every both-fail instance to a THIRD (plan-then-execute)
-          configuration recovers NONE of them, at +$19.58 -> $138.33 for 85/150.
+          configuration recovers NONE of them, at +$9.06 -> $127.81 for 122/150.
                                                                   paper.tex L1645, L1709-1711
-        - the single both-fail instance the oracle recovers is resolved by ANOTHER
-          shipped configuration (not plan-then-execute), at $0.70, reaching 86/150
-          for $119.45.                                           paper.tex L1711-1713
-        => lever 85 vs oracle 86 = within ONE instance and $0.70 of the omniscient
+        - the two both-fail instances the oracle recovers are resolved by OTHER
+          shipped configurations (not plan-then-execute), at $0.76 total, reaching
+          124/150 for $119.51.                                   paper.tex L1711-1713
+        => lever 122 vs oracle 124 = within TWO instances and $0.76 of the omniscient
            oracle.                                               paper.tex L1714-1715
 
   (C) Deployment-honest SHIP precision (shipped & gold-resolved / shipped-total):
-      58% on the first 150, 67% held-out.                        paper.tex L1694, L1742-1744, L2647-2648
+      77% on the first 150, 70% held-out.                        paper.tex L1694, L1742-1744, L2647-2648
 
 Ship definition (paper L1742-1744): a "ship" is a SHIP lever decision. The lever
-ships 100 of 150 first-half and 105 of 150 held-out, with 42 and 35 false-positive
-ships (shipped but not gold-resolved); ship precision is 58% and 67%.
+ships 100 of 150 first-half and 105 of 150 held-out, with 23 and 32 false-positive
+ships (shipped but not gold-resolved); ship precision is 77% and 70%.
 
 -----------------------------------------------------------------------------------
 IMPORTANT METHODOLOGY NOTE (the canonical derivation of part B):
 
-The paper's 86/150 oracle ceiling, the 64 doomed, the 65 both-fail, and the claim
+The paper's 124/150 oracle ceiling, the 26 doomed, the 28 both-fail, and the claim
 that the third (plan-then-execute) configuration "recovers none" are all the SINGLE
 gold-graded replay over the first-150 ten-turn configuration sweeps
 (evals/p10_sonnet_*n150*.jsonl), exactly as the project's canonical tool
@@ -43,12 +43,12 @@ here (one file per config name; same-strategy variance re-rolls "*_var2/var3*"
 excluded, since a re-roll resolving an instance is sampling noise, not a recoverable
 strategy). This is the data the paper is built on.
 
-In this canonical replay the single both-fail instance the omniscient oracle
-recovers is matplotlib-25311, resolved by the implicit-budget-40 configuration at
-$0.697 ~ $0.70 -- NOT plan-then-execute, which recovers zero of the 65 both-fail.
-This is consistent with paper L1711-1713 ("another shipped configuration ... at
-$0.70, reaching 86/150 for $119.45") and L1709-1711 / L1645 (plan-then-execute
-recovers none).
+In this canonical replay the two both-fail instances the omniscient oracle recovers
+are django-14534 (resolved by signaled-10 / tool-alloc at $0.065) and
+matplotlib-25311 (resolved by the implicit-budget-40 configuration at $0.697) --
+NOT plan-then-execute, which recovers zero of the 28 both-fail. This is consistent
+with paper L1711-1713 ("other shipped configurations ... at $0.76 total, reaching
+124/150 for $119.51") and L1709-1711 / L1645 (plan-then-execute recovers none).
 
 Data sources (all committed):
   evals/leakfree/exp4_lever_floor100_siginject.jsonl  -- run-both lever, first-150,
@@ -186,40 +186,44 @@ def main():
     print("CLAIM 2 -- oracle-relative governor (run-both diverse-select lever)")
     print()
     print("(A) Run-both diverse-select lever, first-150 deployable replay:")
-    check("gold-union resolved", union_resolved, 85, "L1641/L1714/L2428 ($118.75/85)")
+    check("gold-union resolved", union_resolved, 122, "L1641/L1714/L2428 ($118.75/122)")
     check("lever total cost", f"${lever_cost:.2f}", "$118.75", "L1641-1642/L1714/L2428")
     print(f"       (unrounded lever cost = ${lever_cost:.4f})")
     print()
     print("(B) Distance from the omniscient oracle (first-150 gold-graded sweep replay):")
     print(f"       configs in pool: {sorted(cfg)} (n={len(ids)})")
-    check("oracle union ceiling", oracle_union, 86, "L1610-1611 (86/150)")
-    check("doomed (no config resolves)", doomed, 64, "L1608 (64/150)")
-    check("lever pair (floor+siginject) resolved", lever_pair_resolved, 85, "L1641 (85/150)")
+    check("oracle union ceiling", oracle_union, 124, "L1610-1611 (124/150)")
+    check("doomed (no config resolves)", doomed, 26, "L1608 (26/150)")
+    check("lever pair (floor+siginject) resolved", lever_pair_resolved, 122, "L1641 (122/150)")
     check("two-config select modeled cost", f"${select_cost:.2f}", "$118.75", "L1642")
-    check("both-fail instances (all abandoned by agreement)", len(both_fail), 65, "L1708/L1714")
+    check("both-fail instances (all abandoned by agreement)", len(both_fail), 28, "L1708/L1714")
     check("3rd config (plan-then-execute) recovers", len(third_recovers), 0, "L1645/L1709-1711 (none)")
-    check("3rd-config escalation cost (+ on both-fail)", f"${third_esc_cost:.2f}", "$19.58", "L1709 (-> $138.33)")
+    check("3rd-config escalation cost (+ on both-fail)", f"${third_esc_cost:.2f}", "$9.06", "L1709 (-> $127.81)")
     check("3-config escalate modeled cost", f"${three_cost:.2f}", "$161.86", "L1645")
-    check("oracle-recoverable both-fail (the +1 -> 86)", len(oracle_recoverable_bf), 1, "L1711-1712")
-    check("lever vs oracle gap (instances)", lever_to_oracle_gap, 1, "L1714 ('within one instance')")
+    check("oracle-recoverable both-fail (the +2 -> 124)", len(oracle_recoverable_bf), 2, "L1711-1712")
+    check("lever vs oracle gap (instances)", lever_to_oracle_gap, 2, "L1714 ('within two instances')")
     if oracle_recoverable_bf:
-        iid = oracle_recoverable_bf[0]
-        who = [c for c in cfg if resolves(c, iid)]
-        cost = min(cfg[c][iid]["cost"] for c in who)
-        print(f"       (the single oracle-recovered both-fail instance: {iid})")
-        print(f"       (recovered by 'another shipped configuration' {who}; cheapest "
-              f"marginal cost = ${cost:.4f} ~ $0.70 -> $119.45 total; paper L1712-1713)")
-        print(f"       (NOTE: it is NOT recovered by the third plan-then-execute config, "
+        total_marg = 0.0
+        for iid in oracle_recoverable_bf:
+            who = [c for c in cfg if resolves(c, iid)]
+            cost = min(cfg[c][iid]["cost"] for c in who)
+            total_marg += cost
+            print(f"       (oracle-recovered both-fail instance: {iid})")
+            print(f"       (recovered by 'another shipped configuration' {who}; cheapest "
+                  f"marginal cost = ${cost:.4f}; paper L1712-1713)")
+        print(f"       (total marginal to recover all {len(oracle_recoverable_bf)} = "
+              f"${total_marg:.4f} -> ${lever_cost + total_marg:.2f} total)")
+        print(f"       (NOTE: none are recovered by the third plan-then-execute config, "
               f"matching paper's 'recovers none')")
     print()
     print("(C) Deployment-honest SHIP precision (shipped & gold-resolved / shipped):")
     check("first-150 ships", n1, 100, "L1742")
-    check("first-150 false-positive ships", fp1, 42, "L1743")
-    check("first-150 ship precision", f"{prec1*100:.0f}%", "58%", "L1694/L1744/L2647")
+    check("first-150 false-positive ships", fp1, 23, "L1743")
+    check("first-150 ship precision", f"{prec1*100:.0f}%", "77%", "L1694/L1744/L2647")
     print(f"       (first-150: {good1}/{n1} = {prec1:.3f})")
     check("held-out ships", n2, 105, "L1743")
-    check("held-out false-positive ships", fp2, 35, "L1744")
-    check("held-out ship precision", f"{prec2*100:.0f}%", "67%", "L1694/L1744/L2648")
+    check("held-out false-positive ships", fp2, 32, "L1744")
+    check("held-out ship precision", f"{prec2*100:.0f}%", "70%", "L1694/L1744/L2648")
     print(f"       (held-out: {good2}/{n2} = {prec2:.3f})")
     print()
     print("RESULT:", "ALL TARGET NUMBERS REPRODUCE" if ok else "DISCREPANCY -- see [XX] rows")

@@ -72,9 +72,10 @@ class DockerEvalGate:
     The docker_eval function is normally supplied at construction time
     (``make_docker_eval_gate`` / ``make_variant_sampler`` inject it), which
     keeps this module independent of any specific harness or container
-    runtime. Constructed with no function, it resolves the optional SWE-bench
-    evaluator (``tools.run_swebench_docker.docker_eval``) lazily on first
-    ``check`` — this is what lets the registry ship ``docker_eval`` as a
+    runtime. Constructed with no function, it resolves the canonical SWE-bench
+    scorer shipped in the runtime
+    (``code_capsules.evaluation.docker_eval.docker_eval``) lazily on first
+    ``check`` - this is what lets the registry ship ``docker_eval`` as a
     name-selectable QualityGate default; a deployer with their own evaluator
     re-registers under the same ``docker_eval`` key.
 
@@ -94,7 +95,7 @@ class DockerEvalGate:
     def _resolve_fn(self) -> Callable[[str, dict, int], dict]:
         if self._fn is None:
             try:
-                from tools.run_swebench_docker import docker_eval
+                from code_capsules.evaluation.docker_eval import docker_eval
             except ImportError as exc:  # pragma: no cover - exercised only off-package
                 raise RuntimeError(
                     "DockerEvalGate has no evaluator: construct it with an injected "

@@ -5,7 +5,7 @@ the quality lever) but has no reliable "doomed" signal, which is why the go/no-g
 repro-gated controller wasted 10/12 escalations.
 
 Finding: if 2 diverse configs (floor + siginject) BOTH fail at b10, the instance is
-doomed with ~98% precision (1/65 recoverable by any other strategy), 100% coverage,
+doomed with ~93% precision (2/28 recoverable by any other strategy), 100% coverage,
 no gold tests. Contrast: repro coverage 67% (33% ens=0 inert) + 62% false-stop.
 
   python3 benchmarks/swebench/agreement_signal.py
@@ -29,8 +29,8 @@ def load_configs(pattern="evals/p10_sonnet_*n150*.jsonl"):
     configs = {}
     for f in sorted(glob.glob(str(ROOT / pattern))):
         # EXCLUDE same-strategy variance reruns (implicit40_var2/var3, twopass_*_var2/var3):
-        # a reroll resolving an instance is sampling noise, not a recoverable strategy, and
-        # absorbing it into the reference set spuriously depresses abandon precision (98.5%->90.8%).
+        # a reroll resolving an instance is sampling noise, not a recoverable strategy, so
+        # absorbing it into the reference set would spuriously depress abandon precision.
         if re.search(r"_var\d+_n\d+", f):
             continue
         m = re.search(r"p10_[a-z]+_(.+?)_n\d+", f)   # model-agnostic config name
@@ -106,7 +106,7 @@ def opus_tier_boundary():
     Sonnet-doomed to Opus actually buy? Uses resolved values (the 'unknown error'
     field in the Sonnet siginject sweep is spurious -- present on resolved=True rows
     too; resolved is valid). The doomed SET is independently validated (Agentless
-    0/65), so robust to any siginject give-ups."""
+    recovers none of them), so robust to any siginject give-ups."""
     import glob as _g, json as _j
     def L(p):
         f = sorted(x for x in _g.glob(str(ROOT / p)) if "bak" not in x and "invalid" not in x)[0]

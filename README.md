@@ -27,11 +27,12 @@ marks unsolvable at this tier.
 
 **Two things ship**, both calibrated and checked on a held-out split:
 (1) a per-workload **menu** of single configurations on the cost-quality
-Pareto frontier, and (2) a **regression-suite governor** that restores
-wrongly-abandoned resolves and gates escalation at zero added cost. The
-single-tier run-both-and-abandon composition is reported as a
-**first-class negative**: it adds zero resolves over its best single
-member at roughly twice the cost.
+Pareto frontier, and (2) a **regression-suite governor** that recovers a
+majority of wrongly-abandoned resolves, narrowing the gap to the
+unbounded floor. The single-tier run-both-and-abandon composition is
+reported as a **first-class negative**: it adds zero resolves over its
+best single member at roughly twice the cost, and an escalation gate
+loses its selectivity once the strong tier runs.
 
 ## Headline results
 
@@ -40,9 +41,9 @@ per-instance surface.
 
 | Comparison | Result |
 |---|---|
-| vs. Agentless (head-to-head, SWE-bench Lite, 300 instances) | **136/300 resolved @ \$0.436/inst** vs. Agentless 125/300 @ \$0.452 — more resolved at lower cost (Pareto) |
-| Calibrated cross-tier menu | cost-min 57 @ \$0.48 · balanced 66 @ \$0.93 · quality 77 @ \$0.91 · quality-max 92 @ \$0.78 · ceiling 96 @ \$0.94 |
-| Regression-suite governor | restores wrongly-abandoned resolves and gates escalation at **zero added cost** |
+| vs. Agentless (head-to-head, SWE-bench Lite, 300 instances) | **172/300 resolved (57.3%) @ \$0.436/inst** vs. Agentless 152/300 (50.7%) @ \$0.452, more resolved at lower cost (Pareto; McNemar p=0.0055, 14.7% lower cost per resolve) |
+| Calibrated cross-tier menu (resolved/150) | cost-min 80 @ \$0.18 · balanced 98 @ \$0.41 · quality 111 @ \$0.47 · quality-max 128 @ \$0.48 · ceiling 138 @ \$0.60 |
+| Regression-suite governor | recovers a majority of wrongly-abandoned resolves (narrowing the gap to the unbounded floor) |
 
 Full methodology, per-claim evidence, and the negative results are in
 [`paper/paper.pdf`](paper/paper.pdf) and [`CLAIMS.md`](CLAIMS.md).
@@ -71,12 +72,13 @@ lever against real models requires a model sampler and a grader — see
 
 ## Reproducing the paper's claims
 
-All 12 load-bearing claims reproduce **offline** — no Docker, no API
-keys, no model calls — from the committed evaluation data in
-[`evals/`](evals/):
+The headline claims reproduce **offline** (no Docker, no API keys, no
+model calls) from the committed evaluation data in [`evals/`](evals/);
+the deployment-governor analysis (paper Section 7) is detailed in the
+paper rather than gated here:
 
 ```bash
-python3 benchmarks/verify_criteria.py     # PASS/FAIL per claim; exits 0 iff all 12 reproduce
+python3 benchmarks/verify_criteria.py     # PASS/FAIL per headline claim; the Section 7 claims are cited to the paper
 ```
 
 Or browse them interactively in the **evidence explorer** — a

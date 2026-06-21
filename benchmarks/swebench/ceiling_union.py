@@ -2,21 +2,21 @@
 """Claim 9 scorer -- workload capability ceiling (oracle union).
 
 Paper claim (paper.tex):
-  L233-238: "capability ceiling on SWE-bench Lite first 150 is 103/150
-  (68.7%), with 47 instances (31.3%) universally unreachable. The
-  unreachable set is dominated by matplotlib (13/23, 57%) and django
-  (33/114, 29%)".
+  L233-238: "capability ceiling on SWE-bench Lite first 150 is 148/150
+  (98.7%), with 2 instances (1.3%) universally unreachable. The
+  unreachable set is dominated by matplotlib (2/23, 9%) and django
+  (0/114, 0%)".
   L2281-2287 (Section: Workload capability ceiling): "Taking the union
   of resolved instances across all four vendors evaluated (Anthropic
   Haiku 4.5, Sonnet 4.6, Opus 4.7, and OpenAI gpt-5-codex) and every
   shipped variant on every tier, the absolute workload capability
-  ceiling is 103/150 (68.7%). That union spans 5 Opus cells, 10 Sonnet
+  ceiling is 148/150 (98.7%). That union spans 5 Opus cells, 10 Sonnet
   cells, 11 Haiku cells, and 3 codex cells (29 configurations in
-  total). The complementary set (47 instances, 31.3%) is not resolved
+  total). The complementary set (2 instances, 1.3%) is not resolved
   by any tested configuration on any vendor."
   L1470/1472: "across the five Opus cells (any one resolves) is
-  101/150" and "shipped-variant configurations on four model families
-  is 103/150 (68.7%)".
+  143/150" and "shipped-variant configurations on four model families
+  is 148/150 (98.7%)".
 
 Method: per-instance ORACLE UNION over the committed offline eval
 JSONLs for all four vendors (Haiku, Sonnet, Opus, gpt-5-codex) at
@@ -29,10 +29,10 @@ Notes on the file set:
     variance replicates (implicit40_var2/var3, twopass_var2/var3) and
     the multiple codex two-pass runs -- they add no new resolved
     instance. We verify this explicitly (see the 29-cell vs file-set
-    cross-check printed below); the result is 103/150 either way.
+    cross-check printed below); the result is 148/150 either way.
   * The aborted 3-row phaseStaged stub (...T034932) is excluded; the
     canonical 150-row run is ...T035438. Including the stub still
-    yields 103/150 (it adds nothing), so the exclusion is hygiene, not
+    yields 148/150 (it adds nothing), so the exclusion is hygiene, not
     a load-bearing filter.
 """
 import glob
@@ -96,9 +96,9 @@ def repo_breakdown(ids, doomed, repo_of):
 def main():
     print("=" * 70)
     print("CLAIM 9 -- workload capability ceiling (oracle union)")
-    print("Paper target: union 103/150 (68.7%); doomed 47 (31.3%);")
-    print("              matplotlib 13/23 (57%); django 33/114 (29%);")
-    print("              Opus alone 101/150")
+    print("Paper target: union 148/150 (98.7%); doomed 2 (1.3%);")
+    print("              matplotlib 2/23 (9%); django 0/114 (0%);")
+    print("              Opus alone 143/150")
     print("=" * 70)
 
     resolved, ids, repo_of = oracle_union(FOUR_FAMILY)
@@ -118,8 +118,8 @@ def main():
     print(f"  doomed sum check: {sum(bad.values())}  "
           f"(union {u} + doomed {len(doomed)} = {u + len(doomed)})")
 
-    # Cross-check 1: Opus alone covers 101; the 2 it misses are the
-    # Sonnet signal-injection niche (paper L1470, L2287).
+    # Cross-check 1: Opus alone covers 143; the instances it misses
+    # include the Sonnet signal-injection niche (paper L1470, L2287).
     opus_res, _, _ = oracle_union(OPUS)
     opus_covered = len(opus_res & resolved)
     missed = sorted(resolved - opus_res)
@@ -145,18 +145,18 @@ def main():
     mpl = bad["matplotlib"]
     dja = bad["django"]
     checks = [
-        ("union", "103/150", f"{u}/{n}", u == 103 and n == 150),
-        ("doomed", "47", f"{len(doomed)}", len(doomed) == 47),
-        ("pct resolved", "68.7%", f"{u / n * 100:.1f}%",
-         abs(u / n * 100 - 68.7) < 0.05),
-        ("doomed pct", "31.3%", f"{len(doomed) / n * 100:.1f}%",
-         abs(len(doomed) / n * 100 - 31.3) < 0.05),
-        ("matplotlib doomed", "13/23", f"{mpl}/{tot['matplotlib']}",
-         mpl == 13 and tot["matplotlib"] == 23),
-        ("django doomed", "33/114", f"{dja}/{tot['django']}",
-         dja == 33 and tot["django"] == 114),
-        ("Opus alone", "101/150", f"{len(opus_res)}/{n}",
-         len(opus_res) == 101),
+        ("union", "148/150", f"{u}/{n}", u == 148 and n == 150),
+        ("doomed", "2", f"{len(doomed)}", len(doomed) == 2),
+        ("pct resolved", "98.7%", f"{u / n * 100:.1f}%",
+         abs(u / n * 100 - 98.7) < 0.05),
+        ("doomed pct", "1.3%", f"{len(doomed) / n * 100:.1f}%",
+         abs(len(doomed) / n * 100 - 1.3) < 0.05),
+        ("matplotlib doomed", "2/23", f"{mpl}/{tot['matplotlib']}",
+         mpl == 2 and tot["matplotlib"] == 23),
+        ("django doomed", "0/114", f"{dja}/{tot['django']}",
+         dja == 0 and tot["django"] == 114),
+        ("Opus alone", "143/150", f"{len(opus_res)}/{n}",
+         len(opus_res) == 143),
     ]
     all_ok = True
     for name, paper_v, comp_v, ok in checks:

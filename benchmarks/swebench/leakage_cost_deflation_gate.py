@@ -10,9 +10,9 @@ Paper claim (paper.tex):
   corrected configuration runs the second pass unconditionally.
 
   Retired (leaky, evaluation-gated): "$0.308" / attempt   (prose "~$0.31")
-        cross-vendor Table, paper.tex:2085 -- 70/150 @ $0.308
+        cross-vendor Table, paper.tex:2085 -- 102/150 @ $0.308
   Corrected (honest, always-run):    "$0.408" / attempt   (headline "$0.41")
-        appendix paper.tex:2067 -- 66/150 @ $0.408; headline L694/L1209
+        appendix paper.tex:2067 -- 98/150 @ $0.408; headline L694/L1209
   Stated deflation factor:           "a factor of $1.32$"
         abstract; sec:negative_leakage; sec:limitations; appendix
 
@@ -31,7 +31,7 @@ hardcoded):
     stage2_turns>=2 -- the second pass runs unconditionally.
 
 Resolved-count cross-check ties each file to its exact paper row:
-  leaky 70/150 (Table cross_vendor_variants), honest 66/150 (appendix).
+  leaky 102/150 (Table cross_vendor_variants), honest 98/150 (appendix).
 
 This scorer reproduces both per-attempt costs ($0.308 and $0.408) and
 their deflation ratio. The honest/leaky cost ratio is 1.3232 -> 1.32,
@@ -54,8 +54,8 @@ HONEST = ROOT / "evals" / "leakfree" / "tb_forcestage2_first150.jsonl"
 PAPER_LEAKY_COST = 0.308     # "$0.308" appendix/Table; "~$0.31" prose
 PAPER_HONEST_COST = 0.408    # "$0.408" appendix; "$0.41" headline
 PAPER_RATIO = 1.32           # "a factor of 1.32" (abstract/sec5/sec-limits/appendix)
-PAPER_LEAKY_RESOLVED = 70    # Table cross_vendor_variants: 70/150
-PAPER_HONEST_RESOLVED = 66   # appendix / headline: 66/150
+PAPER_LEAKY_RESOLVED = 102   # Table cross_vendor_variants: 102/150
+PAPER_HONEST_RESOLVED = 98   # appendix / headline: 98/150
 
 
 def load(path):

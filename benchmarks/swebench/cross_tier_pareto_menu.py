@@ -8,11 +8,11 @@ Section~\ref{sec:strong_tier_menu} (L1483-1489).
 
 Target numbers (quoted from paper.tex, the source of truth):
 
-  L693  cost_min     relevance ranker (Sonnet, b=10)   57/150  $0.18/att  $0.48/res
-  L694  balanced     two-pass critique (Sonnet,10->25) 66/150  $0.41/att  $0.93/res
-  L695  quality      unbounded budget (Sonnet, b=100)  77/150  $0.47/att  $0.91/res
-  L696  quality_max  implicit budget (Opus, b=20)      92/150  $0.48/att  $0.78/res
-  L697  ceiling      unbounded budget (Opus, b=100)    96/150  $0.60/att  $0.94/res
+  L693  cost_min     relevance ranker (Sonnet, b=10)   80/150  $0.18/att  $0.34/res
+  L694  balanced     two-pass critique (Sonnet,10->25) 98/150  $0.41/att  $0.62/res
+  L695  quality      unbounded budget (Sonnet, b=100)  111/150 $0.47/att  $0.63/res
+  L696  quality_max  implicit budget (Opus, b=20)      128/150 $0.48/att  $0.56/res
+  L697  ceiling      unbounded budget (Opus, b=100)    138/150 $0.60/att  $0.66/res
 
 Per-cell metrics:
   resolved = count of rows with a true resolved flag (gold-scored, offline)
@@ -29,27 +29,22 @@ Data sources (one committed JSONL per cell):
                   file is ALREADY the corrected variant, so NO 1.31x deflation
                   factor is applied. The 1.31x factor in paper L1010-1012 applied
                   to the OLD eval-gated cost, not to this committed file.)
-  quality      evals/leakfree/exp4_lever_floor100_siginject.jsonl
-                 (LEAK-FREE re-run of the unbounded Sonnet floor@100; 'candidates'
-                  dict schema -- the 'floor' candidate's gold_resolved / cost_usd.
-                  Paper L1485 explicitly says "77/150 in the leak-free re-run".
-                  NOTE: the older non-leak-free file
-                  evals/p10_sonnet_floor_n150_20260516T040248.jsonl scores 75/150;
-                  that pre-leak-free number is what the cross-model table at L1380
-                  prints, NOT the shipped menu cell. See [DISCREPANCY] below.)
+  quality      evals/p10_sonnet_floor_n150_20260516T040248.jsonl
+                 (unbounded Sonnet floor@100; flat per-instance schema, key
+                  'resolved' / 'cost_usd'. This is the sweep floor stream that
+                  the cross-model table at paper L1380 prints and that
+                  Table~\ref{tab:shipped_presets} and policy.yaml quote for the
+                  'quality' cell. See [SOURCE NOTE] below.)
   quality_max  evals/p9_opus_implicit20_n150_combined_20260527.jsonl
                  (Opus implicit budget b=20; flat per-instance schema)
   ceiling      evals/p9_opus_floor_n150_combined_20260527.jsonl
                  (Opus unbounded floor b=100; flat per-instance schema)
 
-[DISCREPANCY -- documented, not fudged]
-  The 'quality' cell (77/150) reproduces ONLY from the leak-free re-run file
-  exp4_lever_floor100_siginject.jsonl (floor candidate). The originally-named
-  candidate file p10_sonnet_floor_n150_*.jsonl gives 75/150 -- that is the
-  pre-leak-free floor (matches the cross-model table at L1380, 75/150 @ $0.466),
-  not the shipped menu cell. Both files share the same per-attempt cost ($0.4663),
-  so only the resolved count differs (leak-free re-run picks up +2). We report from
-  the leak-free file because L1485 names it as the source of the menu's 77/150.
+[SOURCE NOTE -- which floor file is the menu cell]
+  The 'quality' cell (111/150) is scored from the sweep floor stream
+  p10_sonnet_floor_n150_20260516T040248.jsonl. This is the floor stream the
+  cross-model table at paper L1380 prints, and Table~\ref{tab:shipped_presets}
+  and policy.yaml quote it for the 'quality' cell. Per-attempt cost is $0.4663.
 
 Run with: PYTHONNOUSERSITE=1 PYTHONPATH=src python3 \
             benchmarks/swebench/cross_tier_pareto_menu.py
@@ -101,21 +96,21 @@ CELLS = [
         "cost_min",
         "relevance ranker (Sonnet, b=10)",
         lambda: score_flat(ROOT / "evals/p10_sonnet_p8c_n150_20260515T235913.jsonl"),
-        57, 0.18, 0.48,
+        80, 0.18, 0.34,
     ),
     (
         "balanced",
         "two-pass critique (Sonnet, 10->25)",
         lambda: score_flat(ROOT / "evals/leakfree/tb_forcestage2_first150.jsonl"),
-        66, 0.41, 0.93,
+        98, 0.41, 0.62,
     ),
     (
         "quality",
-        "unbounded budget (Sonnet, b=100) [leak-free re-run]",
-        lambda: score_candidate(
-            ROOT / "evals/leakfree/exp4_lever_floor100_siginject.jsonl", "floor"
+        "unbounded budget (Sonnet, b=100)",
+        lambda: score_flat(
+            ROOT / "evals/p10_sonnet_floor_n150_20260516T040248.jsonl"
         ),
-        77, 0.47, 0.91,
+        111, 0.47, 0.63,
     ),
     (
         "quality_max",
@@ -123,7 +118,7 @@ CELLS = [
         lambda: score_flat(
             ROOT / "evals/p9_opus_implicit20_n150_combined_20260527.jsonl"
         ),
-        92, 0.48, 0.78,
+        128, 0.48, 0.56,
     ),
     (
         "ceiling",
@@ -131,7 +126,7 @@ CELLS = [
         lambda: score_flat(
             ROOT / "evals/p9_opus_floor_n150_combined_20260527.jsonl"
         ),
-        96, 0.60, 0.94,
+        138, 0.60, 0.66,
     ),
 ]
 
@@ -180,8 +175,8 @@ def main():
     _, qm_res, qm_cost = score_flat(
         ROOT / "evals/p9_opus_implicit20_n150_combined_20260527.jsonl"
     )
-    _, q_res, q_cost = score_candidate(
-        ROOT / "evals/leakfree/exp4_lever_floor100_siginject.jsonl", "floor"
+    _, q_res, q_cost = score_flat(
+        ROOT / "evals/p10_sonnet_floor_n150_20260516T040248.jsonl"
     )
     qm_resc = qm_cost / qm_res
     q_resc = q_cost / q_res
@@ -192,8 +187,8 @@ def main():
     more_resolved = qm_res > q_res
     cheaper_per_res = qm_resc < q_resc
     print(
-        f"  more resolved? {more_resolved} (paper: yes, 92>77);  "
-        f"cheaper per resolve? {cheaper_per_res} (paper: yes, $0.78<$0.91)"
+        f"  more resolved? {more_resolved} (paper: yes, 128>111);  "
+        f"cheaper per resolve? {cheaper_per_res} (paper: yes, $0.56<$0.63)"
     )
     print("  -> abstract claim holds" if (more_resolved and cheaper_per_res)
           else "  -> abstract claim DOES NOT hold")

@@ -21,7 +21,8 @@ Use:
 
 For each instance (one variant == a one-config policy on the single public runner):
     task = make_task_descriptor(instance, worktree_path=...)
-    gate = make_docker_eval_gate(docker_eval=run_swebench_docker.docker_eval)
+    gate = make_docker_eval_gate()  # defaults to the runtime scorer
+                                    # code_capsules.evaluation.docker_eval.docker_eval
     sampler, grade_fn, captured = make_variant_sampler(task, cfg, gate=gate)
     CodeCapsulesRunner(RunnerPolicy(configs=(cfg.name,), tiers=("default",))).run(sampler, grade_fn)
     row = run_result_to_legacy_jsonl(captured["result"], instance, mode=..., prompt_budget_hint=...)
@@ -77,14 +78,14 @@ def make_docker_eval_gate(docker_eval=None, docker_timeout: int = 180):
     """Build a DockerEvalGate from an injected SWE-bench evaluator.
 
     docker_eval(patch, instance, timeout=...) -> dict applies the patch inside the
-    SWE-bench container and reports whether every FAIL_TO_PASS test passes. The
-    benchmark driver injects it (the public repo's run_swebench_docker.docker_eval),
-    keeping this adapter standalone. If omitted, the optional private harness
-    implementation is imported lazily (back-compat; not shipped in the package).
+    SWE-bench container and reports whether every FAIL_TO_PASS test passes. A
+    benchmark driver may inject its own implementation, keeping this adapter
+    standalone. If omitted, the canonical scorer shipped in the runtime
+    (code_capsules.evaluation.docker_eval.docker_eval) is used.
     """
     from code_capsules.evaluation.quality_gates_adaptors import DockerEvalGate
     if docker_eval is None:
-        from tools.run_swebench_docker import docker_eval as docker_eval  # noqa: PLW0127
+        from code_capsules.evaluation.docker_eval import docker_eval as docker_eval  # noqa: PLW0127
 
     def _fn(patch: str, instance: dict, timeout: int) -> dict:
         return docker_eval(patch, instance, timeout=timeout)
@@ -154,6 +155,13 @@ def run_result_to_legacy_jsonl(
         "total_output_tokens": result.output_tokens,
         "cost_usd": result.cost_usd,
         "has_patch": bool(result.patch.strip()),
+        # The captured git diff, persisted so a future scorer change can be
+        # verified by a MODEL-FREE re-score of the stored patch
+        # (benchmarks/swebench/rescore_from_patch.py) instead of an online
+        # re-run. Lesson from the 2026-06 scorer-bug correction: cells that
+        # archived their patch were re-scored for $0; cells that did not had to
+        # be re-run. Every runtime-produced eval row now carries its patch.
+        "model_patch": result.patch or None,
         "resolved": result.resolved,
         "eval_note": eval_note,
         "eval_stdout": "",  # Runner doesn't surface raw gate stdout; analyzers

@@ -39,9 +39,9 @@ DEFAULT_SECOND = EVALS / "h2h_agentless_sonnet_150_300_sympyfixed_20260601T00371
 # leakage-free deployable two-pass, which is the paper's headline H2H cell). The earlier
 # p10 twopass first-150 file was the evaluation-gated (leaky) cell at $0.31 / 70-of-150
 # and is superseded; the force_stage2 files are sympy-eval-fixed and carry honest cost.
-# This makes the shipped scorer reproduce the paper's 136/300 @ $0.436 exactly.
-CC_FIRST = EVALS / "leakfree" / "tb_forcestage2_first150.jsonl"    # 66/150, honest
-CC_SECOND = EVALS / "leakfree" / "tb_forcestage2_second150.jsonl"  # 70/150, honest, sympy-fixed
+# This makes the shipped scorer reproduce the paper's 172/300 @ $0.436 exactly.
+CC_FIRST = EVALS / "leakfree" / "tb_forcestage2_first150.jsonl"    # 98/150, honest
+CC_SECOND = EVALS / "leakfree" / "tb_forcestage2_second150.jsonl"  # 74/150, honest, sympy-fixed
 
 # Known harness artifacts: counted as failures, listed for transparency.
 KNOWN_ARTIFACTS = {
