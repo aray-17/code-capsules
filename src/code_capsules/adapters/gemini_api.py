@@ -53,6 +53,14 @@ class GeminiAPIClient(APIBasedAgent):
     def _append_assistant_message(self, messages: list[dict], text: str,
                                    tool_calls: list[dict],
                                    raw: Any = None) -> list[dict]:
+        # Prefer the raw Content object returned by the API: it natively carries
+        # per-part `thought_signature` values, which Gemini 3.x REQUIRES to be
+        # echoed back on functionCall parts (otherwise the next turn 400s with
+        # "Function call is missing a thought_signature"). Reconstructing parts
+        # from dicts drops the signature, so append the raw turn verbatim when
+        # available. Falls back to dict reconstruction for older paths / 2.x.
+        if raw is not None:
+            return messages + [raw]
         parts: list[dict] = []
         if text:
             parts.append({"text": text})
@@ -100,14 +108,34 @@ class GeminiAPIClient(APIBasedAgent):
             max_output_tokens=max_tokens,
         )
 
-        try:
-            resp = client.models.generate_content(
-                model=model, contents=messages, config=cfg,
-            )
-        except Exception as exc:
+        # Retry transient capacity/rate errors with exponential backoff. Preview
+        # models (e.g. gemini-3.x-preview) 503 under load; a per-call agent step
+        # should not die on a transient spike.
+        import time as _time
+        last_exc = None
+        for attempt in range(5):
+            try:
+                resp = client.models.generate_content(
+                    model=model, contents=messages, config=cfg,
+                )
+                last_exc = None
+                break
+            except Exception as exc:
+                last_exc = exc
+                s = str(exc)
+                transient = any(t in s for t in
+                                ("503", "UNAVAILABLE", "429", "RESOURCE_EXHAUSTED", "500", "INTERNAL"))
+                if transient and attempt < 4:
+                    _time.sleep(2 ** attempt * 3)  # 3,6,12,24s
+                    continue
+                return _ProviderResponse(
+                    text="", tool_calls=[], input_tokens=0, output_tokens=0,
+                    stop_reason="error", error=s,
+                )
+        if last_exc is not None:
             return _ProviderResponse(
                 text="", tool_calls=[], input_tokens=0, output_tokens=0,
-                stop_reason="error", error=str(exc),
+                stop_reason="error", error=str(last_exc),
             )
 
         text = ""
@@ -153,6 +181,9 @@ class GeminiAPIClient(APIBasedAgent):
             output_tokens=output_tokens,
             cached_input_tokens=cached_input_tokens,
             stop_reason=stop_reason,
+            # Carry the raw model turn so the history preserves Gemini 3.x
+            # thought_signatures on functionCall parts (see _append_assistant_message).
+            raw_message=(candidate.content if candidate is not None else None),
         )
 
 
