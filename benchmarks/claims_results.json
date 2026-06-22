@@ -235,11 +235,32 @@
         "ALL PER-CELL PASS COUNTS MATCH PAPER: True"
       ],
       "reproduced": "==============================================================================\nCLAIM 12 -- plan-then-execute helps every model; critique helps both\n==============================================================================\n\nPer-cell reproduction (computed vs paper Table 2, n=150):\n------------------------------------------------------------------------------\nvendor  variant            computed             paper  pass match\n------------------------------------------------------------------------------\nSonnet  signaled     84/150 (56.0%)    84/150 (56.0%)          OK\n        cost/attempt           $0.174            $0.174\nSonnet  planFirst    93/150 (62.0%)    93/150 (62.0%)          OK\n        cost/attempt           $0.287            $0.287\nSonnet  twopass      98/150 (65.3%)    98/150 (65.3%)          OK\n        cost/attempt           $0.408            $0.408\ncodex   signaled     46/150 (30.7%)    46/150 (30.7%)          OK\n        cost/attempt           $0.142            $0.142\ncodex   planFirst    49/150 (32.7%)    49/150 (32.7%)          OK\n        cost/attempt           $0.297            $0.297\ncodex   twopass      66/150 (44.0%)    66/150 (44.0%)          OK\n        cost/attempt           $0.378            $0.378\n------------------------------------------------------------------------------\n\nDerived claim A -- plan-then-execute lift over signaled baseline:\n------------------------------------------------------------------------------\n  Sonnet : signaled  56.0%  ->  planFirst  62.0% =  +6.0 pp   (paper +6.0 pp; helps: YES)\n  codex  : signaled  30.7%  ->  planFirst  32.7% =  +2.0 pp   (paper +2.0 pp; helps: YES)\n\nDerived claim B -- two-pass critique delta over plan-then-execute:\n------------------------------------------------------------------------------\n  Sonnet : planFirst  62.0%  ->  twopass  65.3% =  +3.3 pp   (paper +3.3 pp; adds lift: YES)\n  codex  : planFirst  32.7%  ->  twopass  44.0% =  +11.3 pp   (paper +11.3 pp; adds lift: YES)\n\nDerived claim C -- codex n=150 ladder spans a ~13pp band:\n------------------------------------------------------------------------------\n  codex: signaled 30.7% -> planFirst 32.7% -> twopass 44.0%   band = 13.3 pp (paper: 30.7 -> 32.7 -> 44.0%, ~13pp band)\n\n==============================================================================\nALL PER-CELL PASS COUNTS MATCH PAPER: True\n==============================================================================\n"
+    },
+    {
+      "id": "C13",
+      "title": "Held-out cascade generalization (value-of-resolve lever, off-django split)",
+      "section": "sec:negative_cascade",
+      "paper": "held-out second-150: signaled-10 -> UNBOUNDED Opus cascade resolves 124/150, +31 over the Sonnet floor (93); Opus recovers 73% of the escalated failures; quality-max at $159 vs floor $84 (more resolves at added cost, not a both-axes win)",
+      "data": [
+        "evals/heldout/cascade_signaled10_n150_canonical.jsonl",
+        "evals/heldout/cascade_floor_n150_canonical.jsonl",
+        "evals/heldout/cascade_opus_floor_escalated_canonical.jsonl"
+      ],
+      "cmd": "python3 benchmarks/swebench/held_out_cascade.py",
+      "status": "PASS",
+      "missing_markers": [],
+      "markers": [
+        "124/150",
+        "+31 over floor",
+        "Opus recovery 73%",
+        "ALL NUMBERS REPRODUCE"
+      ],
+      "reproduced": "================================================================\nHeld-out cascade generalization (second-150, canonical labels)\n================================================================\n  tier-1 (signaled-10) resolved : 55/150\n  escalated failures            : 95\n  unbounded Opus recovered      : 69/95 (73%)\n  cascade resolved              : 124/150\n  Sonnet floor baseline         : 93/150\n  margin                        : +31 over floor\n  cascade cost                  : $158.87\n  Sonnet floor cost             : $83.63\n  reading: quality-max operating point (more resolves at added cost), not a both-axes dominator\n----------------------------------------------------------------\n  [OK ] cascade 124/150\n  [OK ] +31 over floor\n  [OK ] Opus recovery 73%\n  [OK ] cascade $159 vs floor $84\n\nRESULT: ALL NUMBERS REPRODUCE\n"
     }
   ],
   "summary": {
-    "pass": 7,
-    "gated": 7,
+    "pass": 8,
+    "gated": 8,
     "paper_referenced": 5
   }
 }

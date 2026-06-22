@@ -173,6 +173,19 @@ CLAIMS = [
         data=["evals/p10_sonnet_planFirst_b20_n150_20260516T152721.jsonl",
               "evals/p10_sonnet_signaled10_n150_20260515T231227.jsonl"],
     ),
+    dict(
+        id="C13",
+        title="Held-out cascade generalization (value-of-resolve lever, off-django split)",
+        section="sec:negative_cascade",
+        paper="held-out second-150: signaled-10 -> UNBOUNDED Opus cascade resolves 124/150, "
+              "+31 over the Sonnet floor (93); Opus recovers 73% of the escalated failures; "
+              "quality-max at $159 vs floor $84 (more resolves at added cost, not a both-axes win)",
+        cmd=["python3", "benchmarks/swebench/held_out_cascade.py"],
+        markers=["124/150", "+31 over floor", "Opus recovery 73%", "ALL NUMBERS REPRODUCE"],
+        data=["evals/heldout/cascade_signaled10_n150_canonical.jsonl",
+              "evals/heldout/cascade_floor_n150_canonical.jsonl",
+              "evals/heldout/cascade_opus_floor_escalated_canonical.jsonl"],
+    ),
 ]
 
 
