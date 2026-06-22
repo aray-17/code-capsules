@@ -29,8 +29,8 @@ same data split, same scorer across systems.
 
 | Claim | Result | Scorer | Evidence |
 |---|---|---|---|
-| Head-to-head vs. Agentless (Pareto) | Code-Capsules 172/300 resolved (57.3%) @ \$0.436/inst vs. Agentless 152/300 (50.7%) @ \$0.452, **more resolved at lower cost** (McNemar p=0.0055, 14.7% lower cost per resolve) | [`benchmarks/swebench/h2h_combine_score.py`](benchmarks/swebench/h2h_combine_score.py) | [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), [`tb_forcestage2_second150.jsonl`](evals/leakfree/tb_forcestage2_second150.jsonl), [`evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl`](evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl) |
-| Calibrated cross-tier Pareto menu (resolved/150) | cost-min 80 @ \$0.18 (\$0.34/res) · balanced 98 @ \$0.41 (\$0.63/res) · quality 111 @ \$0.47 (\$0.64/res) · quality-max 128 @ \$0.48 (\$0.56/res) · ceiling 138 @ \$0.60 (\$0.65/res) (quality-max out-resolves quality at lower \$/resolve) | [`benchmarks/swebench/cross_tier_pareto_menu.py`](benchmarks/swebench/cross_tier_pareto_menu.py) | one committed JSONL per cell: cost-min [`evals/p10_sonnet_p8c_n150_20260515T235913.jsonl`](evals/p10_sonnet_p8c_n150_20260515T235913.jsonl), balanced [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), quality (leak-free re-run) [`evals/leakfree/exp4_lever_floor100_siginject.jsonl`](evals/leakfree/exp4_lever_floor100_siginject.jsonl), quality-max [`evals/p9_opus_implicit20_n150_combined_20260527.jsonl`](evals/p9_opus_implicit20_n150_combined_20260527.jsonl), ceiling [`evals/p9_opus_floor_n150_combined_20260527.jsonl`](evals/p9_opus_floor_n150_combined_20260527.jsonl) |
+| Head-to-head vs. Agentless (Pareto) | Code-Capsules 172/300 resolved (57.3%) @ \$0.445/inst vs. Agentless 152/300 (50.7%) @ \$0.456, **more resolved at lower cost** (McNemar p=0.0055, 13.8% lower cost per resolve) | [`benchmarks/swebench/h2h_combine_score.py`](benchmarks/swebench/h2h_combine_score.py) | [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), [`tb_forcestage2_second150.jsonl`](evals/leakfree/tb_forcestage2_second150.jsonl), [`evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl`](evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl) |
+| Calibrated cross-tier Pareto menu (resolved/150) | cost-min 80 @ \$0.183 (\$0.34/res) · balanced 98 @ \$0.408 (\$0.62/res) · quality 111 @ \$0.466 (\$0.63/res) · quality-max 128 @ \$0.480 (\$0.56/res) · ceiling 138 @ \$0.604 (\$0.66/res) (quality-max out-resolves quality at lower \$/resolve) | [`benchmarks/swebench/cross_tier_pareto_menu.py`](benchmarks/swebench/cross_tier_pareto_menu.py) | one committed JSONL per cell: cost-min [`evals/p10_sonnet_p8c_n150_20260515T235913.jsonl`](evals/p10_sonnet_p8c_n150_20260515T235913.jsonl), balanced [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), quality (leak-free re-run) [`evals/leakfree/exp4_lever_floor100_siginject.jsonl`](evals/leakfree/exp4_lever_floor100_siginject.jsonl), quality-max [`evals/p9_opus_implicit20_n150_combined_20260527.jsonl`](evals/p9_opus_implicit20_n150_combined_20260527.jsonl), ceiling [`evals/p9_opus_floor_n150_combined_20260527.jsonl`](evals/p9_opus_floor_n150_combined_20260527.jsonl) |
 
 ## Mechanism claims
 
@@ -75,16 +75,16 @@ Scorer
 [`benchmarks/swebench/escalation_gate.py`](benchmarks/swebench/escalation_gate.py).
 
 **C5. Two-pass critique is Pareto-favorable vs. Agentless.** Same
-models, data, and scorer: 172/300 (57.3%) @ \$0.436 vs. Agentless
-oracle@k 152/300 (50.7%) @ \$0.452, more resolved at lower
+models, data, and scorer: 172/300 (57.3%) @ \$0.445 vs. Agentless
+oracle@k 152/300 (50.7%) @ \$0.456, more resolved at lower
 per-instance cost, a +20-instance (+6.7pp) win at McNemar p=0.0055 and
-14.7% lower cost per resolve. Scorer
+13.8% lower cost per resolve. Scorer
 [`benchmarks/swebench/h2h_combine_score.py`](benchmarks/swebench/h2h_combine_score.py).
 
 **C6. The shipped policy menu is a calibrated cross-tier Pareto
 frontier.** Five presets span the frontier (resolved/150): cost-min
-80 (\$0.34/resolve), balanced 98 (\$0.63), quality 111 (\$0.64),
-quality-max 128 (\$0.56), ceiling 138 (\$0.65); quality-max
+80 (\$0.34/resolve), balanced 98 (\$0.62), quality 111 (\$0.63),
+quality-max 128 (\$0.56), ceiling 138 (\$0.66); quality-max
 out-resolves quality at a lower cost per resolve. Scorer
 [`benchmarks/swebench/cross_tier_pareto_menu.py`](benchmarks/swebench/cross_tier_pareto_menu.py);
 the shipped presets are in [`policy.yaml`](policy.yaml).

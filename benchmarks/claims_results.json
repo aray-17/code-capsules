@@ -62,7 +62,7 @@
       "id": "C5",
       "title": "Two-pass critique vs Agentless head-to-head (Pareto)",
       "section": "sec:h2h",
-      "paper": "Code-Capsules 172/300 (57.3%) @ $0.436 vs Agentless 152/300 (50.7%) @ $0.452 (+6.7pp, Pareto)",
+      "paper": "Code-Capsules 172/300 (57.3%) @ $0.445 vs Agentless 152/300 (50.7%) @ $0.456 (+6.7pp, Pareto)",
       "data": [
         "evals/leakfree/tb_forcestage2_first150.jsonl",
         "evals/leakfree/tb_forcestage2_second150.jsonl",

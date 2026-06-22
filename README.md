@@ -41,7 +41,7 @@ per-instance surface.
 
 | Comparison | Result |
 |---|---|
-| vs. Agentless (head-to-head, SWE-bench Lite, 300 instances) | **172/300 resolved (57.3%) @ \$0.436/inst** vs. Agentless 152/300 (50.7%) @ \$0.452, more resolved at lower cost (Pareto; McNemar p=0.0055, 14.7% lower cost per resolve) |
+| vs. Agentless (head-to-head, SWE-bench Lite, 300 instances) | **172/300 resolved (57.3%) @ \$0.445/inst** vs. Agentless 152/300 (50.7%) @ \$0.456, more resolved at lower cost (Pareto; McNemar p=0.0055, 13.8% lower cost per resolve) |
 | Calibrated cross-tier menu (resolved/150) | cost-min 80 @ \$0.18 · balanced 98 @ \$0.41 · quality 111 @ \$0.47 · quality-max 128 @ \$0.48 · ceiling 138 @ \$0.60 |
 | Regression-suite governor | recovers a majority of wrongly-abandoned resolves (narrowing the gap to the unbounded floor) |
 

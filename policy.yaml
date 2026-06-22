@@ -125,7 +125,7 @@ deployment_defaults:
         source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
 
       balanced:
-        # menu: 98/150 @ $0.63/res, leak-free (force_stage2); beats Agentless on both axes
+        # menu: 98/150 @ $0.62/res, leak-free (force_stage2); beats Agentless on both axes
         variant: two_pass_critique           # two-pass critique
         mode: escalating
         turn_budget: 10
@@ -143,7 +143,7 @@ deployment_defaults:
         note: "beats Agentless on the head-to-head (172/300 vs 152/300, p=0.0055); two-pass critique adds lift on both vendors"
 
       quality:
-        # menu: 111/150 @ $0.64/res - best Sonnet quality; dominated by quality_max
+        # menu: 111/150 @ $0.63/res - best Sonnet quality; dominated by quality_max
         variant: unbounded_budget            # unbounded floor @ b=100
         mode: sequential
         turn_budget: 100
@@ -164,7 +164,7 @@ deployment_defaults:
         source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
 
       ceiling:
-        # menu: 138/150 @ $0.65/res - 93% of the 148/150 capability cap
+        # menu: 138/150 @ $0.66/res - 93% of the 148/150 capability cap
         variant: unbounded_budget            # unbounded floor (Opus)
         mode: sequential
         turn_budget: 100
@@ -182,13 +182,13 @@ deployment_defaults:
 menu:
   cost_min:    {tier: sonnet, config: relevance_ranker,             resolved: 80, n: 150, usd_per_resolve: 0.34,
                 note: "cheapest credible"}
-  balanced:    {tier: sonnet, config: two_pass_critique,         resolved: 98, n: 150, usd_per_resolve: 0.63,
-                note: "98/150 leak-free (force_stage2), $0.41/att $0.63/res; beats Agentless on both axes (172/300 vs 152/300, p=0.0055)"}
-  quality:     {tier: sonnet, config: unbounded_budget,        resolved: 111, n: 150, usd_per_resolve: 0.64,
+  balanced:    {tier: sonnet, config: two_pass_critique,         resolved: 98, n: 150, usd_per_resolve: 0.62,
+                note: "98/150 leak-free (force_stage2), $0.41/att $0.62/res; beats Agentless on both axes (172/300 vs 152/300, p=0.0055)"}
+  quality:     {tier: sonnet, config: unbounded_budget,        resolved: 111, n: 150, usd_per_resolve: 0.63,
                 note: "best Sonnet; dominated by the Opus implicit-budget knee on BOTH axes"}
   quality_max: {tier: opus,   config: implicit_budget, resolved: 128, n: 150, usd_per_resolve: 0.56,
                 note: "dominates floor@100 on BOTH axes - the only entry that also beats the best single Sonnet variant"}
-  ceiling:     {tier: opus,   config: unbounded_budget,      resolved: 138, n: 150, usd_per_resolve: 0.65,
+  ceiling:     {tier: opus,   config: unbounded_budget,      resolved: 138, n: 150, usd_per_resolve: 0.66,
                 note: "93% of the 148/150 capability cap; only 2 matplotlib instances unreachable"}
 
 # ──────────────────────────────────────────────────────────────────────────────
