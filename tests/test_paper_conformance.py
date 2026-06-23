@@ -130,7 +130,7 @@ def test_bad_controller_block_raises_at_construction():
 # ── Table 1: the shipped menu resolves with the named variants ───────────────
 
 @pytest.mark.parametrize("tier,knee,variant", [
-    ("sonnet", "cost_min", "relevance_ranker"),
+    ("sonnet", "cost_min", "signaled_budget"),
     ("sonnet", "balanced", "two_pass_critique"),
     ("sonnet", "quality", "unbounded_budget"),
     ("opus", "quality_max", "implicit_budget"),

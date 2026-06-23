@@ -908,11 +908,6 @@
      "section": "sec:agreement_signal, sec:agreement_validity"
     },
     {
-     "id": "C6",
-     "title": "Calibrated cross-tier Pareto menu",
-     "section": "tab:shipped_presets, tab:cross_tier_cells"
-    },
-    {
      "id": "C9",
      "title": "Workload capability ceiling (cross-tier oracle union)",
      "section": "sec:ceiling"
@@ -1137,6 +1132,11 @@
      "id": "C1",
      "title": "Diverse-sample agreement: doomed precision + anti-circularity",
      "section": "sec:agreement_signal, sec:agreement_validity"
+    },
+    {
+     "id": "C6",
+     "title": "Calibrated cross-tier Pareto menu",
+     "section": "tab:shipped_presets, tab:cross_tier_cells"
     },
     {
      "id": "C9",

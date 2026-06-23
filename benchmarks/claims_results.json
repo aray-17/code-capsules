@@ -155,9 +155,9 @@
       "id": "C6",
       "title": "Calibrated cross-tier Pareto menu",
       "section": "tab:shipped_presets, tab:cross_tier_cells",
-      "paper": "cost_min 80/$0.34, balanced 98/$0.62, quality 111/$0.63, quality_max 128/$0.56, ceiling 138/$0.66; quality_max out-resolves quality at lower $/resolve",
+      "paper": "cost_min 84/$0.31, balanced 98/$0.62, quality 111/$0.63, quality_max 128/$0.56, ceiling 138/$0.66; quality_max out-resolves quality at lower $/resolve",
       "data": [
-        "evals/p10_sonnet_p8c_n150_20260515T235913.jsonl",
+        "evals/p10_sonnet_signaled10_n150_20260515T231227.jsonl",
         "evals/leakfree/tb_forcestage2_first150.jsonl",
         "evals/p9_opus_implicit20_n150_combined_20260527.jsonl",
         "evals/p9_opus_floor_n150_combined_20260527.jsonl"
@@ -170,7 +170,7 @@
         "more resolved? True",
         "cheaper per resolve? True"
       ],
-      "reproduced": "====================================================================================\nCLAIM 6 -- calibrated cross-tier Pareto menu (paper Table tab:shipped_presets)\n====================================================================================\nmenu entry   resolved (paper)   $/att (paper)          $/res (paper)          match\n------------------------------------------------------------------------------------\ncost_min     80/150 (80/150)    0.1827 (0.18)          0.3425 (0.34)          OK\n             relevance ranker (Sonnet, b=10)\nbalanced     98/150 (98/150)    0.4080 (0.41)          0.6246 (0.62)          OK\n             two-pass critique (Sonnet, 10->25)\nquality      111/150 (111/150)  0.4663 (0.47)          0.6301 (0.63)          OK\n             unbounded budget (Sonnet, b=100)\nquality_max  128/150 (128/150)  0.4802 (0.48)          0.5628 (0.56)          OK\n             implicit budget (Opus, b=20)\nceiling      138/150 (138/150)  0.6042 (0.60)          0.6567 (0.66)          OK\n             unbounded budget (Opus, b=100)\n------------------------------------------------------------------------------------\nALL CELLS REPRODUCE\n====================================================================================\n\nAbstract cross-check (L204-205): quality_max out-resolves quality at lower $/res\n  quality_max (Opus impl-20): 128/150 @ $0.56/res  vs  quality (Sonnet floor): 111/150 @ $0.63/res\n  more resolved? True (paper: yes, 128>111);  cheaper per resolve? True (paper: yes, $0.56<$0.63)\n  -> abstract claim holds\n"
+      "reproduced": "====================================================================================\nCLAIM 6 -- calibrated cross-tier Pareto menu (paper Table tab:shipped_presets)\n====================================================================================\nmenu entry   resolved (paper)   $/att (paper)          $/res (paper)          match\n------------------------------------------------------------------------------------\ncost_min     84/150 (84/150)    0.1739 (0.17)          0.3105 (0.31)          OK\n             signaled budget (Sonnet, b=10)\nbalanced     98/150 (98/150)    0.4080 (0.41)          0.6246 (0.62)          OK\n             two-pass critique (Sonnet, 10->25)\nquality      111/150 (111/150)  0.4663 (0.47)          0.6301 (0.63)          OK\n             unbounded budget (Sonnet, b=100)\nquality_max  128/150 (128/150)  0.4802 (0.48)          0.5628 (0.56)          OK\n             implicit budget (Opus, b=20)\nceiling      138/150 (138/150)  0.6042 (0.60)          0.6567 (0.66)          OK\n             unbounded budget (Opus, b=100)\n------------------------------------------------------------------------------------\nALL CELLS REPRODUCE\n====================================================================================\n\nAbstract cross-check (L204-205): quality_max out-resolves quality at lower $/res\n  quality_max (Opus impl-20): 128/150 @ $0.56/res  vs  quality (Sonnet floor): 111/150 @ $0.63/res\n  more resolved? True (paper: yes, 128>111);  cheaper per resolve? True (paper: yes, $0.56<$0.63)\n  -> abstract claim holds\n"
     },
     {
       "id": "C9",

@@ -113,14 +113,14 @@ deployment_defaults:
     sonnet:
 
       cost_min:
-        # menu: 80/150 @ $0.34/res - cheapest credible
-        variant: relevance_ranker            # relevance ranker: preselect + signaled b=10
+        # menu: 84/150 @ $0.31/res - cheapest credible (dominates the relevance
+        # ranker on Sonnet, which is the cost-tier-portable cheap pick on Haiku)
+        variant: signaled_budget             # signaled ten-turn budget, single-shot
         mode: sequential
         turn_budget: 10
         prompt_budget_hint: 10
-        preselect_top_n: 10
-        pass_rate: 0.533                     # 80/150
-        cost_per_task: 0.18
+        pass_rate: 0.560                     # 84/150
+        cost_per_task: 0.174
         source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
 
       balanced:
@@ -179,8 +179,8 @@ deployment_defaults:
 # registry names (see the controller NOTE below); descriptive names in prose.
 # ──────────────────────────────────────────────────────────────────────────────
 menu:
-  cost_min:    {tier: sonnet, config: relevance_ranker,             resolved: 80, n: 150, usd_per_resolve: 0.34,
-                note: "cheapest credible"}
+  cost_min:    {tier: sonnet, config: signaled_budget,              resolved: 84, n: 150, usd_per_resolve: 0.31,
+                note: "cheapest credible; dominates the relevance ranker on Sonnet"}
   balanced:    {tier: sonnet, config: two_pass_critique,         resolved: 98, n: 150, usd_per_resolve: 0.62,
                 note: "98/150 leak-free (force_stage2), $0.41/att $0.62/res; beats Agentless on both axes (172/300 vs 152/300, p=0.0055)"}
   quality:     {tier: sonnet, config: unbounded_budget,        resolved: 111, n: 150, usd_per_resolve: 0.63,

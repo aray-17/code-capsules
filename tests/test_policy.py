@@ -101,9 +101,9 @@ def test_policy_for_default_knee():
 
 def test_policy_for_cost_min():
     p = policy_for(knee="cost_min")
-    assert p.variant == "relevance_ranker"
+    assert p.variant == "signaled_budget"
     assert p.turn_budget == 10
-    assert p.cost_per_task == pytest.approx(0.18)
+    assert p.cost_per_task == pytest.approx(0.174)
 
 
 def test_policy_for_balanced():

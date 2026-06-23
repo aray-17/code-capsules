@@ -8,8 +8,8 @@ Section~\ref{sec:strong_tier_menu} (L1483-1489).
 
 Target numbers (quoted from paper.tex, the source of truth):
 
-  L693  cost_min     relevance ranker (Sonnet, b=10)   80/150  $0.18/att  $0.34/res
-  L694  balanced     two-pass critique (Sonnet,10->25) 98/150  $0.41/att  $0.62/res
+        cost_min     signaled budget (Sonnet, b=10)    84/150  $0.17/att  $0.31/res
+        balanced     two-pass critique (Sonnet,10->25) 98/150  $0.41/att  $0.62/res
   L695  quality      unbounded budget (Sonnet, b=100)  111/150 $0.47/att  $0.63/res
   L696  quality_max  implicit budget (Opus, b=20)      128/150 $0.48/att  $0.56/res
   L697  ceiling      unbounded budget (Opus, b=100)    138/150 $0.60/att  $0.66/res
@@ -20,9 +20,9 @@ Per-cell metrics:
   $/res    = sum(cost_usd) / resolved   (cost per resolved instance)
 
 Data sources (one committed JSONL per cell):
-  cost_min     evals/p10_sonnet_p8c_n150_20260515T235913.jsonl
-                 ("p8c" == relevance-ranker stacked on a 10-turn signaled budget;
-                  flat per-instance schema, key 'resolved' / 'cost_usd')
+  cost_min     evals/p10_sonnet_signaled10_n150_20260515T231227.jsonl
+                 (the bare ten-turn signaled budget; dominates the relevance
+                  ranker on Sonnet; flat per-instance schema, key 'resolved' / 'cost_usd')
   balanced     evals/leakfree/tb_forcestage2_first150.jsonl
                  (leak-free two-pass critique, second pass run UNCONDITIONALLY --
                   the always-run config; flat per-instance schema, cost is the
@@ -92,9 +92,9 @@ def score_candidate(path, cand_key):
 CELLS = [
     (
         "cost_min",
-        "relevance ranker (Sonnet, b=10)",
-        lambda: score_flat(ROOT / "evals/p10_sonnet_p8c_n150_20260515T235913.jsonl"),
-        80, 0.18, 0.34,
+        "signaled budget (Sonnet, b=10)",
+        lambda: score_flat(ROOT / "evals/p10_sonnet_signaled10_n150_20260515T231227.jsonl"),
+        84, 0.17, 0.31,
     ),
     (
         "balanced",

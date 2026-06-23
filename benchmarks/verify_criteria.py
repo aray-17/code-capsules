@@ -133,11 +133,11 @@ CLAIMS = [
         id="C6",
         title="Calibrated cross-tier Pareto menu",
         section="tab:shipped_presets, tab:cross_tier_cells",
-        paper="cost_min 80/$0.34, balanced 98/$0.62, quality 111/$0.63, quality_max 128/$0.56, ceiling 138/$0.66; "
+        paper="cost_min 84/$0.31, balanced 98/$0.62, quality 111/$0.63, quality_max 128/$0.56, ceiling 138/$0.66; "
               "quality_max out-resolves quality at lower $/resolve",
         cmd=["python3", "benchmarks/swebench/cross_tier_pareto_menu.py"],
         markers=["ALL CELLS REPRODUCE", "more resolved? True", "cheaper per resolve? True"],
-        data=["evals/p10_sonnet_p8c_n150_20260515T235913.jsonl",
+        data=["evals/p10_sonnet_signaled10_n150_20260515T231227.jsonl",
               "evals/leakfree/tb_forcestage2_first150.jsonl",
               "evals/p9_opus_implicit20_n150_combined_20260527.jsonl",
               "evals/p9_opus_floor_n150_combined_20260527.jsonl"],

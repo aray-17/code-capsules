@@ -637,15 +637,16 @@ SHIPPED_PRESETS: dict[tuple[str, str, str], CodeCapsulesPolicy] = {
     # table. cost_min/balanced/quality run on Sonnet; quality_max/ceiling on Opus.
     # cost_per_task is the cache-aware $/attempt on the calibration set.
     ("hard_workload", "sonnet", "cost_min"): CodeCapsulesPolicy(
-        variant="relevance_ranker",
+        variant="signaled_budget",
         mode="sequential",
         turn_budget=10,
         prompt_budget_hint=10,
         workload_class="hard_workload",
         tier="sonnet",
         knee="cost_min",
-        pass_rate=0.380,        # 57/150, the cheapest credible cell
-        cost_per_task=0.18,
+        pass_rate=0.560,        # 84/150, the cheapest credible cell (dominates
+                                # the relevance ranker on Sonnet)
+        cost_per_task=0.174,
     ),
     ("hard_workload", "sonnet", "balanced"): CodeCapsulesPolicy(
         variant="two_pass_critique",

@@ -36,12 +36,12 @@ WORKLOAD = "hard_workload"
 # Replace with your harness's measurements. The last row is a dominated cell,
 # included to show the Pareto filter drop it.
 MEASURED_CELLS = [
-    ("relevance_ranker",  "sequential", 10,  "sonnet", 0.38, 0.18),
+    ("signaled_budget",   "sequential", 10,  "sonnet", 0.56, 0.17),
     ("two_pass_critique", "escalating", 10,  "sonnet", 0.44, 0.41),
     ("unbounded_budget",  "sequential", 100, "sonnet", 0.51, 0.47),
     ("implicit_budget",   "sequential", 20,  "opus",   0.61, 0.48),
     ("unbounded_budget",  "sequential", 100, "opus",   0.64, 0.60),
-    ("signaled_budget",   "sequential", 5,   "sonnet", 0.30, 0.20),  # dominated
+    ("relevance_ranker",  "sequential", 10,  "sonnet", 0.53, 0.18),  # dominated on Sonnet by signaled_budget
 ]
 
 KNEES = ["cost_min", "balanced", "quality", "quality_max", "ceiling"]
