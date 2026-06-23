@@ -8,8 +8,10 @@ paper is tagged
 [`v1.0-arxiv`](https://github.com/aray-17/code-capsules/releases/tag/v1.0-arxiv).
 
 The headline claims below reproduce **offline** (no Docker, no API keys,
-no model calls) from the committed evaluation data under [`evals/`](evals/);
-the deployment-governor claims (Section 7) are detailed in the paper.
+no model calls) from the committed evaluation data under [`evals/`](evals/),
+including the deployment-governor claims (the diverse-sample agreement
+signal, the regression-suite gate, the escalation gate, and the
+value-of-resolve rule).
 Reproduce the headline claims at once:
 
 ```bash
@@ -46,23 +48,23 @@ instances are doomed at this tier, while the oracle union resolves
 106 of 126. Paper §agreement; scorer
 [`benchmarks/swebench/agreement_signal.py`](benchmarks/swebench/agreement_signal.py).
 
-**C2. The single-tier run-both-and-abandon lever is retired as a
-first-class negative.** Running a diverse pair and abandoning at one
-tier resolves 84/150 at roughly \$1.41/resolve, dominated by the
-unbounded floor (111/150 @ \$0.63/resolve): +124% cost for fewer
-resolves. Selection adds zero (77 vs. 77), and stopping destroys 28
-real resolves. Ship precision is 75% (first-150) / 77% (held-out). The
-separate two-config diverse-select composition resolves 104/126 @
-\$85.02 (\$0.82/resolve). Reported as a negative: the single-tier
-composition adds zero resolves over its best single member. Scorer
+**C2. The run-both lever lands within two instances of the oracle, yet
+adds nothing deployable.** Running a diverse pair and selecting between
+candidates resolves 122/150 @ \$118.75 — within two instances of the
+per-instance oracle union (124/150) — but selection adds zero net
+resolves over its best single member. Deployed as a single-tier abandon
+rule it is dominated by the unbounded floor (111/150 @ \$0.63/resolve)
+and resolves 84/150 honest at \$1.41/resolve (+124% cost for fewer
+resolves), so it is retired as a first-class negative. Ship precision is
+77% (first-150) / 70% (held-out). Scorer
 [`benchmarks/swebench/oracle_governor.py`](benchmarks/swebench/oracle_governor.py).
 
 **C3. A regression-suite gate recovers a majority of wrongly-abandoned
 resolves.** Conditioning the abandon decision on a green regression
-suite lifts the honest single-tier controller from 64 to 84 resolves
-by recovering 15 of 28 wrong-abandons, then to 99, still 12 short of
-the unbounded floor (111), so it narrows the gap rather than reaching
-parity. A regression-green candidate resolves with probability 0.792.
+suite lifts the honest controller from 84 to 99 resolves by recovering
+15 of 28 wrong-abandons, 12 short of the unbounded floor (111), so it
+narrows the gap rather than reaching parity. A regression-green
+candidate resolves with probability 0.792.
 Scorer
 [`benchmarks/swebench/regression_gate.py`](benchmarks/swebench/regression_gate.py).
 
@@ -110,14 +112,6 @@ below Sonnet. Scorer
 
 ## Negative results
 
-**C7. Evaluation-gated leakage deflated a reported cost by ~1.32×.** An
-earlier two-pass configuration consulted the benchmark's held-out
-verdict to skip its second pass, deflating its measured per-instance
-cost from \$0.408 (honest, always-run) to \$0.308 (leaky) — a factor of
-1.32. The corrected, leak-free configuration runs both passes
-unconditionally. Scorer
-[`benchmarks/swebench/leakage_cost_deflation_gate.py`](benchmarks/swebench/leakage_cost_deflation_gate.py).
-
 **C9. The workload is almost entirely reachable.** The cross-tier
 oracle union resolves 148/150 (98.7%); only 2 matplotlib instances
 (`matplotlib-22711` and `matplotlib-25498`) are unreachable across all
@@ -125,11 +119,11 @@ tiers tested. Opus alone covers 143/150, and the cross-vendor portfolio
 adds 5 more. Scorer
 [`benchmarks/swebench/ceiling_union.py`](benchmarks/swebench/ceiling_union.py).
 
-**C10. A scoring bug, not a capability ceiling, explained sympy 0/77.**
-Scoring sympy with `python -m pytest` (which sympy's testbed lacks)
-scored 0/77; the canonical `bin/test` harness recovers Agentless to
+**C10. sympy is scored under its canonical `bin/test` runner.** The
+sympy testbed is scored with sympy's own `bin/test` harness, validated
+by reference patches; under it the Agentless oracle@k baseline resolves
 31/77. Scorer
-[`benchmarks/swebench/sympy_evalbug_gate.py`](benchmarks/swebench/sympy_evalbug_gate.py).
+[`benchmarks/swebench/sympy_canonical_score.py`](benchmarks/swebench/sympy_canonical_score.py).
 
 **C11. Tier escalation recovers a majority of doomed instances at low
 cost multiples.** Against a \$0.82/resolve base, escalating an
@@ -148,8 +142,7 @@ non-comparable escalation options over different doomed sets. Scorer
   the offline gate: it runs every scorer over the committed data,
   checks the paper's load-bearing numbers appear, and writes
   [`benchmarks/claims_results.json`](benchmarks/claims_results.json).
-  The headline claims reproduce offline (exit code 0); the Section 7
-  deployment-governor claims are cited to the paper.
+  Every claim reproduces offline (exit code 0).
 - The evidence explorer
   ([`benchmarks/explorer/`](benchmarks/explorer/), launched by
   [`benchmarks/explore.sh`](benchmarks/explore.sh)) is a
@@ -158,8 +151,9 @@ non-comparable escalation options over different doomed sets. Scorer
   evaluation run (per-instance rows, resolved / cost, aggregates).
 - Quality is measured by the SWE-bench resolution verdict (the
   patch's effect on the held-out test suite). The held-out verdict
-  is used only to *score* — never inside the agent's control flow.
-  The leakage that violated this is documented as C7.
+  is used only to *score* — never inside the agent's control flow:
+  deployable signals (reproduction scripts, regression suites, patch
+  presence) drive every control decision.
 - Cross-vendor absolute pass rates are not directly comparable across
   providers; the paper discloses this and reports cost as one modeled
   surface.

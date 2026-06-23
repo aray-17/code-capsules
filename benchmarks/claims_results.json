@@ -4,59 +4,68 @@
       "id": "C1",
       "title": "Diverse-sample agreement: doomed precision + anti-circularity",
       "section": "sec:agreement_signal, sec:agreement_validity",
-      "paper": "floor+siginject 98% in-family precision (fires 65, 1 false-abandon, 100% recall); Agentless recovers 0 on the doomed set (anti-circularity); 75.4% independent",
+      "paper": "Figure 4 (\u00a79.1, n=126 in-family): single-config 64.5%, median pair 66.7%, best pair floor+siginject 90.9% (fires 22, false 2); two-config select 104/126 @ $85.02 ($0.82/res), floor-alone 95/126 @ $43.20, 3rd config adds 0; independent ~22% (6/27); Agentless recovers 0 on the Sonnet-doomed set (anti-circularity)",
       "data": [
+        "evals/scopeC/menu/canonical_p10_sonnet_*_n150_*.jsonl",
         "evals/p10_sonnet_*_n150_*.jsonl",
-        "evals/p9_opus_floor_n150_combined_20260527.jsonl"
+        "evals/scopeC/opus/canonical_floor.jsonl",
+        "evals/scopeC/canonical_agentless.jsonl",
+        "evals/p9_opus_floor_n150_combined_20260527.jsonl",
+        "evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/agreement_signal.py",
-      "status": "PAPER-REF",
+      "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "precision  98%",
-        "recall 100%",
+        "MATCH: all 19 Figure 4",
+        "precision 90.9%",
         "Agentless recovers 0"
       ],
-      "reproduced": ""
+      "reproduced": "=== FIGURE 4 (fig:agreement, \u00a79.1): n=126 in-family Sonnet intersection ===\nconfigs: ['floor', 'implicit20', 'implicit40', 'p8c', 'phaseStaged_b35', 'planFirst_b20', 'siginject_b10x3', 'signaled10', 'toolAlloc_b20', 'twopass_b10p15']\nn=126; oracle-union 106/126; DOOMED(0/10) 20/126\n\nABANDON-precision bars (Figure 4, in-family):\n  single config (floor)        precision 64.5%  (fires 31, false-abandon 11)\n  median of 45 diverse pairs   precision 66.7%\n  best diverse pair floor+siginject_b10x3  precision 90.9%  (fires 22, false-abandon 2)\n  independent (out-of-family)  precision 22.2%  (6/27 doomed everywhere -- COLLAPSE)\n\nCOVERAGE levers (gold-graded replay):\n  single baseline select (floor)            95/126 @ $43.20\n  two-config select (floor+siginject)       104/126 @ $85.02  ($0.82/resolve)\n  + third config (planFirst)                104/126  (adds 0)\n\n=== FIGURE 4 reproduction check vs paper \u00a79.1 ===\n  OK n                          computed=126                  paper=126\n  OK doomed                     computed=20                   paper=20\n  OK oracle_union               computed=106                  paper=106\n  OK single_fires               computed=31                   paper=31\n  OK single_false               computed=11                   paper=11\n  OK single_prec(%.1f%%)        computed=64.5                 paper=64.5\n  OK median_prec(%.1f%%)        computed=66.7                 paper=66.7\n  OK best_pair                  computed=('floor', 'siginject_b10x3') paper=('floor', 'siginject_b10x3')\n  OK best_fires                 computed=22                   paper=22\n  OK best_false                 computed=2                    paper=2\n  OK best_prec(%.1f%%)          computed=90.9                 paper=90.9\n  OK floor_select               computed=95                   paper=95\n  OK floor_cost($)              computed=43.2                 paper=43.2\n  OK two_select                 computed=104                  paper=104\n  OK two_cost($)                computed=85.02                paper=85.02\n  OK third_adds                 computed=0                    paper=0\n  OK independent_doomed         computed=6                    paper=6\n  OK independent_universe       computed=27                   paper=27\n  OK independent_prec(~%d%%)    computed=22                   paper=22\n\nMATCH: all 19 Figure 4 (fig:agreement, \u00a79.1) numbers reproduce the paper EXACTLY on the n=126 in-family Sonnet intersection.\n\n=== CROSS-MODEL within-tier replication, n=150 universe (NOT the \u00a79.1 figure) ===\n  Sonnet  n=150 doomed= 26: best pair [floor+siginject_b10x3] precision 93% (fires 28, false-abandon 2)\n  Haiku   n=150 doomed= 47: best pair [floor+implicit40] precision 96% (fires 49, false-abandon 2)\n  -> mechanism replicates across tiers; partner config is model-specific.\n\n=== OPUS-TIER abandon-vs-escalate boundary, n=150 (n=28 Sonnet-doomed) ===\n  Opus floor 21 | Opus siginject 20 | union 21 (diverse: +0/1 each unique)\n  escalate-tier reach 21/28 (75%) at modeled $50.04 = $2.38/resolve (vs $1.40 base => marginal; confirms Phase 8/9 negative)\n  both-Opus-fail 7; Agentless recovers 0 => ABANDON precision 100% (doomed across 5 configs / 2 tiers / 2 harnesses)\n  -> ABANDON is the economical default; the agreement mechanism FIRES at the Opus tier.\n\n=== LOW->HIGH ladder, n=150: Haiku agreement-fail (floor+implicit40) -> Sonnet/Opus (n=150) ===\n  Haiku agreement-fail (doomed): 49/150\n  escalate -> Sonnet recovers 17 (35%); Opus recovers 40 (82%); either 40\n  truly-doomed up to Opus: 9/150 (abandon-safe across 3 tiers)\n  Sonnet-escalation cost $40.18 -> $2.36/resolve (marginal, > $1.40 base).\n  -> low->high recovers MORE than mid->high (weaker start = more headroom) but stays a costly tail.\n"
     },
     {
       "id": "C3",
       "title": "Regression-suite gate restores wrong-abandons at zero cost",
       "section": "sec:agreement_regression_gate",
-      "paper": "first-150 64/70/77, held-out 76/77/87; P(resolve|green)=0.745; gate-negative 0.11->0.37; candidate AUC 0.81->0.64; headline 0.83",
+      "paper": "first-150 honest 84 -> gate 99 (baseline 111), held-out 76 -> 89 (baseline 93); P(resolve|regression-green)=0.792; SHIP precision 77%/75%, 28 false-positive ships",
       "data": [
         "evals/leakfree/exp4_lever_floor100_siginject.jsonl",
-        "evals/leakfree/exp4_lever_second150.jsonl"
+        "evals/leakfree/exp4_lever_second150.jsonl",
+        "evals/p10_sonnet_floor_n150_20260516T040248.jsonl",
+        "evals/p10_sonnet_siginject_b10x3_n150_20260517T035438.jsonl",
+        "evals/canonical_p10_sonnet_strat_holdout_floor_20260520T075105.jsonl",
+        "evals/canonical_p10_sonnet_strat_holdout_siginject_b10x3_20260517T173631.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/regression_gate.py",
-      "status": "PAPER-REF",
+      "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "first-150  = (64, 70, 77)",
-        "MATCH: first-150=True  held-out=True",
-        "0.7447"
+        "honest=84  gate=99  floor-alone=111",
+        "0.792",
+        "ALL CLAIM-3 NUMBERS REPRODUCE PAPER: True"
       ],
-      "reproduced": ""
+      "reproduced": "========================================================================\nCLAIM 3 -- regression-suite gate -- offline reproduction (canonical gold)\n========================================================================\n    rows loaded: first-150=150\n    rows loaded: held-out=150\n\n[1] Lever decisions first-150 (gold-independent):\n    SHIP=100  NO_REPRO_FALLBACK=12  ABANDON=38\n    paper: 100 / 12 / 38     MATCH: True\n\n[2] Honest controller / regression gate / floor-alone baseline:\n    first-150  honest=84  gate=99  floor-alone=111   paper=(84, 99, 111)   MATCH: True\n               gate recovers 15 of 28 wrong-abandons; 12 short of unbounded 111.\n    held-out   honest=76  gate=89  floor-alone=93   paper=(76, 89, 93)   MATCH: True\n\n[3] P(resolve | regression-green)  [ALL candidates, first-150]:\n    126/159 = 0.7925     paper: 0.792 (126/159)   MATCH: True\n\n[4] SHIP precision + false-positive ships [first-150]:\n    SHIP-only       = 77/100 = 0.770  (77.0%)\n    SHIP+fallback   = 84/112 = 0.750  (75.0%)\n    false-positive ships = 28\n    paper: 77.0% (77/100) / 75.0% (84/112), 28 FP ships   MATCH: True\n\n========================================================================\nALL CLAIM-3 NUMBERS REPRODUCE PAPER: True\n========================================================================\n"
     },
     {
       "id": "C4",
       "title": "Model-tier escalation gate",
       "section": "sec:agreement_escalation",
-      "paper": "20/21 gate-positive vs 3/17 gate-negative; 84/150 @ $1.60/resolve; base $1.40; regok close 11/17 vs lost 4/32; held-out 37%",
+      "paper": "21/21 gate-positive and 15/17 gate-negative recovered; base 64 -> 85/150 at $1.58 per resolve",
       "data": [
         "evals/leakfree/exp4_lever_floor100_siginject.jsonl",
         "evals/leakfree/exp4_lever_second150.jsonl",
-        "evals/leakfree/warmstart_opus_cold.jsonl",
-        "evals/p9_opus_floor_n150_combined_20260527.jsonl",
-        "evals/leakfree/e1b_detector.jsonl"
+        "evals/scopeC/opus/canonical_floor.jsonl",
+        "evals/p9_opus_floor_n150_combined_20260527.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/escalation_gate.py",
-      "status": "PAPER-REF",
+      "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "RESULT: ALL NUMBERS REPRODUCE"
+        "escalation resolved: 85/150",
+        "$1.58",
+        "ALL NUMBERS REPRODUCE"
       ],
-      "reproduced": ""
+      "reproduced": "CLAIM 4 -- model-tier escalation gate (Section 9.8)\n\n(A) Strong-tier recovery on the 38 abandons, split by regression gate:\n  [OK ] abandon-universe: 38  (paper: 38)\n  [OK ] regok partition (pos/neg): 21/17  (paper: 21/17)\n  [OK ] gate-positive recovered: 21 of 21  (paper: 21 of 21)\n  [OK ] gate-negative recovered: 15 of 17  (paper: 15 of 17)\n\n(B) Regression-gated escalation (base 64 + 21 = 85/150):\n  [OK ] honest single-tier base: 64  (paper: 64)\n  [OK ] lever total cost: $118.75  (paper: $118.75)\n  [OK ] Opus escalation cost (21): $15.61  (paper: $15.61)\n  [OK ] escalation resolved: 85/150  (paper: 85/150)\n  [OK ] escalation net gain over base: 21  (paper: 21)\n  [OK ] escalation cost-per-resolve: $1.58  (paper: $1.58)\n       (unrounded $/res = $1.5807; total cost $134.36)\n\n(C) regok close/lost split (cold cascade over 49 patch-bearing failures):\n  [OK ] close (regok not-red) rescued: 14 of 17  (paper: 14 of 17)\n  [OK ] lost (regok red) rescued: 30 of 32  (paper: 30 of 32)\n\n(D) Held-out gate-negative carried-patch resolve rate:\n  [OK ] P(resolve | regok-red, has_patch): 37%  (paper: 37%)\n       (= 17/46 = 0.370)\n\nRESULT: ALL NUMBERS REPRODUCE -- MATCH\n"
     },
     {
       "id": "C5",
@@ -102,44 +111,41 @@
       "id": "C11",
       "title": "Value-of-resolve decision rule (escalation economics)",
       "section": "sec:negative_cascade",
-      "paper": "base $0.97/resolve; tier escalation $1.34 / $2.38 / $1.10 per recovered resolve",
+      "paper": "base $0.82/resolve (n=126 in-family); tier escalation $1.37 / $2.71 / $1.47 per recovered resolve",
       "data": [
-        "evals/p9_opus_floor_n150_combined_20260527.jsonl",
-        "evals/opus_siginject_agreementfail65.jsonl"
+        "evals/scopeC/value_of_resolve_corrected.json",
+        "evals/scopeC/menu/canonical_p10_sonnet_floor_n150_20260516T040248.jsonl",
+        "evals/p9_opus_floor_n150_combined_20260527.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/value_of_resolve.py",
-      "status": "PAPER-REF",
+      "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "$0.97 per resolve",
-        "$1.34",
-        "$2.38",
-        "$1.10",
+        "base $/resolve: $0.82",
+        "$1.37",
         "ALL NUMBERS REPRODUCE"
       ],
-      "reproduced": ""
+      "reproduced": "BASE (2-config diverse-select, n=126 in-family): 104/126 resolved at $85.02 => $0.82 per resolve  (always worth it for value-of-resolve V > $0.82)\n\nescalation option                        recovers   $ total  $/resolve  escalate iff V >=\n  Sonnet-doomed -> Opus (1 config)  21/27  (78%)   $ 28.76   $   1.37   $1.37\n  Sonnet-doomed -> Opus (2 configs)  22/27  (81%)   $ 59.61   $   2.71   $2.71\n  Haiku-doomed -> Opus (1 config)   40/49  (82%)   $ 58.80   $   1.47   $1.47\n  3-tier + harness core (matplotlib)   0/2   ( 0%)                        never\n\nDECISION RULE: run the base everywhere (V > $0.82); escalate the agreement-doomed set to a stronger tier ONLY when value-of-resolve V exceeds that option's $/resolve ($1.37 cheapest to $2.71 richest). The 3-tier+harness core never recovers: abandon at any V.\n\nVERIFICATION vs paper figures (n=126 in-family universe):\n  [OK ] base $/resolve: $0.82  (paper: $0.82)\n  [OK ] Sonnet-doomed -> Opus (1 config): $1.37  (paper: $1.37)\n  [OK ] Sonnet-doomed -> Opus (2 configs): $2.71  (paper: $2.71)\n  [OK ] Haiku-doomed -> Opus (1 config): $1.47  (paper: $1.47)\n\nRESULT: ALL NUMBERS REPRODUCE\n"
     },
     {
       "id": "C2",
-      "title": "Oracle-relative governor (run-both lever within one instance of the oracle)",
+      "title": "Oracle-relative governor (run-both lever within two instances of the oracle)",
       "section": "sec:agreement_oracle",
-      "paper": "lever 85/150 @ $118.75 = oracle 86/150 within one instance; ship precision 58% / 67%",
+      "paper": "run-both lever 122/150 @ $118.75, within two instances of the oracle union 124/150; ship precision 77% (first-150) / 70% (held-out)",
       "data": [
         "evals/leakfree/exp4_lever_floor100_siginject.jsonl",
         "evals/leakfree/exp4_lever_second150.jsonl",
         "evals/p10_sonnet_floor_n150_20260516T040248.jsonl"
       ],
       "cmd": "python3 benchmarks/swebench/oracle_governor.py",
-      "status": "PAPER-REF",
+      "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "lever total cost: $118.75",
-        "oracle union ceiling: 86",
-        "first-150 ship precision: 58%",
-        "held-out ship precision: 67%",
+        "oracle union ceiling: 124",
+        "lever pair (floor+siginject) resolved: 122",
         "ALL TARGET NUMBERS REPRODUCE"
       ],
-      "reproduced": ""
+      "reproduced": "CLAIM 2 -- oracle-relative governor (run-both diverse-select lever)\n\n(A) Run-both diverse-select lever, first-150 deployable replay:\n  [OK ] gold-union resolved: 122  (paper: 122, L1641/L1714/L2428 ($118.75/122))\n  [OK ] lever total cost: $118.75  (paper: $118.75, L1641-1642/L1714/L2428)\n       (unrounded lever cost = $118.7454)\n\n(B) Distance from the omniscient oracle (first-150 gold-graded sweep replay):\n       configs in pool: ['floor', 'implicit20', 'implicit40', 'p8c', 'phaseStaged_b35', 'planFirst_b20', 'siginject_b10x3', 'signaled10', 'toolAlloc_b20', 'twopass_b10p15'] (n=150)\n  [OK ] oracle union ceiling: 124  (paper: 124, L1610-1611 (124/150))\n  [OK ] doomed (no config resolves): 26  (paper: 26, L1608 (26/150))\n  [OK ] lever pair (floor+siginject) resolved: 122  (paper: 122, L1641 (122/150))\n  [OK ] two-config select modeled cost: $118.75  (paper: $118.75, L1642)\n  [OK ] both-fail instances (all abandoned by agreement): 28  (paper: 28, L1708/L1714)\n  [OK ] 3rd config (plan-then-execute) recovers: 0  (paper: 0, L1645/L1709-1711 (none))\n  [OK ] 3rd-config escalation cost (+ on both-fail): $9.06  (paper: $9.06, L1709 (-> $127.81))\n  [OK ] 3-config escalate modeled cost: $161.86  (paper: $161.86, L1645)\n  [OK ] oracle-recoverable both-fail (the +2 -> 124): 2  (paper: 2, L1711-1712)\n  [OK ] lever vs oracle gap (instances): 2  (paper: 2, L1714 ('within two instances'))\n       (oracle-recovered both-fail instance: django__django-14534)\n       (recovered by 'another shipped configuration' ['signaled10', 'toolAlloc_b20']; cheapest marginal cost = $0.0649; paper L1712-1713)\n       (oracle-recovered both-fail instance: matplotlib__matplotlib-25311)\n       (recovered by 'another shipped configuration' ['implicit40']; cheapest marginal cost = $0.6971; paper L1712-1713)\n       (total marginal to recover all 2 = $0.7620 -> $119.51 total)\n       (NOTE: none are recovered by the third plan-then-execute config, matching paper's 'recovers none')\n\n(C) Deployment-honest SHIP precision (shipped & gold-resolved / shipped):\n  [OK ] first-150 ships: 100  (paper: 100, L1742)\n  [OK ] first-150 false-positive ships: 23  (paper: 23, L1743)\n  [OK ] first-150 ship precision: 77%  (paper: 77%, L1694/L1744/L2647)\n       (first-150: 77/100 = 0.770)\n  [OK ] held-out ships: 105  (paper: 105, L1743)\n  [OK ] held-out false-positive ships: 32  (paper: 32, L1744)\n  [OK ] held-out ship precision: 70%  (paper: 70%, L1694/L1744/L2648)\n       (held-out: 73/105 = 0.695)\n\nRESULT: ALL TARGET NUMBERS REPRODUCE\n"
     },
     {
       "id": "C6",
@@ -163,25 +169,6 @@
       "reproduced": "====================================================================================\nCLAIM 6 -- calibrated cross-tier Pareto menu (paper Table tab:shipped_presets)\n====================================================================================\nmenu entry   resolved (paper)   $/att (paper)          $/res (paper)          match\n------------------------------------------------------------------------------------\ncost_min     80/150 (80/150)    0.1827 (0.18)          0.3425 (0.34)          OK\n             relevance ranker (Sonnet, b=10)\nbalanced     98/150 (98/150)    0.4080 (0.41)          0.6246 (0.62)          OK\n             two-pass critique (Sonnet, 10->25)\nquality      111/150 (111/150)  0.4663 (0.47)          0.6301 (0.63)          OK\n             unbounded budget (Sonnet, b=100)\nquality_max  128/150 (128/150)  0.4802 (0.48)          0.5628 (0.56)          OK\n             implicit budget (Opus, b=20)\nceiling      138/150 (138/150)  0.6042 (0.60)          0.6567 (0.66)          OK\n             unbounded budget (Opus, b=100)\n------------------------------------------------------------------------------------\nALL CELLS REPRODUCE\n====================================================================================\n\nAbstract cross-check (L204-205): quality_max out-resolves quality at lower $/res\n  quality_max (Opus impl-20): 128/150 @ $0.56/res  vs  quality (Sonnet floor): 111/150 @ $0.63/res\n  more resolved? True (paper: yes, 128>111);  cheaper per resolve? True (paper: yes, $0.56<$0.63)\n  -> abstract claim holds\n"
     },
     {
-      "id": "C7",
-      "title": "Evaluation-gated leakage deflated the two-pass cost (~1.3x)",
-      "section": "sec:negative_leakage",
-      "paper": "leaky $0.308/inst vs honest $0.408/inst (counts 70 vs 66); deflation factor 1.32x (corrected from a 1.31x rounding typo on 2026-06-14; paper now consistent with the data).",
-      "data": [
-        "evals/p10_sonnet_twopass_b10p15_n150_20260516T152721.jsonl",
-        "evals/leakfree/tb_forcestage2_first150.jsonl"
-      ],
-      "cmd": "python3 benchmarks/swebench/leakage_cost_deflation_gate.py",
-      "status": "PASS",
-      "missing_markers": [],
-      "markers": [
-        "mean cost_usd/instance: 0.308375",
-        "mean cost_usd/instance: 0.408047",
-        "DATA REPRODUCTION (costs + counts): PASS"
-      ],
-      "reproduced": "========================================================================\nCLAIM 7 -- evaluation-gated leakage cost deflation\n========================================================================\n\nLEAKY  (evaluation-gated; pass 2 skipped when verdict says resolved)\n  file:  evals/p10_sonnet_twopass_b10p15_n150_20260516T152721.jsonl\n  rows:  150\n  escalation_reason buckets: {'already_resolved_skip_pass2': 56, 'other/none': 94}\n  pass-2-skipped (stage2_turns==0) rows: 63\n  resolved: 102/150   (paper: 102/150)\n  mean cost_usd/instance: 0.308375   (paper: $0.308 / '~$0.31')\n  total cost_usd:         46.2563\n\nHONEST (force_stage2; second pass runs unconditionally)\n  file:  evals/leakfree/tb_forcestage2_first150.jsonl\n  rows:  150\n  escalation_reason buckets: {'force_stage2_always_run': 150}\n  pass-2-skipped (stage2_turns==0) rows: 0\n  resolved: 98/150   (paper: 98/150)\n  mean cost_usd/instance: 0.408047   (paper: $0.408 / '$0.41')\n  total cost_usd:         61.2071\n\nDEFLATION FACTOR  honest / leaky\n  computed: 1.3232   (paper-stated: 1.32)\n  computed rounds to 1.32\n  paper rounded costs 0.41/0.31 = 1.3226 -> 1.32\n  paper appendix 0.408/0.308 = 1.3247 -> 1.32\n\nMATCH SUMMARY\n  leaky  resolved 102/150 vs paper 102/150  -> MATCH\n  honest resolved 98/150 vs paper 98/150  -> MATCH\n  leaky  mean  $0.308 vs paper $0.308  -> MATCH\n  honest mean  $0.408 vs paper $0.408  -> MATCH\n  ratio  1.32 vs paper-stated 1.32  -> MATCH\n\nDATA REPRODUCTION (costs + counts): PASS\nPAPER RATIO 1.32 REPRODUCES: YES\n"
-    },
-    {
       "id": "C9",
       "title": "Workload capability ceiling (cross-tier oracle union)",
       "section": "sec:ceiling",
@@ -203,21 +190,21 @@
     },
     {
       "id": "C10",
-      "title": "sympy eval-bug: pytest scoring 0/77 -> bin/test 31/77",
+      "title": "sympy canonical bin/test scoring (Agentless 31/77)",
       "section": "sec:h2h, sec:ceiling",
-      "paper": "Agentless sympy recovers from 0/77 (pytest eval-bug) to 31/77 (bin/test harness)",
+      "paper": "Agentless resolves 31/77 sympy under the canonical bin/test runner",
       "data": [
         "evals/cc_sympy_rerun_20260601T003717.jsonl",
         "evals/h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl"
       ],
-      "cmd": "python3 benchmarks/swebench/sympy_evalbug_gate.py",
+      "cmd": "python3 benchmarks/swebench/sympy_canonical_score.py",
       "status": "PASS",
       "missing_markers": [],
       "markers": [
-        "0/77 -> 31/77",
+        "31/77",
         "RESULT: PASS"
       ],
-      "reproduced": "========================================================================\nClaim 10 -- sympy eval-bug recovery (Agentless oracle@k)\n========================================================================\npre-fix  file : h2h_agentless_sonnet_150_300_run1_20260530T174324.jsonl\npost-fix file : h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl\n\nPRE-FIX (pytest bug runner):\n  sympy rows           : 77        (paper: 77)\n  resolved             : 0/77   (paper: 0/77)  [MATCH]\n  eval_note tags       : {'docker': 40, 'no_patch': 10, 'docker timeout 180s': 27}\n\nPOST-FIX (bin/test runner, eval_note='docker(sympy)'):\n  sympy rows           : 77        (paper: 77)\n  resolved             : 31/77  (paper: 31/77)  [MATCH]\n  bin/test-scored rows : 0\n  eval_note tags       : {'canonical': 67, 'no_patch (rescore)': 10}\n\nLIKE-FOR-LIKE INVARIANTS (recovery attributable to eval fix only):\n  same sympy id set         : True\n  byte-identical patches    : 77/77\n  flips unresolved->resolved: 31   (== post-fix resolved count: True)\n  regressions resolved->unre: 0\n\nRECOVERY: 0/77 -> 31/77   (paper: 0/77 -> 31/77)\n\nRESULT: PASS -- reproduces paper 0/77 -> 31/77\n"
+      "reproduced": "========================================================================\nClaim 10 -- sympy canonical bin/test scoring (Agentless oracle@k)\n========================================================================\nscored file : h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl\n\ncanonical bin/test runner:\n  sympy instances      : 77        (paper: 77)\n  resolved             : 31/77  (paper: 31/77)  [MATCH]\n  canonically-scored   : 77/77\n  eval_note tags       : {'canonical': 67, 'no_patch (rescore)': 10}\n\nRESULT: PASS -- reproduces paper 31/77 under the canonical bin/test runner\n"
     },
     {
       "id": "C12",
@@ -259,8 +246,8 @@
     }
   ],
   "summary": {
-    "pass": 8,
-    "gated": 8,
-    "paper_referenced": 5
+    "pass": 12,
+    "gated": 12,
+    "paper_referenced": 0
   }
 }

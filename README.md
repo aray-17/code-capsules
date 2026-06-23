@@ -73,12 +73,13 @@ lever against real models requires a model sampler and a grader — see
 ## Reproducing the paper's claims
 
 The headline claims reproduce **offline** (no Docker, no API keys, no
-model calls) from the committed evaluation data in [`evals/`](evals/);
-the deployment-governor analysis (paper Section 7) is detailed in the
-paper rather than gated here:
+model calls) from the committed evaluation data in [`evals/`](evals/),
+including the deployment-governor analysis (the diverse-sample
+agreement signal, the regression-suite gate, the escalation gate, and
+the value-of-resolve rule):
 
 ```bash
-python3 benchmarks/verify_criteria.py     # PASS/FAIL per headline claim; the Section 7 claims are cited to the paper
+python3 benchmarks/verify_criteria.py     # PASS/FAIL per claim; every claim reproduces offline
 ```
 
 Or browse them interactively in the **evidence explorer** — a

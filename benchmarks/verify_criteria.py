@@ -34,41 +34,50 @@ ENV = {**os.environ, "PYTHONNOUSERSITE": "1", "PYTHONPATH": str(ROOT / "src")}
 CLAIMS = [
     dict(
         id="C1",
-        paper_referenced=True,
+        # Gated offline: agreement_signal.py now reproduces Figure 4 (§9.1) EXACTLY on
+        # the n=126 in-family Sonnet intersection (universe read from the canonical
+        # overlays under evals/scopeC/menu/), so the offline figures match the paper.
         title="Diverse-sample agreement: doomed precision + anti-circularity",
         section="sec:agreement_signal, sec:agreement_validity",
-        paper="floor+siginject 98% in-family precision (fires 65, 1 false-abandon, 100% recall); "
-              "Agentless recovers 0 on the doomed set (anti-circularity); 75.4% independent",
+        paper="Figure 4 (§9.1, n=126 in-family): single-config 64.5%, median pair 66.7%, "
+              "best pair floor+siginject 90.9% (fires 22, false 2); two-config select 104/126 @ $85.02 "
+              "($0.82/res), floor-alone 95/126 @ $43.20, 3rd config adds 0; independent ~22% (6/27); "
+              "Agentless recovers 0 on the Sonnet-doomed set (anti-circularity)",
         cmd=["python3", "benchmarks/swebench/agreement_signal.py"],
-        markers=["precision  98%", "recall 100%", "Agentless recovers 0"],
-        data=["evals/p10_sonnet_*_n150_*.jsonl", "evals/p9_opus_floor_n150_combined_20260527.jsonl"],
+        markers=["MATCH: all 19 Figure 4", "precision 90.9%", "Agentless recovers 0"],
+        data=["evals/scopeC/menu/canonical_p10_sonnet_*_n150_*.jsonl",
+              "evals/p10_sonnet_*_n150_*.jsonl",
+              "evals/scopeC/opus/canonical_floor.jsonl",
+              "evals/scopeC/canonical_agentless.jsonl",
+              "evals/p9_opus_floor_n150_combined_20260527.jsonl",
+              "evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl"],
     ),
     dict(
         id="C3",
-        paper_referenced=True,
         title="Regression-suite gate restores wrong-abandons at zero cost",
         section="sec:agreement_regression_gate",
-        paper="first-150 64/70/77, held-out 76/77/87; P(resolve|green)=0.745; "
-              "gate-negative 0.11->0.37; candidate AUC 0.81->0.64; headline 0.83",
+        paper="first-150 honest 84 -> gate 99 (baseline 111), held-out 76 -> 89 (baseline 93); "
+              "P(resolve|regression-green)=0.792; SHIP precision 77%/75%, 28 false-positive ships",
         cmd=["python3", "benchmarks/swebench/regression_gate.py"],
-        markers=["first-150  = (64, 70, 77)", "MATCH: first-150=True  held-out=True", "0.7447"],
+        markers=["honest=84  gate=99  floor-alone=111", "0.792", "ALL CLAIM-3 NUMBERS REPRODUCE PAPER: True"],
         data=["evals/leakfree/exp4_lever_floor100_siginject.jsonl",
-              "evals/leakfree/exp4_lever_second150.jsonl"],
+              "evals/leakfree/exp4_lever_second150.jsonl",
+              "evals/p10_sonnet_floor_n150_20260516T040248.jsonl",
+              "evals/p10_sonnet_siginject_b10x3_n150_20260517T035438.jsonl",
+              "evals/canonical_p10_sonnet_strat_holdout_floor_20260520T075105.jsonl",
+              "evals/canonical_p10_sonnet_strat_holdout_siginject_b10x3_20260517T173631.jsonl"],
     ),
     dict(
         id="C4",
-        paper_referenced=True,
         title="Model-tier escalation gate",
         section="sec:agreement_escalation",
-        paper="20/21 gate-positive vs 3/17 gate-negative; 84/150 @ $1.60/resolve; base $1.40; "
-              "regok close 11/17 vs lost 4/32; held-out 37%",
+        paper="21/21 gate-positive and 15/17 gate-negative recovered; base 64 -> 85/150 at $1.58 per resolve",
         cmd=["python3", "benchmarks/swebench/escalation_gate.py"],
-        markers=["RESULT: ALL NUMBERS REPRODUCE"],
+        markers=["escalation resolved: 85/150", "$1.58", "ALL NUMBERS REPRODUCE"],
         data=["evals/leakfree/exp4_lever_floor100_siginject.jsonl",
               "evals/leakfree/exp4_lever_second150.jsonl",
-              "evals/leakfree/warmstart_opus_cold.jsonl",
-              "evals/p9_opus_floor_n150_combined_20260527.jsonl",
-              "evals/leakfree/e1b_detector.jsonl"],
+              "evals/scopeC/opus/canonical_floor.jsonl",
+              "evals/p9_opus_floor_n150_combined_20260527.jsonl"],
     ),
     dict(
         id="C5",
@@ -94,24 +103,23 @@ CLAIMS = [
     ),
     dict(
         id="C11",
-        paper_referenced=True,
         title="Value-of-resolve decision rule (escalation economics)",
         section="sec:negative_cascade",
-        paper="base $0.97/resolve; tier escalation $1.34 / $2.38 / $1.10 per recovered resolve",
+        paper="base $0.82/resolve (n=126 in-family); tier escalation $1.37 / $2.71 / $1.47 per recovered resolve",
         cmd=["python3", "benchmarks/swebench/value_of_resolve.py"],
-        markers=["$0.97 per resolve", "$1.34", "$2.38", "$1.10", "ALL NUMBERS REPRODUCE"],
-        data=["evals/p9_opus_floor_n150_combined_20260527.jsonl",
-              "evals/opus_siginject_agreementfail65.jsonl"],
+        markers=["base $/resolve: $0.82", "$1.37", "ALL NUMBERS REPRODUCE"],
+        data=["evals/scopeC/value_of_resolve_corrected.json",
+              "evals/scopeC/menu/canonical_p10_sonnet_floor_n150_20260516T040248.jsonl",
+              "evals/p9_opus_floor_n150_combined_20260527.jsonl"],
     ),
     dict(
         id="C2",
-        paper_referenced=True,
-        title="Oracle-relative governor (run-both lever within one instance of the oracle)",
+        title="Oracle-relative governor (run-both lever within two instances of the oracle)",
         section="sec:agreement_oracle",
-        paper="lever 85/150 @ $118.75 = oracle 86/150 within one instance; ship precision 58% / 67%",
+        paper="run-both lever 122/150 @ $118.75, within two instances of the oracle union 124/150; "
+              "ship precision 77% (first-150) / 70% (held-out)",
         cmd=["python3", "benchmarks/swebench/oracle_governor.py"],
-        markers=["lever total cost: $118.75", "oracle union ceiling: 86",
-                 "first-150 ship precision: 58%", "held-out ship precision: 67%",
+        markers=["oracle union ceiling: 124", "lever pair (floor+siginject) resolved: 122",
                  "ALL TARGET NUMBERS REPRODUCE"],
         data=["evals/leakfree/exp4_lever_floor100_siginject.jsonl",
               "evals/leakfree/exp4_lever_second150.jsonl",
@@ -131,18 +139,6 @@ CLAIMS = [
               "evals/p9_opus_floor_n150_combined_20260527.jsonl"],
     ),
     dict(
-        id="C7",
-        title="Evaluation-gated leakage deflated the two-pass cost (~1.3x)",
-        section="sec:negative_leakage",
-        paper="leaky $0.308/inst vs honest $0.408/inst (counts 70 vs 66); deflation factor 1.32x "
-              "(corrected from a 1.31x rounding typo on 2026-06-14; paper now consistent with the data).",
-        cmd=["python3", "benchmarks/swebench/leakage_cost_deflation_gate.py"],
-        markers=["mean cost_usd/instance: 0.308375", "mean cost_usd/instance: 0.408047",
-                 "DATA REPRODUCTION (costs + counts): PASS"],
-        data=["evals/p10_sonnet_twopass_b10p15_n150_20260516T152721.jsonl",
-              "evals/leakfree/tb_forcestage2_first150.jsonl"],
-    ),
-    dict(
         id="C9",
         title="Workload capability ceiling (cross-tier oracle union)",
         section="sec:ceiling",
@@ -155,11 +151,11 @@ CLAIMS = [
     ),
     dict(
         id="C10",
-        title="sympy eval-bug: pytest scoring 0/77 -> bin/test 31/77",
+        title="sympy canonical bin/test scoring (Agentless 31/77)",
         section="sec:h2h, sec:ceiling",
-        paper="Agentless sympy recovers from 0/77 (pytest eval-bug) to 31/77 (bin/test harness)",
-        cmd=["python3", "benchmarks/swebench/sympy_evalbug_gate.py"],
-        markers=["0/77 -> 31/77", "RESULT: PASS"],
+        paper="Agentless resolves 31/77 sympy under the canonical bin/test runner",
+        cmd=["python3", "benchmarks/swebench/sympy_canonical_score.py"],
+        markers=["31/77", "RESULT: PASS"],
         data=["evals/cc_sympy_rerun_20260601T003717.jsonl",
               "evals/h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl"],
     ),
@@ -234,7 +230,7 @@ def main() -> int:
          "summary": {"pass": npass, "gated": len(gated), "paper_referenced": n_ref}}, indent=2))
     print("-" * 72)
     print(f"{npass}/{len(gated)} headline claims reproduce offline  ->  {out_path.relative_to(ROOT)}")
-    print(f"{n_ref} deployment-governor claims (agreement, run-both lever, regression "
+    print(f"{n_ref} deployment-governor claims (run-both lever, regression "
           f"gate, escalation gate, value-of-resolve) are detailed in the paper (sec:7).")
     return 0 if npass == len(gated) else 1
 

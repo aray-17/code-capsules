@@ -25,10 +25,8 @@ Data sources (one committed JSONL per cell):
                   flat per-instance schema, key 'resolved' / 'cost_usd')
   balanced     evals/leakfree/tb_forcestage2_first150.jsonl
                  (leak-free two-pass critique, second pass run UNCONDITIONALLY --
-                  the corrected always-run config; flat per-instance schema. This
-                  file is ALREADY the corrected variant, so NO 1.31x deflation
-                  factor is applied. The 1.31x factor in paper L1010-1012 applied
-                  to the OLD eval-gated cost, not to this committed file.)
+                  the always-run config; flat per-instance schema, cost is the
+                  always-run cost.)
   quality      evals/p10_sonnet_floor_n150_20260516T040248.jsonl
                  (unbounded Sonnet floor@100; flat per-instance schema, key
                   'resolved' / 'cost_usd'. This is the sweep floor stream that

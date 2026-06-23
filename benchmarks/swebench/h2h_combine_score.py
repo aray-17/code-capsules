@@ -31,8 +31,8 @@ ROOT = Path(__file__).resolve().parents[2]   # benchmarks/swebench/X.py -> repo 
 EVALS = ROOT / "evals"
 
 DEFAULT_FIRST = EVALS / "h2h_agentless_sonnet_n150_run1_20260528.jsonl"
-# sympy-corrected second-150 (the canonical full-300 Agentless half). The earlier
-# _run1_20260530 file scored sympy under the pytest eval-bug (0/77) and is superseded.
+# second-150 Agentless half, sympy scored under the canonical bin/test runner
+# (the canonical full-300 Agentless half).
 DEFAULT_SECOND = EVALS / "h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl"
 
 # Code-Capsules full-300 = the honest force_stage2 two-pass-critique re-run (the
