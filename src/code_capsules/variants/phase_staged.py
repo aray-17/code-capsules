@@ -1,12 +1,12 @@
 """
-Phase-staged variant (Phase 10 Iter-C V3).
+Phase-staged variant.
 
 Sequential run with an explicit 3-phase budget split (explore/first-patch/iterate)
-matching the floor's implicit pattern. Hard structural constraint — the prompt
+matching the floor's implicit pattern. Hard structural constraint: the prompt
 declares exact turn ranges per phase.
 
-Sonnet n=150: 41%/$0.291 — dropped (over-constrained at 17.8 of 35 turns;
-underperforms V4 plan_first which uses softer framing).
+Sonnet n=150: 41%/$0.291, dropped (over-constrained at 17.8 of 35 turns;
+underperforms plan-then-execute, which uses softer framing).
 """
 from __future__ import annotations
 

@@ -11,11 +11,12 @@ belief p = P(resolve | escalate, evidence):
         escalate  iff  p · V > C_escalate        (equivalently  p > C/V)
 
 The two pieces:
-  1. BELIEF p  -- calibrated from EXECUTION evidence, not self-report (EXP-1
-     proved self-report doesn't separate). v0 belief = the empirical per-grade
-     conversion rate measured in EXP-1 (n=50 django). This is crude and SHOULD
-     sharpen as (grade, outcome) pairs accrue -- the mechanism-mining loop
-     (design §2d). Swap in a logistic/GBM on richer execution features later;
+  1. BELIEF p  -- calibrated from EXECUTION evidence, not self-report (a
+     controlled study proved self-report doesn't separate). v0 belief = the
+     empirical per-grade conversion rate measured in that study (n=50 django).
+     This is crude and SHOULD sharpen as (grade, outcome) pairs accrue -- the
+     mechanism-mining loop (design §2d). Swap in a logistic/GBM on richer
+     execution features later;
      the interface is just grade/features -> p.
   2. DECISION  -- the EMV break-even above. The C/V ratio is the operator's
      single tuning knob (cost tolerance): lower C/V escalates more grades.
@@ -40,8 +41,9 @@ from code_capsules.controller.verifier import (
     PARTIAL, FLAT, BROKEN, NOPATCH, UNKNOWN,
 )
 
-# v0 BELIEF: P(resolve after escalation | stage-1 grade), empirical from EXP-1
-# (n=50 django, 2026-06-01). RESOLVED is omitted -- already resolved => stop,
+# v0 BELIEF: P(resolve after escalation | stage-1 grade), empirical from the
+# calibration study (n=50 django, 2026-06-01). RESOLVED is omitted -- already
+# resolved => stop,
 # not an escalation candidate. These are crude (small per-grade n) and are the
 # calibration the controller refines as more runs land.
 GRADE_P_RESOLVE_EXP1 = {

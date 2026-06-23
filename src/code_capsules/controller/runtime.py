@@ -1,4 +1,4 @@
-"""controller/runtime.py — the deployable entry point (Phase 11).
+"""controller/runtime.py: the deployable entry point.
 
 CodeCapsulesRunner wraps the validated VOI controller (orchestrator.run_controller)
 behind a clean API + a policy object, so the framework runs WITHOUT the SWE-bench
@@ -14,7 +14,7 @@ diverse-sample -> select+agreement -> cascade behaviour. The SWE-bench harness
 becomes one such caller (its adapters wrap run_one + the repro/gold grade).
 
 NOTE: this is the runtime entry; wiring the SWE-bench harness to CALL it (so the
-harness collapses to a thin adapter) is the next, attended Phase 11 step.
+harness collapses to a thin adapter) is the next, attended step.
 """
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ class PSourceSpec:
 @dataclass(frozen=True)
 class RunnerPolicy:
     """The deployable VOI policy. Validated defaults (generalizability eval
-    2026-06-03/04; governor replay EXP-4 n=300, 2026-06-10): a 2-config diverse
+    2026-06-03/04; governor replay n=300, 2026-06-10): a 2-config diverse
     ensemble, a single tier, ABANDON on agreement-failure (tier-escalation is
     marginal -- ~$2.42/resolve vs $1.40 base; opt in via the `escalation`
     ladder, or the deprecated `escalate_on_agreement` alias), and the

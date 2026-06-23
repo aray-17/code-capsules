@@ -1,4 +1,4 @@
-"""Tests for controller/escalation.py — Phase 7C escalation decision."""
+"""Tests for controller/escalation.py - escalation decision."""
 import pytest
 from code_capsules.controller.escalation import EscalationDecision, should_escalate
 from code_capsules.runtime.quality_signal import QualitySignals
@@ -47,7 +47,7 @@ class TestDontEscalate:
         assert "target" in d.reason.lower() or "ceiling" in d.reason.lower()
 
     def test_low_cap_pressure_no_escalation(self):
-        # Used only 5 of 10 turns — self-terminated early, signals notwithstanding
+        # Used only 5 of 10 turns - self-terminated early, signals notwithstanding
         d = should_escalate(
             resolved=False,
             actual_turns=5,
@@ -59,7 +59,7 @@ class TestDontEscalate:
         assert "pressure" in d.reason.lower() or "self-terminated" in d.reason.lower()
 
     def test_cap_hit_but_no_signals_clean_giveup(self):
-        # Used all 10 turns but signals are quiet — model is "stuck cleanly"
+        # Used all 10 turns but signals are quiet - model is "stuck cleanly"
         d = should_escalate(
             resolved=False,
             actual_turns=10,

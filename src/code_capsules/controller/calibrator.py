@@ -1,19 +1,19 @@
 """
-Phase 7B: turn-budget calibrator.
+Turn-budget calibrator.
 
-Coding-agent analog of Agentic-Capsules' `Pipeline.calibrate()` (T-062), which
+Coding-agent analog of Agentic-Capsules' `Pipeline.calibrate()`, which
 recommends `compose_at` / `quality_floor` thresholds from observed pipeline
-data. For coding agents, the dimension that matters is the turn budget — Phase
-7's audit showed it dominates mode selection on monomorphic workloads.
+data. For coding agents, the dimension that matters is the turn budget: our
+audit showed it dominates mode selection on monomorphic workloads.
 
 Given a turn-budget sweep on a representative task sample, this module:
 
   1. Computes the observed (cost, quality) point at each budget.
   2. Fits the cost-quality Pareto frontier.
-  3. Recommends the "knee" budget — the smallest budget where additional
+  3. Recommends the "knee" budget: the smallest budget where additional
      turns no longer materially improve quality (configurable threshold).
 
-The recommendation is a `TurnBudgetRecommendation` dataclass — read-only.
+The recommendation is a `TurnBudgetRecommendation` dataclass, read-only.
 The operator applies it explicitly (mirrors AC's `dataclasses.replace()` pattern).
 
 Usage:
@@ -68,7 +68,7 @@ def _pareto_frontier(obs: list[BudgetObservation]) -> list[BudgetObservation]:
     Why weak: strict-dominance kept points like (budget=10, pass=3.3%, cost=$0.36)
     on the frontier when (budget=5, pass=3.3%, cost=$0.19) was identically good
     on quality but cheaper. That cluttered the curve with "same quality, higher
-    cost" siblings and confused the knee detector — we'd return a low budget
+    cost" siblings and confused the knee detector, we'd return a low budget
     as the knee just because the next budget had the same pass-rate.
 
     Two points with identical pass_rate and identical cost are kept; ties on
@@ -108,17 +108,17 @@ def _detect_knee(
 
     Algorithm:
       Walk frontier ascending by budget. For each adjacent pair (b1, b2),
-      compute (pass_rate_2 - pass_rate_1) / (b2 - b1) — quality gain per turn.
+      compute (pass_rate_2 - pass_rate_1) / (b2 - b1), quality gain per turn.
       The first pair where this drops below the threshold marks the knee:
       pick b1 (the smaller budget; b2's extra turns aren't paying off).
 
     Fallback: if no pair drops below threshold, return the largest-budget
-    observation (no knee found — quality is still improving). Caller can
+    observation (no knee found, quality is still improving). Caller can
     interpret fallback_used=True as "you're sweeping a range that's still
     on the steep part of the curve; extend the sweep upward."
     """
     if not frontier:
-        raise ValueError("Empty Pareto frontier — need at least one observation")
+        raise ValueError("Empty Pareto frontier: need at least one observation")
     if len(frontier) == 1:
         only = frontier[0]
         return only, f"only one budget observed ({only.budget}); no knee to detect", True
@@ -136,7 +136,7 @@ def _detect_knee(
                 f"(< threshold {min_quality_gain_per_turn*100:.2f}%/turn)"
             ), False
 
-    # No knee found — quality still improving at the top of the sweep
+    # No knee found - quality still improving at the top of the sweep
     last = frontier[-1]
     return last, (
         f"no knee detected within sweep range; quality still improving at "
@@ -232,7 +232,7 @@ def observations_from_sweep_jsonl(
 
 def _cli() -> None:
     import argparse
-    parser = argparse.ArgumentParser(description="Phase 7B turn-budget calibrator")
+    parser = argparse.ArgumentParser(description="Turn-budget calibrator")
     parser.add_argument("jsonls", nargs="+", type=Path,
                         help="Sweep JSONL files (one per turn-budget value)")
     parser.add_argument("--min-gain-per-turn", type=float, default=0.005,
@@ -254,7 +254,7 @@ def _cli() -> None:
     print(f"\nRecommended turn budget: {rec.recommended_budget}")
     print(f"  Reasoning: {rec.knee_reasoning}")
     if rec.fallback_used:
-        print("  ⚠️  Fallback used — see reasoning")
+        print("  Fallback used: see reasoning")
 
 
 if __name__ == "__main__":

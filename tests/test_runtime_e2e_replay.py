@@ -3,9 +3,9 @@ anchors over real logged eval data.
 
 Unlike test_governor_replay.py (which feeds hand-built signal dicts into
 CrossSampleAgreementCascade.decision in isolation), this drives the full public
-entry point — CodeCapsulesRunner.run(sampler, grade_fn, regression_fn) ->
+entry point - CodeCapsulesRunner.run(sampler, grade_fn, regression_fn) ->
 run_controller -> run_round -> select_by_verifier + agreement_reading + the
-cascade — over the committed leak-free EXP-4 lever data, with the runtime
+cascade - over the committed lever data, with the runtime
 COMPUTING the agreement signals itself from per-candidate grades (not reading
 them pre-baked). It proves the deployable runtime a user actually calls
 reproduces the numbers in paper §"A regression-suite gate restores the wrong

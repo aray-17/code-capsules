@@ -19,7 +19,7 @@ The validated VOI policy (generalizability eval 2026-06-03):
        STOP (a sample resolved) / GATHER_SAMPLES (K too small to trust doom) /
        ABANDON (within-tier doomed -- the validated, economical action) /
        ESCALATE_TIER (opt-in only; cross-model escalation is marginal -- see the
-                      cascade docstring + the Phase 8/9 negative).
+                      cascade docstring + the cross-model cost-cascade negative).
 
 Benchmark specifics (docker, repro generation, SWE-bench scoring) stay in the
 sampler/grade_fn adapters; this module owns only the policy.
@@ -114,7 +114,7 @@ def decide_escalation(
     start_budget: int, target_budget: int, cap_pressure_threshold: float,
     verifier_gate=None, always_escalate: bool = False, force_stage2: bool = False,
 ):
-    """The escalation-decision dispatch (Phase 11: moved from the SWE-bench harness
+    """The escalation-decision dispatch (moved from the SWE-bench harness
     into the framework). Four modes, each returning a framework EscalationDecision:
 
       force_stage2    -> deployment-realistic two-pass: run stage 2 UNCONDITIONALLY,
@@ -122,7 +122,7 @@ def decide_escalation(
                          measure two-pass cost/quality without the in-loop oracle that
                          always_escalate and the verifier RESOLVED grade both read.
       verifier_gate   -> execution-verifier grade gate (stop RESOLVED, abandon the
-                         confident-doomed set, escalate the ambiguous middle) -- EXP-1.
+                         confident-doomed set, escalate the ambiguous middle).
                          NB: the SWE-bench verifier shim grades RESOLVED from the gold
                          `resolved` field, so its stop-for-success decision is NOT
                          oracle-free; use force_stage2 for the leakage-free measurement.
@@ -151,7 +151,7 @@ def decide_escalation(
             next_prompt_budget_hint=target_budget if esc else None)
     if always_escalate and not resolved:
         return EscalationDecision(
-            escalate=True, reason="always_escalate (V1 two-pass critique)",
+            escalate=True, reason="always_escalate (two-pass critique)",
             next_budget=target_budget, next_prompt_budget_hint=target_budget)
     return should_escalate(
         resolved=bool(resolved), actual_turns=session.num_turns,
@@ -240,7 +240,7 @@ def run_controller(
       run_controller(sampler=..., grade_fn=..., stages=[EscalationStage(...)])
           -- the escalation LADDER: per-stage configs + per-stage triggers
           (escalation_policy.TRIGGERS). E.g. the validated destination shapes:
-          GOV-V2 escalate-regok=1-to-Opus = 84/150 @ $1.60/res (Opus recoveries
+          escalate-regok=1-to-Opus = 84/150 @ $1.60/res (Opus recoveries
           20/21 in regok=1, 3/17 in regok=0):
               stages=[EscalationStage("sonnet", ("floor", "siginject")),
                       EscalationStage("opus", ("floor",), trigger="regok_true")]
@@ -266,15 +266,16 @@ def run_controller(
             otherwise -> the governor takes its terminal decision with no tier
                 left to escape to: hybrid_regok may still rescue (ship), the
                 no-signal band ship-falls-back at the top of the ladder
-                (mirrors the EXP-4 harness NO_REPRO_FALLBACK), else outcome
+                (mirrors the harness NO_REPRO_FALLBACK), else outcome
                 ABANDONED with `decline_reason` recorded (trigger_not_fired /
                 top_of_ladder / declined_doomed -- see ControllerRun).
     Out of stages -> EXHAUSTED (no doom call was ever formed; carry the patch).
 
     For cost-optimal deployment the validated finding says tier-escalation is
     MARGINAL (~$2.42/resolve vs $1.40 base) UNLESS gate-positive: escalate
-    regok=1 abandons (GOV-V2 above) or the no-patch case (the signaled10
-    cascade) -- the only settings where a stronger tier earned its cost.
+    regok=1 abandons (the regression-gated escalation above) or the no-patch
+    case (the signaled10 cascade) -- the only settings where a stronger tier
+    earned its cost.
     Caveat (G4): regok=0 is NOT doom off-django (P(gold|regok=0)=0.37
     held-out); a non-fired regok_true trigger declines with a recorded reason,
     it never asserts confirmed doom.
@@ -285,7 +286,7 @@ def run_controller(
 
     p_source: optional pluggable VOI belief (value_of_information.PSource),
     forwarded to the ladder's `voi` triggers (see stage_trigger_fires). None ->
-    the EXP-1 per-grade belief table (prior behavior). Ships disabled at the
+    the calibrated per-grade belief table (prior behavior). Ships disabled at the
     policy surface (`p_source: null`).
 
     The cascade's `no_signal` knob is honored ladder-wide: 'ship_fallback'

@@ -9,7 +9,7 @@ Built-in defaults are registered by `register_builtins()`, called lazily
 on first registry access. This avoids circular imports during framework
 bootstrap.
 
-Lookup is plain dict access — no magic, no proxying. If a name isn't
+Lookup is plain dict access - no magic, no proxying. If a name isn't
 registered, KeyError. Users wire their plugin module's `register(...)`
 calls into their `policy.yaml` consumer.
 """
@@ -107,7 +107,7 @@ def _register_builtins() -> None:
     # domain constructs YamlMappingClassifier(path) and registers their own.
     register("classifier", YamlMappingClassifier())
 
-    # Cost models — one per vendor at public-pricing rates
+    # Cost models - one per vendor at public-pricing rates
     from code_capsules.core.cost_models import (
         AnthropicPublicPricing, OpenAIPublicPricing, GeminiPublicPricing,
     )
@@ -163,7 +163,7 @@ def _register_builtins() -> None:
     register("routing_strategy", DefaultRouter())
     register("routing_strategy", CascadeRouter())    # default tier sequence; user reconfigures
 
-    # Model clients (must register before variants — variants resolve client by name)
+    # Model clients (must register before variants - variants resolve client by name)
     from code_capsules.adapters import register_builtins as _register_client_builtins
     _register_client_builtins()
 

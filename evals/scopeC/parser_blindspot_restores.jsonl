@@ -1,0 +1,3 @@
+{"instance_id": "sphinx-doc__sphinx-8595", "cell": "tp", "resolved": true, "reason": "parser-blindspot-restore (gold-strict=False, robust=True, model passes)"}
+{"instance_id": "sphinx-doc__sphinx-8595", "cell": "pte", "resolved": true, "reason": "parser-blindspot-restore (gold-strict=False, robust=True, model passes)"}
+{"instance_id": "sphinx-doc__sphinx-8595", "cell": "agentless", "resolved": true, "reason": "parser-blindspot-restore (gold-strict=False, robust=True, model passes)"}

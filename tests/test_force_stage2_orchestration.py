@@ -1,5 +1,5 @@
 """force_stage2 invariant for the FRAMEWORK variant runner
-(variants/_orchestration.py::run_escalating) — the SECOND escalation runner, which
+(variants/_orchestration.py::run_escalating) - the SECOND escalation runner, which
 was the unfixed leaky copy (`escalate = not bool(resolved1)`, gold-in-decision) while
 the harness copy was fixed. This pins that force_stage2 runs stage 2 UNCONDITIONALLY
 (no resolved1/gold read for the decision), so the two runners can't drift apart again.

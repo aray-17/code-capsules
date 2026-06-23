@@ -1,11 +1,11 @@
 """
-RoutingConfig — all thresholds, weights, and gating criteria in one place.
+RoutingConfig: all thresholds, weights, and gating criteria in one place.
 
-Developers tune this without touching formula logic. Phase 5 will add
-YAML loading so policy files can override defaults at deploy time.
+Developers tune this without touching formula logic. YAML loading lets policy
+files override defaults at deploy time.
 
-Design: mirrors Agentic-Capsules' policy layer — mechanism (formula.py)
-is separate from policy (routing_config.py / Phase 5 YAML DSL).
+Design: mirrors Agentic-Capsules' policy layer, mechanism (formula.py)
+is separate from policy (routing_config.py / YAML DSL).
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class RoutingConfig:
     bash_sequential_threshold: float = 0.40 # bash_ratio above → force SEQUENTIAL
 
     # ── SEQUENTIAL floor by task type ────────────────────────────────────────
-    # Task types that always route to SEQUENTIAL, never FINE — even when the
+    # Task types that always route to SEQUENTIAL, never FINE, even when the
     # prompt score is low. Bug fixes require read→investigate→patch→verify cycles
     # regardless of how simple the prompt looks; FINE's 2-turn cap cuts them off
     # before a patch can be generated.
@@ -57,7 +57,7 @@ class RoutingConfig:
 
     # ── Task classifier scope keywords ────────────────────────────────────────
     # Prompt keywords that signal multi-file / codebase-wide scope.
-    # When matched, score a COMPOUND bonus (not currently in formula — Phase 5).
+    # When matched, score a COMPOUND bonus (not currently in formula).
     scope_keywords: list[str] = field(default_factory=lambda: [
         "across all", "every occurrence", "all callers", "all usages",
         "all files", "entire codebase", "throughout the", "update all",
@@ -77,33 +77,33 @@ class RoutingConfig:
     route_default: Optional[str] = None
 
     # ── Quality gate thresholds ───────────────────────────────────────────────
-    # Used in Phase 3 quality gate. test_pass_rate + lint_weight×lint_clean.
+    # Used in the quality gate. test_pass_rate + lint_weight×lint_clean.
     quality_lint_weight: float = 0.10
     quality_min_pass_rate: float = 1.0      # must pass all tests to accept routing
     # "code" = CodeQualityGate (default), "binary" = BinaryQualityGate
     quality_gate_mode: str = "code"
 
     # ── Observability ─────────────────────────────────────────────────────────
-    # Log routing decisions to logs/routing_decisions.jsonl for Phase 6 analysis.
+    # Log routing decisions to logs/routing_decisions.jsonl for later analysis.
     log_routing_decisions: bool = True
     routing_log_path: str = "logs/routing_decisions.jsonl"
 
     # ── Open questions (tracked here for visibility) ──────────────────────────
-    # These fields document what is NOT yet validated and should be tuned in
-    # Phase 6. They are not used in routing logic — they are documentation.
+    # These fields document what is NOT yet validated and should be tuned with
+    # further evaluation. They are not used in routing logic, they are documentation.
     _open: dict[str, str] = field(default_factory=lambda: {
         "bash_sequential_threshold":
-            "0.40 is empirically chosen from Phase 2 sweep. Validate in Phase 6 "
+            "0.40 is empirically chosen from a parameter sweep. Validate "
             "by measuring token savings at different threshold values.",
         "compound_min_distinct_files":
             "2 is a conservative guess. Real COMPOUND benefit may require 5+. "
-            "Validate with synthetic multi-file refactoring tasks in Phase 6.",
+            "Validate with synthetic multi-file refactoring tasks.",
         "compound_task_type_whitelist":
             "refactor/new_feature are hypothesised COMPOUND candidates. "
-            "bug_fix and explain are assumed SEQUENTIAL/FINE. Validate in Phase 6.",
+            "bug_fix and explain are assumed SEQUENTIAL/FINE. Validate empirically.",
         "par_ratio_threshold":
-            "0.15 is a placeholder — no empirical COMPOUND data yet (Phase 0 had "
-            "zero COMPOUND examples). Set based on Phase 6 results.",
+            "0.15 is a placeholder, no empirical COMPOUND data yet (early "
+            "baselines had zero COMPOUND examples). Set based on later results.",
     }, repr=False)
 
     def check_compound_gates(
@@ -172,5 +172,5 @@ class RoutingConfig:
         return cls.from_dict(json.loads(path.read_text()))
 
 
-# Default singleton — import this directly for non-configurable use.
+# Default singleton - import this directly for non-configurable use.
 DEFAULT_CONFIG = RoutingConfig()

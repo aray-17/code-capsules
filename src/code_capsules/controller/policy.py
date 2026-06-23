@@ -1,5 +1,5 @@
 """
-CodeCapsulesPolicy — declarative policy for single-session coding-agent
+CodeCapsulesPolicy: declarative policy for single-session coding-agent
 execution.
 
 A ``CodeCapsulesPolicy`` is the operator's primary handle on the framework:
@@ -12,9 +12,9 @@ selects from a Pareto frontier rather than constructing a policy by hand.
 
 .. note::
     A ``CodeCapsulesPolicy`` selects ONE variant (a single solver). The
-    **deployable lever** — a diverse *pair* of solvers with verifier-select
+    **deployable lever** (a diverse *pair* of solvers with verifier-select
     (the quality lever) and the diverse-sample agreement governor (the cost /
-    abandon lever) — is a different composition, expressed by
+    abandon lever)) is a different composition, expressed by
     :class:`code_capsules.controller.runtime.RunnerPolicy` and run by the
     package-root :class:`~code_capsules.CodeCapsulesRunner` (the ``controller:``
     block of ``policy.yaml``). This DSL covers the single-variant cells; the
@@ -118,7 +118,7 @@ _VALID_CASCADE_TRIGGERS = {
     "heuristic",
     "always_escalate",
     "never_escalate",
-    "verifier_gate",            # execution-verifier-grounded gate (EXP-1)
+    "verifier_gate",            # execution-verifier-grounded gate
     "diverse_agreement",        # validated VOI cost lever (regression-gated hybrid;
                                 # escalate TIER on diverse-agreement-fail)
     "cross_sample_agreement",   # back-compat alias for diverse_agreement
@@ -171,7 +171,7 @@ class CodeCapsulesPolicy:
     YAML calibration table. Constructing a policy by hand is the escape
     hatch for new cells outside the shipped calibration.
 
-    Variant selection — which execution strategy the agent runs:
+    Variant selection: which execution strategy the agent runs:
 
     Attributes:
         variant:
@@ -199,7 +199,7 @@ class CodeCapsulesPolicy:
             for HumanEval/MBPP). Most coding cells use ``sequential`` or
             ``escalating``.
 
-    Budget — how many turns the agent gets:
+    Budget: how many turns the agent gets:
 
     Attributes:
         turn_budget:
@@ -214,7 +214,7 @@ class CodeCapsulesPolicy:
             for example, a 25-turn hard cap with a 20-turn hint asks the
             agent to pace for 20 while leaving 5 turns of headroom.
 
-    Escalation budgets — only consulted when ``mode == "escalating"``:
+    Escalation budgets, only consulted when ``mode == "escalating"``:
 
     Attributes:
         escalating_start_budget:
@@ -229,14 +229,14 @@ class CodeCapsulesPolicy:
             When ``True``, the second attempt runs whenever the first did
             not pass the quality gate (``escalate = not resolved``). NOTE:
             in a benchmark this consults the GOLD gate, so it is NOT
-            leakage-free and NOT deployable as-is — the gold verdict is
+            leakage-free and NOT deployable as-is: the gold verdict is
             unavailable at deployment time. For a leakage-free always-both
             measurement use the harness ``force_stage2`` mode; for a
             deployable gate use the execution-verifier cascade trigger.
             When ``False``, the cascade trigger decides from
             deployment-available signals.
 
-    Mechanism selection — which Protocol implementations the framework
+    Mechanism selection: which Protocol implementations the framework
     uses to wrap this variant:
 
     Attributes:
@@ -263,7 +263,7 @@ class CodeCapsulesPolicy:
             (single attempt; collapses ``escalating`` mode to
             ``sequential``).
 
-    Deployment-table coordinates — used by :func:`policy_for` and by the
+    Deployment-table coordinates, used by :func:`policy_for` and by the
     YAML loader to select an entry from the shipped policy file:
 
     Attributes:
@@ -271,7 +271,7 @@ class CodeCapsulesPolicy:
             Logical workload class this policy was calibrated on. The
             shipped calibration ships
             ``hard_workload`` (SWE-bench-Lite-style bug fixes),
-            ``scientific_workload`` (scientific codebases — astropy,
+            ``scientific_workload`` (scientific codebases: astropy,
             scikit-learn, sympy), and
             ``saturated_workload`` (HumanEval/MBPP-style single-shot
             completion). Custom workload classes are accepted as free
@@ -292,7 +292,7 @@ class CodeCapsulesPolicy:
             axes), or
             ``ceiling`` (Opus unbounded-budget upper bound).
 
-    Measurement provenance — populated when a policy was selected from a
+    Measurement provenance, populated when a policy was selected from a
     shipped calibration table; both fields are advisory (the framework
     does not enforce that runtime measurements match these):
 
@@ -325,7 +325,7 @@ class CodeCapsulesPolicy:
     cascade_trigger: str = "heuristic"
 
     # ── Deployable composition (the three-component lever) ─────────────────
-    # Optional `controller:` block — the diverse-sample SELECT + agreement
+    # Optional `controller:` block - the diverse-sample SELECT + agreement
     # governor that composes solvers + repro-verifier + governor into the
     # ship/abandon/escalate machine (Figure: deployable anatomy). Its shape is
     # the validated RunnerPolicy dict (configs, tiers, min_samples, governor,
@@ -584,7 +584,7 @@ class CodeCapsulesPolicy:
     #: Non-typed keys a shipped calibration entry may carry as provenance or
     #: harness-execution detail. They are not :class:`CodeCapsulesPolicy` fields
     #: (the typed surface is variant/mode/budgets/mechanisms), so the loader
-    #: tolerates them rather than rejecting the whole file — while a genuinely
+    #: tolerates them rather than rejecting the whole file, while a genuinely
     #: unknown key (a typo / wrong field) still raises.
     _IGNORED_ENTRY_FIELDS = frozenset({
         "config",                    # legacy alias for `variant` (mapped below)

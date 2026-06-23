@@ -74,9 +74,9 @@ def test_django_dotted_malformed_returns_none():
 
 # ── Gap A: never grade a run that did not execute ────────────────────────────
 # A failed image pull / daemon error means the eval never ran. That MUST surface
-# as resolved=None (retryable), NOT a false-negative False. This was the bug
-# behind the 2026-06 autotrigger misfire. These exercise the self-contained
-# backend's run-sentinel gate by monkeypatching subprocess (no Docker).
+# as resolved=None (retryable), NOT a False: a run that did not execute is not a
+# failed patch. These exercise the self-contained backend's run-sentinel gate by
+# monkeypatching subprocess (no Docker).
 
 _PYTEST_INSTANCE = {
     "instance_id": "foo__bar-1",
@@ -113,7 +113,7 @@ def test_selfcontained_resolves_when_all_targets_pass(monkeypatch):
 
 def test_selfcontained_false_when_target_missing_but_ran(monkeypatch):
     """Sentinel present but a target never reported -> False (genuinely not
-    resolved), crucially NOT None: the container DID run."""
+    resolved), NOT None: the container DID run."""
     def fake_run(*a, **k):
         out = f"{_RAN_SENTINEL}\nPASSED t/test_x.py::test_b\n"  # test_a absent
         return _FakeProc(out, returncode=1)

@@ -1,5 +1,5 @@
 """Tests for the mid-session prompt generation moved into the framework
-(code_capsules.controller.prompt) in the Phase 11 boundary close -- including the
+(code_capsules.controller.prompt) in the controller boundary close -- including the
 signal-injection partner's prompt builders. Pure functions over duck-typed
 session/signals; runs under pytest or `python3` directly."""
 import sys
@@ -96,7 +96,7 @@ def test_summarize_stage1_empty_session():
 
 # ── G2 disclosure flag: include_fail_to_pass on build_prompt ─────────────────
 # The FAIL_TO_PASS test IDs are SWE-bench evaluation metadata a real deployment
-# does not have (see the paper limitations / CLAIMS.md C7). Default
+# does not have (see the paper's limitations section). Default
 # True preserves ALL historical eval behavior; False omits the section.
 
 _G2_INSTANCE = {

@@ -33,7 +33,7 @@ def _looks_like_transient(stdout: str) -> bool:
     head = stdout[:50_000]
     if not any(p in head for p in _API_ERR_PATTERNS):
         return False
-    # If we got any tool_use, model produced *something* — don't retry.
+    # If we got any tool_use, model produced *something* - don't retry.
     if '"type":"tool_use"' in head:
         return False
     return True

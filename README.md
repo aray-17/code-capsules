@@ -11,17 +11,17 @@ marks unsolvable at this tier.
 > state cited in the paper is tagged
 > [`v1.0-arxiv`](https://github.com/aray-17/code-capsules/releases/tag/v1.0-arxiv);
 > `main` may have evolved since. Every load-bearing number reproduces
-> offline — see [Reproducing the paper's claims](#reproducing-the-papers-claims).
+> offline - see [Reproducing the paper's claims](#reproducing-the-papers-claims).
 
 ## The framework is three composable components
 
-- **Solvers** — a catalog of execution variants (signaled budget,
+- **Solvers** - a catalog of execution variants (signaled budget,
   plan-then-execute, relevance ranker, signal injection, per-tool-class
   hint, phase-staged, two-pass critique, and more) that generate
   candidate patches.
-- **Repro-verifier** (the *quality* lever) — keep the patch a generated
+- **Repro-verifier** (the *quality* lever) - keep the patch a generated
   reproduction confirms, scored without consulting held-out tests.
-- **Governor** (the *cost* lever) — stop spending on instances a
+- **Governor** (the *cost* lever) - stop spending on instances a
   deployable signal (a failed reproduction together with a broken
   regression suite) marks doomed at this tier.
 
@@ -67,7 +67,7 @@ lever = CodeCapsulesRunner.from_policy_file("policy.yaml")
 ```
 
 The configuration layer is fully offline (no API keys). Running the
-lever against real models requires a model sampler and a grader — see
+lever against real models requires a model sampler and a grader - see
 [`examples/deployable_lever.py`](examples/deployable_lever.py).
 
 ## Reproducing the paper's claims
@@ -82,7 +82,7 @@ the value-of-resolve rule):
 python3 benchmarks/verify_criteria.py     # PASS/FAIL per claim; every claim reproduces offline
 ```
 
-Or browse them interactively in the **evidence explorer** — a
+Or browse them interactively in the **evidence explorer** - a
 dependency-free static page that shows each claim with its paper value,
 status, and reproduce-command, and lets you drill into any evaluation
 run (per-instance rows, resolved / cost, aggregates):
@@ -97,24 +97,24 @@ Each claim maps to a scorer and its evidence files in
 
 ## Examples
 
-- [`examples/quickstart_policy.py`](examples/quickstart_policy.py) — the configuration DSL (presets + custom configs)
-- [`examples/deployable_lever.py`](examples/deployable_lever.py) — run the 3-component controller end to end
-- [`examples/workload_routing.py`](examples/workload_routing.py) — route by workload class
-- [`examples/advanced/custom_quality_gate.py`](examples/advanced/custom_quality_gate.py) — plug in your own quality gate
-- [`examples/calibrate_deployment_defaults.py`](examples/calibrate_deployment_defaults.py) — how the shipped presets were calibrated
+- [`examples/quickstart_policy.py`](examples/quickstart_policy.py) - the configuration DSL (presets + custom configs)
+- [`examples/deployable_lever.py`](examples/deployable_lever.py) - run the 3-component controller end to end
+- [`examples/workload_routing.py`](examples/workload_routing.py) - route by workload class
+- [`examples/advanced/custom_quality_gate.py`](examples/advanced/custom_quality_gate.py) - plug in your own quality gate
+- [`examples/calibrate_deployment_defaults.py`](examples/calibrate_deployment_defaults.py) - how the shipped presets were calibrated
 
 The cross-vendor HumanEval/MBPP cost study (claim C8) is reproduced offline by
 [`benchmarks/cross_vendor/score.py`](benchmarks/cross_vendor/score.py) over the
-committed CSVs — see [`CLAIMS.md`](CLAIMS.md).
+committed CSVs - see [`CLAIMS.md`](CLAIMS.md).
 
 ## Extending
 
 The framework's reusable contribution is its **extension surface**:
 eight Protocols you implement against your own domain (the SWE-bench /
 HumanEval / MBPP numbers calibrate the shipped defaults; you derive your
-own for your workload). The primitives — `WorkloadClassifier`,
+own for your workload). The primitives - `WorkloadClassifier`,
 `RoutingStrategy`, `Variant`, `Signal`, `QualityGate`, `CascadeTrigger`,
-`CostModel`, `ModelClient` — are defined in
+`CostModel`, `ModelClient` - are defined in
 [`src/code_capsules/api/protocols.py`](src/code_capsules/api/protocols.py)
 and registered by name. Concrete classes need not inherit from anything
 (PEP 544 structural typing). See
@@ -128,7 +128,7 @@ worked extensions.
 pytest -m "not integration and not slow and not benchmark"
 ```
 
-The offline suite uses scripted adapters — no API keys required. Live
+The offline suite uses scripted adapters - no API keys required. Live
 evaluation and the SWE-bench Docker path are reserved for separate
 benchmarking and are not part of CI.
 
@@ -152,7 +152,7 @@ The arXiv URL will be added here once the preprint is live. See also
 This is a single-maintainer research project. Bug reports are triaged
 within ~2 weeks; pull requests are reviewed within ~3 weeks. Best
 effort, not SLA. See [CONTRIBUTING.md](CONTRIBUTING.md) for what falls
-in scope. Forks are welcome — Apache 2.0 explicitly permits forking and
+in scope. Forks are welcome - Apache 2.0 explicitly permits forking and
 divergence.
 
 ## License

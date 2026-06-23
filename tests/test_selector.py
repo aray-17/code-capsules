@@ -107,7 +107,7 @@ def test_discriminated_vacuous_true_for_sole_candidate():
 def test_coverage_recovery_simulation():
     """The lever in miniature: floor misses, siginject resolves, selector recovers.
 
-    Reproduces the EXP-2 mechanism on a tiny cohort: where floor FLATs but
+    Reproduces the diverse-select mechanism on a tiny cohort: where floor FLATs but
     siginject RESOLVES, verifier-select flips the instance to resolved.
     """
     # (floor_grade, siginject_grade, expect_recovered)

@@ -84,7 +84,7 @@ def test_stages_and_tiers_are_mutually_exclusive():
 # ── per-stage configs ─────────────────────────────────────────────────────────
 
 def test_per_stage_configs_honored():
-    # 2-config sonnet ensemble, single-config opus rung (the GOV-V2 shape):
+    # 2-config sonnet ensemble, single-config opus rung (the governor shape):
     # opus must sample ONLY its own configs tuple.
     stages = [EscalationStage("sonnet", SONNET2),
               EscalationStage("opus", ("floor",), trigger="always")]
@@ -97,7 +97,7 @@ def test_per_stage_configs_honored():
     assert run.decline_reason is None
 
 
-# ── trigger: regok_true (GOV-V2: 84/150 @ $1.60/res; Opus 20/21 in regok=1) ──
+# ── trigger: regok_true (escalate-on-regression-green: 84/150 @ $1.60/res; Opus 20/21 in regok=1) ──
 
 def _regok_ladder(regok):
     stages = [EscalationStage("sonnet", SONNET2),
@@ -197,7 +197,7 @@ def test_voi_trigger_breakeven_on_signal_belief():
 
 
 def test_voi_trigger_grade_belief_fallback():
-    # no p_resolve in signals -> EXP-1 per-grade belief on the SELECTED grade
+    # no p_resolve in signals -> per-grade belief on the SELECTED grade
     # (BROKEN -> 1/7 ~ 0.143; FLAT -> 0.0).
     s = lambda c, v: EscalationStage("opus", ("floor",), trigger="voi",  # noqa: E731
                                      voi_cost=c, voi_value=v)
@@ -244,7 +244,7 @@ def test_no_signal_escalates_when_a_stage_remains_regardless_of_trigger():
 
 
 def test_no_signal_ships_fallback_at_top_of_ladder():
-    # single-stage ladder, all UNKNOWN -> ship-fallback (mirrors the EXP-4
+    # single-stage ladder, all UNKNOWN -> ship-fallback (mirrors the benchmark
     # harness NO_REPRO_FALLBACK): outcome is a SHIP decision with n_resolved=0,
     # NOT the silent ABANDON the framework used to produce on this band.
     stages = [EscalationStage("sonnet", SONNET2)]
@@ -375,12 +375,12 @@ def test_run_round_exposes_signals_for_the_ladder():
     assert r.signals["selected_regression_ok"] is True
 
 
-# ── GOV-V2 set-membership property on the first-150 EXP-4 fixture ────────────
+# ── governor set-membership property on the first-150 fixture ────────────
 
 def test_gov_v2_regok_true_escalation_set_on_first150_fixture():
     """Escalation candidates under the regok_true trigger == EXACTLY the logged
     ABANDON rows whose selected candidate's regression_ok is True (count 21) --
-    the GOV-V2 escalate-regok=1-to-Opus destination set (84/150 @ $1.60/res;
+    the escalate-regok=1-to-Opus destination set (84/150 @ $1.60/res;
     Opus recoveries 20/21 in regok=1 vs 3/17 in regok=0)."""
     if not FIXTURE_FIRST150.exists():
         import pytest

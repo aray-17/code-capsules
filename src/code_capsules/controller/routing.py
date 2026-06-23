@@ -1,4 +1,4 @@
-"""controller/routing.py — the optional classify→route helper.
+"""controller/routing.py: the optional classify→route helper.
 
 This is the *per-task variant selection* step that the deleted VariantPipelineRunner
 used to own inline. It is now a small, OPTIONAL function decoupled from the runner:

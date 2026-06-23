@@ -19,7 +19,7 @@ class TaskType(str, Enum):
     UNKNOWN = "unknown"
 
 
-# Default scope keywords — loaded from RoutingConfig.scope_keywords at classify() time.
+# Default scope keywords - loaded from RoutingConfig.scope_keywords at classify() time.
 # Kept here as fallback for callers that don't pass a config.
 _DEFAULT_SCOPE_KEYWORDS: list[str] = [
     r"across all", r"every occurrence", r"all callers", r"all usages",

@@ -1,5 +1,5 @@
 """
-OpenAIAPIClient — drives a GPT model as a coding agent via Chat Completions.
+OpenAIAPIClient: drives a GPT model as a coding agent via Chat Completions.
 
 Uses the openai Python SDK (>=1.0). Tool use through function calling.
 Conversation state lives in the messages list; sessions are kept in

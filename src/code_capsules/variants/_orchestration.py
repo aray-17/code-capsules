@@ -3,14 +3,14 @@ Shared orchestration primitives used by concrete Variant implementations.
 
 Three orchestration patterns:
 
-  run_sequential        — one model invocation; gate at the end
-  run_escalating        — stage 1 + conditional stage 2 (cascade trigger)
-  run_injection_loop    — stage 1 + N feedback-injection cycles
+  run_sequential        - one model invocation; gate at the end
+  run_escalating        - stage 1 + conditional stage 2 (cascade trigger)
+  run_injection_loop    - stage 1 + N feedback-injection cycles
 
 Each primitive:
   - Builds the prompt via _prompt.build_user_prompt
   - Invokes the agent runtime via ModelClient.invoke (looked up from the
-    registry — default 'claude_cli'; override via config.extra['model_client'])
+    registry - default 'claude_cli'; override via config.extra['model_client'])
   - Captures patch via _runner.capture_patch (git diff in the worktree)
   - Looks up the quality gate from the registry (config.extra['quality_gate'])
   - Looks up the cost model from the registry (config.extra['cost_model'])
@@ -22,7 +22,7 @@ Domain-specific glue:
   - The worktree is provided by the caller via task.context['worktree_path'].
     Benchmark harnesses set up the worktree; this module does not.
   - Pre-prompt blocks (FAIL_TO_PASS tests, etc.) come via
-    task.context['pre_prompt_blocks'] — a list of strings prepended verbatim.
+    task.context['pre_prompt_blocks'] - a list of strings prepended verbatim.
   - The agent runtime (Claude CLI, Aider, custom OpenAI agent, etc.) is
     abstracted behind ModelClient. Variant orchestration is model-agnostic.
 """
@@ -156,8 +156,8 @@ def run_sequential(task: TaskDescriptor, config: VariantConfig) -> RunResult:
 def run_escalating(task: TaskDescriptor, config: VariantConfig) -> RunResult:
     """Two-stage with cascade-trigger gating between stages.
 
-    Used by: two_pass_critique (always_escalate=True), P8-C+escalation
-    (always_escalate=False; uses heuristic cascade trigger).
+    Used by: two_pass_critique (always_escalate=True), relevance-ranker +
+    escalation (always_escalate=False; uses heuristic cascade trigger).
 
     Stage 1: invoke at start_budget. Gate. If resolved → return.
     Stage 2 (if trigger fires): resume invocation with extra turns; re-gate.
@@ -301,7 +301,7 @@ def run_escalating(task: TaskDescriptor, config: VariantConfig) -> RunResult:
 def run_injection_loop(task: TaskDescriptor, config: VariantConfig) -> RunResult:
     """Stage 1 + N feedback-injection cycles.
 
-    Used by: stuck_signal_injection (V2). Each cycle parses failing-test info
+    Used by: stuck_signal_injection. Each cycle parses failing-test info
     from the gate output and resumes the agent runtime with a targeted
     injection prompt.
 
@@ -470,7 +470,7 @@ def _build_stage2_prompt_generic(num_turns_used: int, total_budget: int) -> str:
 def _build_stage2_prompt_enriched(inv1: InvocationResult, signals: dict,
                                   num_turns_used: int,
                                   extra_turns: int, total_budget: int) -> str:
-    """Two-pass critique enriched stage-2 prompt (V1 / Phase 7C v6).
+    """Two-pass critique enriched stage-2 prompt.
 
     Summarizes stage-1 tool activity + maps fired signals to a directive.
     """

@@ -1,5 +1,5 @@
 """
-Built-in CostModel implementations — one per vendor at public-pricing rates.
+Built-in CostModel implementations: one per vendor at public-pricing rates.
 
 Shipped:
   - AnthropicPublicPricing   (Claude family)
@@ -52,7 +52,7 @@ class AnthropicPublicPricing:
     pricing_date = "2026-05-27"
 
     # Anthropic prompt-cache reads are billed at 10% of fresh input rate.
-    # Cache writes are 1.25x — we don't differentiate here; assume reads.
+    # Cache writes are 1.25x - we don't differentiate here; assume reads.
     _CACHE_DISCOUNT = 0.10
 
     def cost(self, input_tokens: int, output_tokens: int, model: str,
@@ -78,13 +78,13 @@ class AnthropicPublicPricing:
 _OPENAI_PUBLIC_USD_PER_M = {
     # GPT-5 family (current generation as of pricing_date).
     # Verified 2026-05-24 against artificialanalysis.ai. Cached-input rates
-    # noted alongside — about 90% off for GPT-5 family. Users with prompt
+    # noted alongside - about 90% off for GPT-5 family. Users with prompt
     # caching should subclass CostModel to honor that.
     "gpt-5":              {"input": 1.25,  "output": 10.00},   # cached input $0.125
     "gpt-5-codex":        {"input": 1.25,  "output": 10.00},   # cached input $0.125
     "gpt-5.1":            {"input": 1.25,  "output": 10.00},
     "gpt-5.1-codex":      {"input": 1.25,  "output": 10.00},
-    # gpt-5.2+ assumed to hold the gpt-5 flagship tier (approx — verify on use).
+    # gpt-5.2+ assumed to hold the gpt-5 flagship tier (approx - verify on use).
     "gpt-5.5":            {"input": 1.25,  "output": 10.00},   # approx (gpt-5 tier; verify)
     "gpt-5.5-pro":        {"input": 5.00,  "output": 25.00},   # approx (pro tier; verify)
     "gpt-5-mini":         {"input": 0.25,  "output": 2.00},    # cached input $0.03
@@ -142,7 +142,7 @@ _GEMINI_PUBLIC_USD_PER_M = {
     "gemini-2.0-flash-lite": {"input": 0.075,"output": 0.30},
     "gemini-2.5-pro":        {"input": 1.25, "output": 10.00},  # ≤200k context tier
     "gemini-2.5-flash":      {"input": 0.30, "output": 2.50},
-    # Gemini 3.x (approx — held at the 2.5-pro tier pending verification).
+    # Gemini 3.x (approx - held at the 2.5-pro tier pending verification).
     "gemini-3.1-pro-preview":{"input": 1.25, "output": 10.00},  # approx (verify)
     "gemini-3.5-flash":      {"input": 0.30, "output": 2.50},   # approx (verify)
 }

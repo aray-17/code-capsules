@@ -18,12 +18,12 @@ class ToolCallRecord:
     """One tool invocation observed in the session."""
     name: str               # Write, Read, Bash, Edit, ...
     file_path: str | None   # path argument if Read/Write/Edit
-    input_size: int         # len(str(input)) — proxy for input complexity
-    output_size: int        # len(str(output)) — proxy for output size
+    input_size: int         # len(str(input)) - proxy for input complexity
+    output_size: int        # len(str(output)) - proxy for output size
     turn_index: int         # which assistant turn this came from
     input_tokens_this_turn: int   # input tokens for the turn containing this call
     output_tokens_this_turn: int
-    # Truncated copy of the tool output (first ~1500 chars). Used by Phase 7C
+    # Truncated copy of the tool output (first ~1500 chars). Used by the
     # runtime quality signals (traceback / test-failure detection) and any
     # downstream analysis that needs to inspect actual tool output, not just
     # its size. Default empty string keeps construction backwards-compatible.
@@ -215,7 +215,7 @@ def parse_stream(stdout: str) -> ParsedSession:
                 error = event.get("result", "unknown error")
             # The result event's aggregate usage is the authoritative token count.
             # Per-assistant-message output_tokens can miss tokens from Write tool
-            # content (code generated inside tool_use inputs) — the result event
+            # content (code generated inside tool_use inputs) - the result event
             # captures the true total across all turns.
             agg = event.get("usage", {})
             if agg:

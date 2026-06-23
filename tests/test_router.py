@@ -30,7 +30,7 @@ class TestRouteResult:
 
 class TestSequentialFloor:
     def test_bug_fix_never_routes_fine(self):
-        # bug_fix is in sequential_min_task_types — always elevated to SEQUENTIAL
+        # bug_fix is in sequential_min_task_types - always elevated to SEQUENTIAL
         r = make_router()
         result = r.decide("fix the null pointer in auth.py", "bug_fix")
         assert result.decision == RoutingDecision.SEQUENTIAL
@@ -41,7 +41,7 @@ class TestSequentialFloor:
         assert any("sequential_floor" in n for n in result.notes)
 
     def test_new_feature_can_still_route_fine(self):
-        # new_feature is not in sequential_min_task_types — can be FINE
+        # new_feature is not in sequential_min_task_types - can be FINE
         r = make_router()
         result = r.decide(
             "implement a Python function has_close_elements(numbers, threshold)",
@@ -187,13 +187,13 @@ class TestBudgets:
         assert TURN_BUDGETS[RoutingDecision.FINE] < TURN_BUDGETS[RoutingDecision.SEQUENTIAL]
 
     def test_compound_lower_than_sequential(self):
-        # COMPOUND is a structured batch (read-all then write-all) — efficient by design.
+        # COMPOUND is a structured batch (read-all then write-all) - efficient by design.
         # SEQUENTIAL is open-ended investigation; needs a higher ceiling for tasks
         # like SWE-bench bug fixes that average 14+ turns.
         assert TURN_BUDGETS[RoutingDecision.COMPOUND] < TURN_BUDGETS[RoutingDecision.SEQUENTIAL]
 
     def test_sequential_budget_sufficient_for_swebench(self):
-        # Phase 0 SWE-bench baseline: avg 14.45 turns. Budget must exceed this.
+        # SWE-bench baseline: avg 14.45 turns. Budget must exceed this.
         assert TURN_BUDGETS[RoutingDecision.SEQUENTIAL] >= 20
 
 

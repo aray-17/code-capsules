@@ -2,15 +2,15 @@
 ModelClient implementations shipped with Code-Capsules.
 
 Four impls:
-  - ClaudeCLIClient      — drives Anthropic's Claude CLI via subprocess (the
+  - ClaudeCLIClient      - drives Anthropic's Claude CLI via subprocess (the
                            runtime calibrated in the paper).
-  - OpenAIAPIClient      — drives a GPT model via the openai SDK with a
+  - OpenAIAPIClient      - drives a GPT model via the openai SDK with a
                            multi-turn tool loop (Read/Write/Edit/Bash).
                            Auto-registered iff `openai` is installed.
-  - GeminiAPIClient      — drives a Gemini model via google.genai SDK with
+  - GeminiAPIClient      - drives a Gemini model via google.genai SDK with
                            the same tool loop. Auto-registered iff
                            `google.genai` is installed.
-  - GenericAgentClient   — skeleton/contract documentation. NOT auto-registered;
+  - GenericAgentClient   - skeleton/contract documentation. NOT auto-registered;
                            users instantiate with a custom invoke() and register
                            manually.
 
@@ -42,7 +42,7 @@ def register_builtins() -> None:
     """Register the framework's shipped model clients.
 
     Anthropic CLI client is always registered. OpenAI / Gemini clients are
-    registered if and only if their vendor SDK is importable — keeps the
+    registered if and only if their vendor SDK is importable - keeps the
     framework light for users who don't need cross-vendor (paper §"Cross-vendor
     extension via ModelClient"). The vendor SDK import is deferred to
     ``_ensure_client`` (so the adapter modules import without the SDK), which
@@ -54,7 +54,7 @@ def register_builtins() -> None:
     def _importable(module: str) -> bool:
         # find_spec on a dotted name imports the parent package, which raises
         # ModuleNotFoundError when the parent is absent (e.g. "google.genai"
-        # with no "google" installed — the default-install state). Treat any
+        # with no "google" installed - the default-install state). Treat any
         # import failure as "not available".
         try:
             return importlib.util.find_spec(module) is not None

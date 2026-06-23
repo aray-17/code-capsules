@@ -1,15 +1,16 @@
 """
-Relevance-ranker wrapper variant (Phase 8 P8-C).
+Relevance-ranker wrapper variant.
 
 Composable wrapper that ranks files in the worktree by relevance to the issue,
 prepends a "Likely relevant files" block to the prompt, then delegates to
-another variant. Implements the Phase 8 P8-C contribution as a Variant.
+another variant.
 
-Cross-tier ranker-inverse-capability finding (2026-05-20):
-  - Haiku: +4pp STACKS on V4 (the cheap-tier model benefits from the hint)
+Cross-tier ranker-inverse-capability finding:
+  - Haiku: +4pp STACKS on plan-then-execute (the cheap-tier model benefits from
+    the hint)
   - Sonnet: +1pp at most (mid-tier breaks even)
-  - Opus: −6pp REGRESSES on V4 (high-capability self-locates files; the block
-    becomes wasted tokens AND a distraction)
+  - Opus: -6pp REGRESSES (high-capability self-locates files; the block becomes
+    wasted tokens AND a distraction)
 
 Deployment guidance: wrap on Haiku tier; do NOT wrap on Opus tier; Sonnet
 optional. Choose top_n by tier (default 10 for Haiku/Sonnet, smaller or zero

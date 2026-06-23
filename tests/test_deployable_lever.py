@@ -1,4 +1,4 @@
-"""EXP-5: full-composition test for the DEPLOYABLE LEVER (the front door).
+"""Full-composition test for the DEPLOYABLE LEVER (the front door).
 
 Drives `CodeCapsulesRunner` (the package-root lever) from the shipped policy.yaml
 controller block with a NON-GOLD, repro-shaped grade_fn -- the exact composition
@@ -94,4 +94,4 @@ if __name__ == "__main__":
             fn(); passed += 1
         except Exception as e:
             print(f"  FAIL {fn.__name__}: {type(e).__name__}: {e}")
-    print(f"deployable lever (EXP-5): {passed}/{len(fns)} pass")
+    print(f"deployable lever: {passed}/{len(fns)} pass")

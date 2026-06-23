@@ -2,8 +2,8 @@
 Verifier-selector: choose the best candidate patch from K diverse attempts by
 an execution verifier -- the QUALITY lever of the adaptive controller.
 
-Diversity across configs gives coverage the single best config lacks (EXP-2:
-Sonnet first-150, union of 9 configs = 86/150 vs best-single floor 75/150 =
+Diversity across configs gives coverage the single best config lacks (Sonnet
+first-150, union of 9 configs = 86/150 vs best-single floor 75/150 =
 +7pp; floor+siginject alone reach 85/86). Same-config resampling does NOT help
 (+2.7pp -- failures are correlated). The verifier *realizes* the coverage by
 picking the candidate its execution reading ranks highest -- the Agentless
@@ -106,7 +106,7 @@ def agreement_reading(
                       non-RESOLVED grade is UNKNOWN/NOPATCH -- NO usable
                       execution reading, so it is NOT a doom call (the cascade
                       escalates it if a stage remains, else SHIPS the fallback,
-                      mirroring the EXP-4 harness NO_REPRO_FALLBACK -- this
+                      mirroring the harness NO_REPRO_FALLBACK -- this
                       removes the framework/harness divergence where the
                       framework abandoned the no-repro band the harness ships)
       all_failed   -- back-compat alias: failure_kind == "all_failed". NB this

@@ -20,19 +20,18 @@ Two backends, one public entry point (``docker_eval``):
      repo's canonical runner) and ``MAP_REPO_TO_PARSER`` parses the result. This
      is the EXACT grader used to produce this project's published numbers, so the
      public package reproduces the paper's verdicts bit-for-bit. swebench is an
-     OPTIONAL dependency — import it only if you score SWE-bench.
+     OPTIONAL dependency - import it only if you score SWE-bench.
 
   2. SELF-CONTAINED FALLBACK (used only when swebench is not installed). A
      stdlib-only reimplementation of the same resolution semantics, kept so the
      package can score without pulling in swebench. ``tests/test_docker_eval_parity.py``
      gates it against the canonical backend on gold patches so the two cannot
-     silently drift (a hand-rolled grader diverging from canonical was the
-     original scorer bug).
+     silently drift.
 
 Either backend NEVER grades a run that did not actually execute: a failed image
 pull / daemon error means the eval never ran, which MUST surface as ``resolved:
-None`` (retryable), never a false-negative ``False``. (Gap that caused the
-2026-06 autotrigger misfire.)
+None`` (retryable), never a ``False``. A run that did not execute is not a
+failed patch.
 
 This module must NOT import from ``tools/`` (swebench, an external package, is
 fine). Both backends return the same dict shape:

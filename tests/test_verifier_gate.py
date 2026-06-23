@@ -1,10 +1,10 @@
-"""Unit tests for the execution verifier + VerifierGate (the EXP-1 cost lever).
+"""Unit tests for the execution verifier + VerifierGate (the cost lever).
 
 Fast, no Docker. Validates that:
   - grade_execution maps execution counts to the right coarse grade,
   - the SWE-bench adapter parses docker_eval output (pytest + django/sympy
     runtests styles) to the right grade,
-  - VerifierGate reproduces the EXP-1-validated asymmetric policy: stop
+  - VerifierGate reproduces the validated asymmetric policy: stop
     RESOLVED, drop the confident-doomed tail, escalate the ambiguous middle.
 """
 from __future__ import annotations
@@ -51,7 +51,7 @@ def test_verifier_gate_acts_on_tails_only():
     assert g.should_escalate({"resolved": True}, 1) is False
     # confident-doomed tail -> drop
     assert g.should_escalate({"verifier_grade": FLAT}, 1) is False
-    # ambiguous middle -> escalate (NOPATCH is 43% winnable per EXP-1)
+    # ambiguous middle -> escalate (NOPATCH is 43% winnable)
     assert g.should_escalate({"verifier_grade": NOPATCH}, 1) is True
     assert g.should_escalate({"verifier_grade": PARTIAL}, 1) is True
     assert g.should_escalate({"verifier_grade": BROKEN}, 1) is True  # not in default abandon
@@ -68,15 +68,15 @@ def test_verifier_gate_aggressive_abandon():
 
 
 def test_exp1_policy_keeps_converters():
-    """Reproduce EXP-1: drop-FLAT + stop-RESOLVED loses ZERO converters.
+    """Reproduce the grade study: drop-FLAT + stop-RESOLVED loses ZERO converters.
 
-    EXP-1 cross-tab (n=50 django): RESOLVED 6/0, PARTIAL 0/3, FLAT 0/5,
+    Grade cross-tab (n=50 django): RESOLVED 6/0, PARTIAL 0/3, FLAT 0/5,
     BROKEN 1/6, NOPATCH 10/13. A converter is an instance that eventually
     resolves. The default gate must escalate (or stop-as-resolved) every
     converter -- never drop one.
     """
     g = VerifierGate()  # abandon = {FLAT}
-    # (grade, eventually_resolved) from EXP-1 distribution
+    # (grade, eventually_resolved) from the grade distribution
     cohort = (
         [(RESOLVED, True)] * 6
         + [(PARTIAL, False)] * 3

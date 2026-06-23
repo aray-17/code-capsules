@@ -1,9 +1,8 @@
 """
-Signaled N-turn budget variant — single-shot sequential run.
+Signaled N-turn budget variant: single-shot sequential run.
 
-The Phase 7B-Supp baseline that the rest of the Pareto frontier is measured
-against. Tells the model its budget up front (AC M-1 pattern) and runs to
-completion. No escalation, no injection.
+The baseline that the rest of the Pareto frontier is measured against. Tells the
+model its budget up front and runs to completion. No escalation, no injection.
 
 Calibrated cross-tier as the Pareto-frontier reference at budgets {5,10,20,40}.
 """

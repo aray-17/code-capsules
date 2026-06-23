@@ -1,11 +1,11 @@
 """
-ClaudeCLIClient — drives the Anthropic Claude CLI as a coding agent.
+ClaudeCLIClient: drives the Anthropic Claude CLI as a coding agent.
 
 Wraps the proven subprocess invocation from code_capsules.variants._runner +
 stream-json parsing from code_capsules.runtime.stream_parser into a ModelClient.
 
 The CLI handles the multi-turn tool-use loop end-to-end (file reads, edits,
-bash, etc.) — we just give it the prompt + budget + worktree, and parse
+bash, etc.) - we just give it the prompt + budget + worktree, and parse
 back tokens/tool-calls/text/errors when it completes.
 """
 from __future__ import annotations

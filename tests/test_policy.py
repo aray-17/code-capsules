@@ -239,7 +239,7 @@ def test_to_yaml_entry_round_trip():
         cost_per_task=0.308,
     )
     entry = original.to_yaml_entry()
-    # Cell coordinates are NOT in the entry — they're the keys above it.
+    # Cell coordinates are NOT in the entry - they're the keys above it.
     assert "workload_class" not in entry
     assert "tier" not in entry
     assert "knee" not in entry

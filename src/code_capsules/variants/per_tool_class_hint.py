@@ -1,11 +1,12 @@
 """
-Per-tool-class hint variant (Phase 10 Iter-C V5).
+Per-tool-class hint variant.
 
 Sequential run with an "## Approach" block suggesting a tool-class budget
-(~5 reads / ~3 patches / ~5 test-iterate cycles) matching the B-ext observed
-distribution. Soft framing — no hard structural constraint.
+(~5 reads / ~3 patches / ~5 test-iterate cycles) matching the observed tool-use
+distribution. Soft framing, no hard structural constraint.
 
-Sonnet n=150: 42%/$0.283 — on Pareto frontier (no promote vs V1/V4).
+Sonnet n=150: 42%/$0.283, on the Pareto frontier (no promote vs two-pass
+critique / plan-then-execute).
 """
 from __future__ import annotations
 

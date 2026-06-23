@@ -7,19 +7,17 @@ WHY THIS EXISTS
   the model's git diff, the verdict can be recomputed offline by re-applying
   that exact patch in the SWE-bench Docker container and re-grading it.
 
-  This is the lesson of the 2026-06 scorer-bug correction: the baseline that
-  stored its patch was re-scored for $0; the cells that stored only a boolean
-  `has_patch` had to be re-run on the model API. Every runtime-produced eval
-  row now carries `model_patch` (see swe_bench_adapter.run_result_to_legacy_jsonl
-  and the runtime RunResult.patch), so this utility is all you need to verify a
-  re-scored number from committed data.
+  This is why every runtime-produced eval row carries `model_patch` (see
+  swe_bench_adapter.run_result_to_legacy_jsonl and the runtime RunResult.patch):
+  a row that archived its patch can be re-graded offline for $0, with no model
+  call, so this utility is all you need to verify a score from committed data.
 
 WHAT IT DOES (no model, no API; Docker only)
   For each row whose stored verdict is not `resolved is True` and which carries a
   non-empty patch field, re-apply the patch via the runtime's canonical
   docker_eval and record `resolved_rescored` / `eval_note_rescored`. Rows already
-  `resolved is True` are kept (the only scorer bugs observed are false-negatives;
-  a future false-positive fix can be checked by passing --rescore-all).
+  `resolved is True` are kept by default; pass --rescore-all to re-grade every
+  row regardless of its stored verdict.
 
 USAGE (Docker required; no API key needed):
   PYTHONNOUSERSITE=1 PYTHONPATH=src python3 benchmarks/swebench/rescore_from_patch.py \

@@ -1,14 +1,14 @@
 """
-Code-Capsules composition score formula — v1 (inherited) and v2 (recalibrated).
+Code-Capsules composition score formula: v1 (inherited) and v2 (recalibrated).
 
 v1: inherited from Agentic-Capsules.
-v2: redesigned for coding agents using Phase 0/1 findings.
+v2: redesigned for coding agents using the baseline and instrumentation findings.
 
 Routing decisions:
-  FINE       — one LLM call, one write, done. score < FINE_THRESHOLD.
-  SEQUENTIAL — long dependency chain (bash loops, read→patch→verify).
+  FINE       - one LLM call, one write, done. score < FINE_THRESHOLD.
+  SEQUENTIAL - long dependency chain (bash loops, read→patch→verify).
                FINE_THRESHOLD ≤ score < COMPOUND_THRESHOLD, OR bash_ratio high.
-  COMPOUND   — batchable reads + parallel edits. score ≥ COMPOUND_THRESHOLD
+  COMPOUND   - batchable reads + parallel edits. score ≥ COMPOUND_THRESHOLD
                AND par_ratio > PAR_THRESHOLD.
 """
 from __future__ import annotations
@@ -56,7 +56,7 @@ class Features:
         n_turns = session.get("num_turns", dag.get("estimated_depth", 1))
         tpt = (n / max(n_turns, 1)) / 5.0   # normalise: 5+ tools/turn → 1.0
 
-        # bash_ratio not in Phase 0 comp dict — derive from dag
+        # bash_ratio not in the baseline comp dict - derive from dag
         n_bash = dag.get("n_bash", 0)
         bash_ratio = (n_bash / n) if n > 0 else 0.0
 
@@ -98,7 +98,7 @@ def score_v1(comp: dict) -> float:
 # ── v2: recalibrated formula ──────────────────────────────────────────────────
 
 _V2_WEIGHTS: dict[str, float] = {
-    # Set during Phase 2 Pareto sweep — defaults below are the sweep winners.
+    # Set during the Pareto sweep - defaults below are the sweep winners.
     # Features that INCREASE compound/sequential score:
     "parallelizable_ratio":    0.40,  # main signal: wide DAG → compound
     "context_load_ratio":      0.20,  # lots of reads → batching opportunity
@@ -112,7 +112,7 @@ _V2_WEIGHTS: dict[str, float] = {
 def score_v2(feat: Features, weights: dict[str, float] | None = None) -> float:
     """
     Recalibrated formula for coding agents.
-    overhead_ratio_est intentionally excluded — unreliable in Claude Code.
+    overhead_ratio_est intentionally excluded - unreliable in Claude Code.
     bash_ratio handled separately in route_v2 (forces SEQUENTIAL, not score).
     """
     w = weights or _V2_WEIGHTS
@@ -139,7 +139,7 @@ def route_v2(
     """
     Returns (routing_decision, score_v2, routing_notes).
 
-    routing_notes: list of strings explaining the decision — useful for logging
+    routing_notes: list of strings explaining the decision - useful for logging
     and for the paper's ablation analysis.
 
     Rules applied in order:
@@ -171,7 +171,7 @@ def route_v2(
         notes.append(f"bash_override: bash_ratio={feat.bash_ratio:.2f} >= {bt}")
         return RoutingDecision.SEQUENTIAL, score, notes
 
-    # Rule 2: trivial task — but elevate to SEQUENTIAL for task types that
+    # Rule 2: trivial task - but elevate to SEQUENTIAL for task types that
     # structurally require iteration (bug_fix: read→investigate→patch→verify).
     if score < ft:
         if config is not None and feat.task_type in config.sequential_min_task_types:

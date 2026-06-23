@@ -1,5 +1,5 @@
 """
-OpenAIResponsesClient — OpenAI Responses API driver for the GPT-5 codex family.
+OpenAIResponsesClient: OpenAI Responses API driver for the GPT-5 codex family.
 
 The Chat Completions endpoint refuses gpt-5-codex (and other reasoning /
 codex variants) with 404; those models are only served via /v1/responses.
@@ -7,7 +7,7 @@ This client drives the Responses API with the same Read/Write/Edit/Bash
 tool loop as OpenAIAPIClient.
 
 Differences from the Chat Completions client:
-  - tool format is flat ({type, name, description, parameters}) — no nested
+  - tool format is flat ({type, name, description, parameters}) - no nested
     "function" key
   - input items can be messages OR function_call / function_call_output;
     each turn re-sends the full history (server-side state via
@@ -136,7 +136,7 @@ class OpenAIResponsesClient(APIBasedAgent):
                 for c in getattr(item, "content", []) or []:
                     if getattr(c, "type", "") in ("output_text", "text"):
                         text += getattr(c, "text", "") or ""
-            # 'reasoning' items emitted by codex models are skipped — they're
+            # 'reasoning' items emitted by codex models are skipped - they're
             # internal trace the model reconstructs on follow-up turns.
 
         usage = getattr(resp, "usage", None)

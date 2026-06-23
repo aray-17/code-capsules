@@ -3,12 +3,12 @@ Built-in CascadeTrigger implementations.
 
 Three shipped defaults:
 
-- HeuristicCascade: original Phase 7C logic. Escalates iff cap pressure
+- HeuristicCascade: the original signal-based logic. Escalates iff cap pressure
   ≥ threshold AND any quality signal fired. Doesn't escalate if the
   model self-terminated below the cap (clean give-up).
 
-- AlwaysEscalate: forces escalation when not resolved. Used by V1 two-pass
-  critique (always run stage 2). Bypasses heuristic.
+- AlwaysEscalate: forces escalation when not resolved. Used by the two-pass
+  critique variant (always run stage 2). Bypasses heuristic.
 
 - NeverEscalate: forces no escalation. Used to A/B against AlwaysEscalate
   or to disable cascade entirely for cost-bounded deployments.
@@ -22,7 +22,7 @@ from typing import Any
 
 
 class HeuristicCascade:
-    """Original Phase 7C escalation logic.
+    """The original signal-based escalation logic.
 
     Escalation decision tree:
       1. If signals contains 'resolved' True → don't escalate
@@ -80,10 +80,10 @@ class NeverEscalate:
 
 
 class VerifierGate:
-    """Execution-verifier-grounded escalation gate (EXP-1 validated, 2026-06-01).
+    """Execution-verifier-grounded escalation gate (validated 2026-06-01).
 
     Unlike HeuristicCascade (which keys on self-reported quality signals that
-    EXP-1 showed do NOT separate winnable from doomed), this gate keys on the
+    a controlled study showed do NOT separate winnable from doomed), this gate keys on the
     *execution* verifier grade (controller.verifier), which separates the
     confident tails cleanly:
 
@@ -91,15 +91,15 @@ class VerifierGate:
       FLAT     -> confident doomed (ran, nothing moved) -> drop
       NOPATCH / PARTIAL / BROKEN / UNKNOWN -> ambiguous middle -> ESCALATE
 
-    EXP-1 (n=50 django): dropping only FLAT and stopping RESOLVED kept 17/17
-    resolves (ZERO lost) while cutting escalations. The naive symmetric gate
+    The calibration study (n=50 django): dropping only FLAT and stopping
+    RESOLVED kept 17/17 resolves (ZERO lost) while cutting escalations. The naive symmetric gate
     (also dropping NOPATCH/BROKEN) is catastrophic because NOPATCH at a low
     floor budget is 43% winnable ("no patch yet" = needs more turns). So this
     gate acts ONLY on the tails and defaults to escalate on the middle.
 
     `abandon` is the confident-doomed set to drop. Default {"FLAT"} is the
-    zero-resolve-loss point; {"FLAT", "BROKEN"} saves more at ~1 lost resolve
-    per EXP-1. Reads signals["verifier_grade"] (see controller.verifier); if
+    zero-resolve-loss point; {"FLAT", "BROKEN"} saves more at ~1 lost resolve.
+    Reads signals["verifier_grade"] (see controller.verifier); if
     absent, falls back to escalate-when-unresolved (AlwaysEscalate behavior),
     so it degrades safely when no execution reading is available.
     """
@@ -128,7 +128,7 @@ class VerifierGate:
 
 
 class CrossSampleAgreementCascade:
-    """Cross-sample diverse-agreement cascade — the validated VOI cost lever
+    """Cross-sample diverse-agreement cascade: the validated VOI cost lever
     (generalizability eval 2026-06-03).
 
     Run K DIVERSE configs at the current tier, then key on their *agreement*:
@@ -156,14 +156,14 @@ class CrossSampleAgreementCascade:
     ESCALATE_TIER is OFF by default and carries a standing caveat: a *stronger
     model* (Opus) recovered only ~18% of the doomed set, at ~$2.42/resolve = ~1.7x
     the base $1.40/resolve rate. This matches the project's PRIOR negative finding
-    (Phase 8/9: the cross-model cost-cascade was uneconomical, "+18% cost for +1
+    (the cross-model cost-cascade was uneconomical, "+18% cost for +1
     pass"). So tier-escalation is a marginal, more-expensive tail -- enable it
     (escalate_on_agreement=True) ONLY when a resolve is worth ~1.7x the base cost.
     When enabled, the escalation axis is the MODEL TIER, not the turn budget
     (escalation_kind="tier"); a budget-only harness must NOT wire it (it would spend
     the exact same-tier compute the eval showed is wasted).
 
-    GOVERNOR (the ship/abandon gate; EXP-4 n=300 replay, 2026-06-10): the
+    GOVERNOR (the ship/abandon gate; n=300 replay, 2026-06-10): the
     regression channel (signals['selected_regression_ok'], threaded by
     orchestrator.run_round from the verifier's .regression) rescues would-be
     abandons. Three modes:
@@ -185,7 +185,7 @@ class CrossSampleAgreementCascade:
     SHIP GATE (precision knob, OFF by default): ship_gate='repro_and_regok'
     additionally requires selected_regression_ok is not False for a repro-pass
     STOP, else the instance demotes to the escalate/decline path. It buys SHIP
-    precision at a resolve cost (EXP-4: first-150 58->78% at -4 resolves,
+    precision at a resolve cost (replay: first-150 58->78% at -4 resolves,
     held-out 67->77% at -8) -- an auto-merge confidence label, not a default.
 
     NO_SIGNAL BAND (the APPROVED zero-resolved split, sign-off 2026-06-10):
@@ -196,7 +196,7 @@ class CrossSampleAgreementCascade:
 
       ship_fallback -> DEFAULT (the prior hardcoded behavior): escalate if a
                        stronger stage remains, else STOP (ship the carried
-                       selection) -- the EXP-4 harness NO_REPRO_FALLBACK
+                       selection) -- the harness NO_REPRO_FALLBACK
                        behavior, now in the framework.
       escalate      -> escalate if a stronger stage remains, else ABANDON:
                        never ship an unverified patch (decline at the top of
@@ -267,12 +267,12 @@ class CrossSampleAgreementCascade:
         # selector.agreement_reading's failure_kind) is NOT a doom call.
         # The `no_signal` knob arbitrates: ship_fallback (default) escalates
         # when a stronger stage remains, else SHIPS the carried selection --
-        # mirroring the EXP-4 harness NO_REPRO_FALLBACK, which ships the
+        # mirroring the harness NO_REPRO_FALLBACK, which ships the
         # no-repro band the framework used to silently abandon (the live
         # framework/harness divergence this branch removes); 'escalate'
         # declines instead of shipping at the top of the ladder; 'abandon'
         # declines the band outright. Absent failure_kind (hand-built
-        # signals, logged EXP-4 agreement dicts) -> branch inert.
+        # signals, logged agreement dicts) -> branch inert.
         if signals.get("failure_kind") == "no_signal":
             if self.no_signal == "abandon":
                 return self.ABANDON

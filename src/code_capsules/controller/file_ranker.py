@@ -1,5 +1,5 @@
 """
-Phase 8 Knob P8-C: Issue-relevant file pre-selection.
+Relevance ranker: issue-relevant file pre-selection.
 
 Front-loads context by ranking repo files against the SWE-bench issue text and
 returning the top-N most likely-relevant paths. The harness then prepends a
@@ -36,7 +36,7 @@ from typing import Optional
 
 # ── Token extraction ─────────────────────────────────────────────────────────
 
-# Code identifiers: CamelCase, snake_case, ALL_CAPS — length >= 3.
+# Code identifiers: CamelCase, snake_case, ALL_CAPS - length >= 3.
 _IDENT_RE = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]{2,}\b")
 
 # Dotted Python paths, e.g. django.db.models.fields.Field (>= 2 dots OR

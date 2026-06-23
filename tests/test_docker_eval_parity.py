@@ -5,9 +5,9 @@ swebench's canonical grader.
 ``docker_eval``: the canonical one (delegates to swebench's own
 ``make_test_spec().eval_script`` + ``MAP_REPO_TO_PARSER`` - the grader of record
 for the paper's numbers) and a stdlib-only fallback used when swebench is not
-installed. The original scorer bug was a hand-rolled grader diverging from
-canonical; this test makes that divergence impossible to ship by running BOTH
-backends on the SWE-bench reference (gold) patches and asserting they agree.
+installed. A stdlib fallback could silently diverge from the canonical grader;
+this test makes that divergence impossible to ship by running BOTH backends on
+the SWE-bench reference (gold) patches and asserting they agree.
 
 The gold trio covers the three resolution code paths:
   - matplotlib: pytest, resolve-by-parsed-status (pytest-by-file)

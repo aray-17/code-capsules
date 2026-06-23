@@ -1,6 +1,6 @@
-"""Tests for the Phase 11 runtime entry point (CodeCapsulesRunner). Mock adapters
+"""Tests for the runtime entry point (CodeCapsulesRunner). Mock adapters
 -> no docker. The Runner must drive the validated controller end-to-end and honor
-the policy — including the plan §4 item 6 policy.yaml surface (governor /
+the policy - including the plan §4 item 6 policy.yaml surface (governor /
 ship_gate / no_signal / escalation{mode,ladder,voi} / p_source /
 prompt_includes_fail_to_pass). Runs under pytest or `python3` directly."""
 import sys
@@ -225,7 +225,7 @@ def test_runner_drives_the_policy_ladder():
     grades = {"sonnet:floor": FLAT, "sonnet:siginject": FLAT, "opus:floor": RESOLVED}
     run = CodeCapsulesRunner(pol).run(lambda c, t: f"{t}:{c}", lambda p: grades[p],
                                       regression_fn=lambda p: True)
-    assert run.outcome == "RESOLVED" and run.final_tier == "opus"   # GOV-V2 shape
+    assert run.outcome == "RESOLVED" and run.final_tier == "opus"   # governor escalate-on-regression-green shape
     # trigger not fired (regok False) -> decline with reason, opus never sampled
     calls = []
     def sampler(c, t):
@@ -356,7 +356,7 @@ def test_shipped_policy_yaml_parses_with_the_new_surface():
     assert pol.governor == "hybrid_regok" and pol.ship_gate == "repro_or_regok"
     assert pol.no_signal == "ship_fallback" and pol.min_samples == 2
     assert pol.escalation_mode == "off" and pol.escalate_on_agreement is False
-    assert len(pol.escalation_ladder) == 1             # the GOV-V2 rung, inert
+    assert len(pol.escalation_ladder) == 1             # the governor rung, inert
     assert pol.escalation_ladder[0].trigger == "regok_true"
     assert pol.escalation_voi == (1.37, 0.42)
     assert pol.p_source is None and pol.prompt_includes_fail_to_pass is True

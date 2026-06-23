@@ -2,9 +2,9 @@
 Generic prompt assembly for variants.
 
 Builds the user prompt from a TaskDescriptor + VariantConfig. Adds:
-- Optional turn-budget hint (Phase 7B-Supp signaled regime; AC M-1 pattern)
+- Optional turn-budget hint (signaled regime)
 - Optional approach block (plan_first / tool_alloc / phase_staged)
-- Optional preselect block (relevance-ranker output, Phase 8 P8-C)
+- Optional preselect block (relevance-ranker output)
 - Optional context block (caller-provided pre-prompt content, e.g. tests list)
 
 Domain-agnostic: this module does NOT know about SWE-bench, FAIL_TO_PASS,
@@ -19,9 +19,8 @@ from typing import Optional
 def render_approach_block(variant: Optional[str], budget: Optional[int]) -> str:
     """Render an `## Approach` block for the given prompt variant.
 
-    Variants: plan_first (V4), tool_alloc (V5), phase_staged (V3).
-    Lifted verbatim from tools/run_swebench_docker.py:_render_variant_block —
-    the actual block wording is the load-bearing experimental treatment.
+    Variants: plan_first, tool_alloc, phase_staged. The block wording is the
+    load-bearing experimental treatment.
     """
     if not variant:
         return ""

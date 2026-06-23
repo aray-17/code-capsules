@@ -1,12 +1,12 @@
 """
-Phase 7C: runtime quality signals for coding sessions.
+Runtime quality signals for coding sessions.
 
-These five signals detect when a Claude Code session is *stalling* — making
+These five signals detect when a Claude Code session is *stalling*: making
 tool calls but not converging on a fix. They feed the escalation controller
 (`controller.escalation`) which decides whether to grant additional turns to
 a session that hit its initial budget.
 
-Coding-side analog of Agentic-Capsules' C-2 quality gate and E-1 rolling-mean
+Coding-side analog of Agentic-Capsules' quality gate and rolling-mean
 quality signal. AC's signals fired on completed-agent quality scores; ours
 fire on within-session tool-call patterns because coding sessions are single
 LLM calls with multiple turns, not multi-agent pipelines.
@@ -16,14 +16,14 @@ of `ToolCallRecord` (from `code_capsules.runtime.stream_parser.parse_stream`) an
 single `QualitySignals` aggregate dataclass.
 
 Design choices:
-- Signals are post-hoc (computed on a completed session's tool calls). For
-  Phase 7C the harness uses 2-stage escalation: run stage 1 to completion,
+- Signals are post-hoc (computed on a completed session's tool calls). The
+  harness uses 2-stage escalation: run stage 1 to completion,
   compute signals, decide stage 2. A truly mid-stream variant would need
   per-tool-call hook integration and is deferred.
 - Each signal returns a bool, not a score. This keeps the escalation rule
   interpretable ("file_thrash fired") and avoids tuning weights without data.
 - Pattern thresholds (e.g. "≥3 reads of the same file in last 5 calls") are
-  configurable via function arguments — defaults come from the Phase 7C
+  configurable via function arguments; defaults come from the
   design doc but can be tuned per-deployment.
 """
 from __future__ import annotations
@@ -69,7 +69,7 @@ def detect_file_thrash(
 ) -> bool:
     """
     Fires when the model re-reads the same file ≥`min_reads_same_file` times
-    within the most recent `window` tool calls — indicating it's looping on
+    within the most recent `window` tool calls, indicating it's looping on
     a file it can't make sense of, rather than making progress.
     """
     reads = [tc for tc in tool_calls if tc.is_read and tc.file_path]
@@ -95,7 +95,7 @@ def detect_test_failure(tool_calls: list[ToolCallRecord]) -> bool:
     """
     Fires when a Bash tool call's output indicates a test failure. We look
     only at bash outputs (not Read/Edit), since test runs happen through
-    Bash. We match on common failure markers — pytest's `FAILED`, django's
+    Bash. We match on common failure markers: pytest's `FAILED`, django's
     `FAILED (failures=N)`, raw `AssertionError`.
     """
     for tc in tool_calls:
@@ -113,7 +113,7 @@ _TRACEBACK_RE = re.compile(r"Traceback \(most recent call last\)")
 def detect_traceback(tool_calls: list[ToolCallRecord]) -> bool:
     """
     Fires when any tool output contains a Python traceback. This is a
-    stronger signal than `test_failure` — tracebacks usually indicate the
+    stronger signal than `test_failure`: tracebacks usually indicate the
     model's patch broke imports or runtime behaviour, not just a failing
     assertion.
     """
@@ -159,7 +159,7 @@ def detect_no_progress(
         else:
             sigs.append("o")    # other tool, not counted as progress or regress
 
-    # Look at the tail — most recent consecutive read-only turns
+    # Look at the tail - most recent consecutive read-only turns
     tail = 0
     for s in reversed(sigs):
         if s == "r":
@@ -173,7 +173,7 @@ def detect_patch_attempt_failed(tool_calls: list[ToolCallRecord]) -> bool:
     """
     Fires when a write tool call is followed by a bash tool call whose output
     indicates a test failure. The model attempted a fix, ran tests, and the
-    tests still failed — a stronger "this isn't working" signal than a raw
+    tests still failed, a stronger "this isn't working" signal than a raw
     test failure (which could be the *baseline* failing tests before any fix).
     """
     last_write_index: Optional[int] = None
@@ -181,7 +181,7 @@ def detect_patch_attempt_failed(tool_calls: list[ToolCallRecord]) -> bool:
         if tc.is_write:
             last_write_index = i
         elif tc.is_bash and last_write_index is not None and i > last_write_index:
-            # First bash after a write — check for failure markers
+            # First bash after a write - check for failure markers
             if tc.output_text:
                 for pat in _TEST_FAIL_PATTERNS:
                     if pat.search(tc.output_text):

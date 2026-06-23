@@ -1,4 +1,4 @@
-"""Tests for controller/calibrator.py — Phase 7B turn-budget recommendation."""
+"""Tests for controller/calibrator.py - turn-budget recommendation."""
 import json
 import pytest
 from pathlib import Path
@@ -54,7 +54,7 @@ class TestParetoFrontier:
 
     def test_equal_pass_rate_higher_cost_is_dominated(self):
         # WEAK dominance: same pass-rate + higher cost → dominated.
-        # (Fixed after the Phase 7B plateau-jump-plateau bug.)
+        # (Fixed after the plateau-jump-plateau bug.)
         obs = [_obs(20, 0.5, cost=0.2),
                _obs(40, 0.5, cost=0.4)]
         frontier = _pareto_frontier(obs)
@@ -75,9 +75,9 @@ class TestParetoFrontier:
 
     def test_plateau_jump_plateau_curve_collapses_to_two_points(self):
         """
-        Regression test for the Phase 7B calibrator bug.
+        Regression test for the calibrator plateau bug.
 
-        Real Phase 7B SWE-bench data: budget=10 and budget=40 produced the same
+        Real SWE-bench data: budget=10 and budget=40 produced the same
         pass-rate as the points on either side, but at higher cost. With strict
         dominance both stayed on the frontier and the knee detector returned 5
         (first low-gain transition: 5→10). With weak dominance the frontier
@@ -99,7 +99,7 @@ class TestKneeDetection:
     def test_clear_knee_picks_smaller_budget(self):
         # 5→10: +0.20/5 = 0.04/turn (steep)
         # 10→20: +0.20/10 = 0.02/turn (still gaining)
-        # 20→40: +0.05/20 = 0.0025/turn (knee — below 0.005)
+        # 20→40: +0.05/20 = 0.0025/turn (knee - below 0.005)
         frontier = [_obs(5, 0.20), _obs(10, 0.40), _obs(20, 0.60), _obs(40, 0.65)]
         rec, reasoning, fallback = _detect_knee(frontier, min_quality_gain_per_turn=0.005)
         assert rec.budget == 20
@@ -107,7 +107,7 @@ class TestKneeDetection:
         assert "20" in reasoning
 
     def test_no_knee_returns_largest_with_fallback(self):
-        # All transitions exceed threshold — no knee in this sweep
+        # All transitions exceed threshold - no knee in this sweep
         frontier = [_obs(5, 0.20), _obs(10, 0.50), _obs(20, 0.80)]
         rec, _, fallback = _detect_knee(frontier, min_quality_gain_per_turn=0.005)
         assert rec.budget == 20
@@ -135,7 +135,7 @@ class TestKneeDetection:
 
 class TestCalibrate:
     def test_realistic_swebench_curve_recommends_20(self):
-        # Mirrors the Phase 7 audit findings: most quality gain by budget=20,
+        # Mirrors the budget-sweep findings: most quality gain by budget=20,
         # diminishing returns at 40
         obs = [
             _obs(5, 0.05, cost=0.05),
@@ -150,7 +150,7 @@ class TestCalibrate:
 
     def test_phase7b_actual_data_recommends_20(self):
         """
-        End-to-end regression: feed the actual Phase 7B SWE-bench sweep results
+        End-to-end regression: feed the actual SWE-bench sweep results
         into the top-level calibrate_turn_budget(). With the weak-dominance fix
         the recommendation must be 20, not 5.
 
@@ -166,7 +166,7 @@ class TestCalibrate:
         assert rec.recommended_budget == 20
         # Frontier is collapsed by weak dominance to {5, 20}.
         assert {f.budget for f in rec.pareto_frontier} == {5, 20}
-        # 5→20 gain is (0.167-0.033)/15 = 0.0089/turn ≈ 0.89%/turn — above the
+        # 5→20 gain is (0.167-0.033)/15 = 0.0089/turn ≈ 0.89%/turn - above the
         # 0.5%/turn default, so no knee found → fallback to largest in frontier.
         assert rec.fallback_used is True
 

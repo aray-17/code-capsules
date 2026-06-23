@@ -3,7 +3,7 @@ import pytest
 from code_capsules.evaluation.quality_gate import (
     BaseQualityGate,
     PythonQualityGate,
-    CodeQualityGate,   # alias — must still import cleanly
+    CodeQualityGate,   # alias - must still import cleanly
     QualityResult,
     BinaryQualityGate,
 )

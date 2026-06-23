@@ -1,5 +1,5 @@
 """
-Live router — the policy execution layer.
+Live router: the policy execution layer.
 
 Takes a prompt + optional observed session features, produces a routing
 decision and turn budget. This is the component that fires at the start
@@ -29,10 +29,10 @@ from code_capsules.controller.routing_config import DEFAULT_CONFIG, RoutingConfi
 
 
 # Turn budgets per routing decision.
-# FINE: tight — forces single-shot; catches most simple tasks in 1-2 turns.
-# SEQUENTIAL: generous — SWE-bench bug fixes average 14.45 turns (Phase 0).
+# FINE: tight - forces single-shot; catches most simple tasks in 1-2 turns.
+# SEQUENTIAL: generous - SWE-bench bug fixes average 14.45 turns.
 #   Models self-terminate early for simple tasks, so a high ceiling is safe.
-# COMPOUND: lower than SEQUENTIAL — structured batch prompt (read-all then write-all)
+# COMPOUND: lower than SEQUENTIAL - structured batch prompt (read-all then write-all)
 #   is efficient; doesn't need an open-ended investigation budget.
 TURN_BUDGETS: dict[RoutingDecision, int] = {
     RoutingDecision.FINE: 2,
@@ -56,7 +56,7 @@ class Router:
     """
     Routing policy executor.
 
-    decide() is the hot path — called once per session before the first tool call.
+    decide() is the hot path, called once per session before the first tool call.
     It combines the prompt prediction (always available) with any observed session
     features (available mid-session from hook data) to produce a routing decision.
     """
@@ -105,7 +105,7 @@ class Router:
 
         prediction = predict_from_prompt(prompt, task_type)
 
-        # Build Features — merge prediction with any observed data
+        # Build Features - merge prediction with any observed data
         observed_used = False
         bash_ratio = observed_bash_ratio  # always prefer observed (bash is runtime-only)
         if observed_bash_ratio > 0:
@@ -171,7 +171,7 @@ class Router:
         """
         Wrap a prompt with batching instructions for COMPOUND routing.
 
-        COMPOUND execution is a single Claude session — the savings come from
+        COMPOUND execution is a single Claude session: the savings come from
         reading all files in one batched pass before writing, so the system-prompt
         cache is paid once and Claude has full context before any edit.
 

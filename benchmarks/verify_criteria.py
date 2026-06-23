@@ -14,7 +14,7 @@ Exit code 0 iff every claim reproduces.
 
 Every scorer lives under benchmarks/ (benchmarks/swebench/ and benchmarks/cross_vendor/);
 each runs as a standalone script from the repo root. The three offline replays formerly
-under tools/ (agreement_signal, h2h_combine_score, value_of_resolve) now live in
+under tools/ (agreement_signal, h2h_canonical_score, value_of_resolve) now live in
 benchmarks/swebench/ alongside the rest.
 """
 from __future__ import annotations
@@ -83,13 +83,17 @@ CLAIMS = [
         id="C5",
         title="Two-pass critique vs Agentless head-to-head (Pareto)",
         section="sec:h2h",
-        paper="Code-Capsules 172/300 (57.3%) @ $0.445 vs Agentless 152/300 (50.7%) @ $0.456 (+6.7pp, Pareto)",
-        cmd=["python3", "benchmarks/swebench/h2h_combine_score.py", "--no-write"],
-        markers=["172/300", "PARETO"],
+        paper="Code-Capsules 172/300 (57.3%) @ $0.445 vs Agentless 152/300 (50.7%) @ $0.456 "
+              "(+6.7pp, Pareto; 13.8% lower cost per resolve; McNemar p=0.0055)",
+        cmd=["python3", "benchmarks/swebench/h2h_canonical_score.py"],
+        markers=["two-pass critique 172/300", "Agentless oracle@k 152/300",
+                 "13.8% lower cost per resolve", "McNemar exact p=0.0055",
+                 "ALL TARGET NUMBERS REPRODUCE"],
         data=["evals/leakfree/tb_forcestage2_first150.jsonl",
               "evals/leakfree/tb_forcestage2_second150.jsonl",
-              "evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl",
-              "evals/h2h_agentless_sonnet_150_300_sympyfixed_20260601T003717.jsonl"],
+              "evals/scopeC/canonical_tp_h2h.jsonl",
+              "evals/scopeC/h2h_agentless_n300_scored_20260616.jsonl",
+              "evals/scopeC/canonical_agentless.jsonl"],
     ),
     dict(
         id="C8",
@@ -108,8 +112,8 @@ CLAIMS = [
         paper="base $0.82/resolve (n=126 in-family); tier escalation $1.37 / $2.71 / $1.47 per recovered resolve",
         cmd=["python3", "benchmarks/swebench/value_of_resolve.py"],
         markers=["base $/resolve: $0.82", "$1.37", "ALL NUMBERS REPRODUCE"],
-        data=["evals/scopeC/value_of_resolve_corrected.json",
-              "evals/scopeC/menu/canonical_p10_sonnet_floor_n150_20260516T040248.jsonl",
+        data=["evals/scopeC/menu/canonical_p10_sonnet_floor_n150_20260516T040248.jsonl",
+              "evals/scopeC/opus/canonical_floor.jsonl",
               "evals/p9_opus_floor_n150_combined_20260527.jsonl"],
     ),
     dict(
@@ -129,7 +133,7 @@ CLAIMS = [
         id="C6",
         title="Calibrated cross-tier Pareto menu",
         section="tab:shipped_presets, tab:cross_tier_cells",
-        paper="cost_min 57/$0.48, balanced 66/$0.93, quality 77/$0.91, quality_max 92/$0.78, ceiling 96/$0.94; "
+        paper="cost_min 80/$0.34, balanced 98/$0.62, quality 111/$0.63, quality_max 128/$0.56, ceiling 138/$0.66; "
               "quality_max out-resolves quality at lower $/resolve",
         cmd=["python3", "benchmarks/swebench/cross_tier_pareto_menu.py"],
         markers=["ALL CELLS REPRODUCE", "more resolved? True", "cheaper per resolve? True"],

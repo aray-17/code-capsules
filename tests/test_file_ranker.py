@@ -1,4 +1,4 @@
-"""Tests for controller/file_ranker.py — Phase 8 Knob P8-C pre-selection."""
+"""Tests for controller/file_ranker.py - relevance-ranker pre-selection."""
 from __future__ import annotations
 
 import subprocess
@@ -41,9 +41,9 @@ def test_extract_signals_extracts_identifiers():
 
 
 def test_extract_signals_drops_short_dotted_components():
-    text = "django.db.models — investigating db, fields"
+    text = "django.db.models - investigating db, fields"
     _, dotted, idents = _extract_signals(text)
-    # db is in a dotted path and is short — should not appear as standalone ident
+    # db is in a dotted path and is short - should not appear as standalone ident
     assert "db" not in idents
 
 
@@ -110,7 +110,7 @@ def test_rank_identifier_only_match(mini_repo: Path):
     # No explicit path; only the identifier LoginView is mentioned
     issue = "Calling LoginView.post() blows up with an unexpected error."
     ranked = rank_relevant_files(mini_repo, issue, top_n=5)
-    # login.py defines LoginView in its peek — should rank above unrelated files
+    # login.py defines LoginView in its peek - should rank above unrelated files
     paths = [r.path for r in ranked]
     assert paths[0] == "src/auth/login.py", f"Expected login.py first, got: {paths}"
 

@@ -1,11 +1,11 @@
 """
-Public API surface — re-exports of the typed dataclasses and the eight
+Public API surface: re-exports of the typed dataclasses and the eight
 extension Protocols.
 
 The framework's public surface is two small modules:
-  - :mod:`code_capsules.api.types`     — dataclasses (TaskDescriptor,
+  - :mod:`code_capsules.api.types`     - dataclasses (TaskDescriptor,
     VariantConfig, SessionState, Attempt, InvocationResult, RunResult)
-  - :mod:`code_capsules.api.protocols` — eight Protocols (WorkloadClassifier,
+  - :mod:`code_capsules.api.protocols` - eight Protocols (WorkloadClassifier,
     RoutingStrategy, Variant, Signal, QualityGate, CascadeTrigger,
     ModelClient, CostModel)
 

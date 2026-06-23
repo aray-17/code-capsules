@@ -1,4 +1,4 @@
-"""Prompt assembly (Phase 11 — moved from the SWE-bench harness into the framework).
+"""Prompt assembly (moved from the SWE-bench harness into the framework).
 
 build_prompt turns an issue + a policy's budget/variant/preselect knobs into the
 user prompt for a coding-agent session. It lives here, not in the harness, so the
@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-# Phase 10 Iter-C: prompt variants (descriptive names; internal V3/V4/V5).
+# Prompt variants (plan-then-execute, per-tool-class hint, phase-staged).
 PROMPT_VARIANTS = ("plan_first", "tool_alloc", "phase_staged")
 
 
@@ -33,10 +33,9 @@ def build_prompt(instance: dict, prompt_budget_hint: Optional[int] = None,
     instance's gold FAIL_TO_PASS test IDs as the "## Tests that must pass
     after your fix" section. Those IDs are SWE-bench evaluation metadata a
     real deployment does NOT have (test names/paths often encode the fix
-    location) -- see the paper limitations (summarized in CLAIMS.md C7): an
-    H2H fairness asymmetry vs the issue-only Agentless baseline, disclosed
-    there and in the paper limitations. The default True matches ALL
-    historical evals (every config/phase since 2026-05-10, commit 82792bd);
+    location): see the paper's limitations section for the H2H fairness
+    asymmetry vs the issue-only Agentless baseline. The default True matches
+    the historical evals;
     set False for deployment-realistic prompts or the no-test-ID bounding
     cell (plan experiment E5b) -- policy surface:
     `controller.prompt_includes_fail_to_pass` on RunnerPolicy.
@@ -131,10 +130,10 @@ def _render_variant_block(variant: Optional[str], budget: Optional[int]) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Mid-session prompt generation (Phase 11 boundary close: moved from the
-# SWE-bench harness into the framework so the validated two-config ensemble
-# -- the baseline single-pass configuration plus the SIGNAL-INJECTION partner
-# -- is self-contained in the runtime; the harness re-exports these names).
+# Mid-session prompt generation (moved from the SWE-bench harness into the
+# framework so the validated two-config ensemble -- the baseline single-pass
+# configuration plus the SIGNAL-INJECTION partner -- is self-contained in the
+# runtime; the harness re-exports these names).
 # These are pure builders: they read a duck-typed session/signals object (the
 # attributes a coding-agent session exposes) and emit a prompt string. No
 # benchmark or harness internals.

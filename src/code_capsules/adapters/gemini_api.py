@@ -1,5 +1,5 @@
 """
-GeminiAPIClient — drives a Gemini model as a coding agent via google-genai.
+GeminiAPIClient: drives a Gemini model as a coding agent via google-genai.
 
 Uses google.genai (google-genai package, ≥0.4) with function calling.
 Conversation history is built from genai.types.Content alternating

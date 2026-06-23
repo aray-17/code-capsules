@@ -1,5 +1,5 @@
-"""Tests for tools/stream_parser.py — including regression for the
-tool-result-in-user-message bug fixed during Phase 8 P8-1c."""
+"""Tests for tools/stream_parser.py - including regression for the
+tool-result-in-user-message parsing fix."""
 import json
 
 from code_capsules.runtime.stream_parser import parse_stream
@@ -131,10 +131,10 @@ class TestToolResultParsing:
 
 
 class TestEndToEndOnRealArchive:
-    """If a captured Phase 8 archive exists, sanity-check it parses with non-zero output."""
+    """If a captured stream archive exists, sanity-check it parses with non-zero output."""
 
     def test_real_archive_has_nonzero_output_sizes(self, tmp_path):
-        # Skip if no archives present (e.g., fresh checkout, never ran Phase 8 batch)
+        # Skip if no archives present (e.g., fresh checkout, never ran a batch)
         import os
         archives = []
         evals_dir = "evals/streams"  # per-instance stream archives are not distributed; skips if absent
@@ -149,7 +149,7 @@ class TestEndToEndOnRealArchive:
                     if archives: break
         if not archives:
             import pytest
-            pytest.skip("no real archive available — skip end-to-end check")
+            pytest.skip("no real archive available - skip end-to-end check")
         text = open(archives[0]).read()
         s = parse_stream(text)
         assert len(s.tool_calls) > 0

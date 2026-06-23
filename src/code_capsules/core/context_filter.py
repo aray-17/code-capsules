@@ -1,20 +1,21 @@
 """
-Phase 8 P8-1: tool-call dependency analyzer + theoretical context-filter savings.
+Tool-call dependency analyzer + theoretical context-filter savings.
 
-The Phase 7B-Supp result showed prompt-budget signaling cuts cost 44% at parity
-quality. Phase 8 explores the second axis of cost savings: cache-token reduction
-via topology-aware context filtering (port of Agentic-Capsules' C-7).
+The prompt-budget signaling result showed it cuts cost 44% at parity
+quality. This module explores the second axis of cost savings: cache-token
+reduction via topology-aware context filtering (port of Agentic-Capsules'
+topology-aware context filter).
 
 For research-task pipelines, AC could declare dependency edges at compile time.
-For coding agents the dependency graph is dynamic — the model decides what to
-read next at runtime. P8-1 (this module) builds the *retrospective* analyzer:
+For coding agents the dependency graph is dynamic, the model decides what to
+read next at runtime. This module builds the *retrospective* analyzer:
 given a completed session, compute which prior tool outputs were actually
 needed for each subsequent action, and how many cache tokens we *could have*
 saved by injecting only the dependency closure rather than the full accumulated
 context.
 
 The retrospective number is the upper bound on savings any predictive filter
-(P8-2) could achieve.
+could achieve.
 
 Design choices:
 - Rule-based heuristic for v1, no LLM-in-the-loop. Reviewed against real
@@ -45,16 +46,16 @@ def compute_dependencies(
 
     The heuristic combines three rules:
 
-    1. **File locality** — if call i touches file F, it depends on every prior
+    1. **File locality**: if call i touches file F, it depends on every prior
        call j (j < i) that also touched F. Captures the common pattern of
        Read → Edit → Read (re-read after edit) and Edit → Edit (incremental
        changes to the same file).
 
-    2. **Bash sequencing** — Bash calls (which usually run tests / scripts)
+    2. **Bash sequencing**: Bash calls (which usually run tests / scripts)
        depend on recent prior writes within `bash_lookback`. The model needs
        to see what was just changed to interpret the test output.
 
-    3. **Recent context window** — the last `recent_context_window` tool calls
+    3. **Recent context window**: the last `recent_context_window` tool calls
        before i are always included as "fresh working memory," even without an
        explicit file or bash dependency.
 
@@ -106,7 +107,7 @@ def compute_theoretical_savings(
 
     The baseline (no filtering) is each call seeing every prior tool output.
     The filtered version is each call seeing only its dependency-closure prior
-    outputs. We use `output_size` (in characters) as the token proxy — exact
+    outputs. We use `output_size` (in characters) as the token proxy: exact
     token counts would require the model's tokenizer, but character-count
     ratios track token ratios closely for typical English/code outputs.
 

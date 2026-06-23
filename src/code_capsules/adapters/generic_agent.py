@@ -1,5 +1,5 @@
 """
-GenericAgentClient — skeleton + contract documentation for ModelClient extensions.
+GenericAgentClient: skeleton + contract documentation for ModelClient extensions.
 
 This class is NOT a working client; it's the reference impl users copy when
 plugging in a non-Claude coding agent runtime. The framework's contract is
@@ -7,23 +7,23 @@ documented inline (`invoke` raises NotImplementedError with a checklist).
 
 Common targets you might adapt:
 
-  - **Aider** — pip install aider-chat; runs in a worktree with --message-file.
+  - **Aider**: pip install aider-chat; runs in a worktree with --message-file.
     Adapt: subprocess.run(["aider", "--model", model, "--message-file", ...])
     Parse: aider's chat history file for token counts; git diff for the patch.
 
-  - **OpenAI Codex / Code Interpreter via Assistants API** — multi-turn loop.
+  - **OpenAI Codex / Code Interpreter via Assistants API**: multi-turn loop.
     Adapt: openai.Client().beta.assistants.create + thread + runs.create.
     Parse: run.usage for tokens; run_step.steps for tool calls.
 
-  - **OpenAI Responses API + custom tool loop** — you write the agent loop;
+  - **OpenAI Responses API + custom tool loop**: you write the agent loop;
     framework only wraps it.
     Adapt: Loop {client.responses.create + your file/bash tools} until done.
     Parse: aggregate usage; map tool calls to {name, file_path, output_text}.
 
-  - **Local llama.cpp / vLLM agent** — server-mode + your own tool loop.
+  - **Local llama.cpp / vLLM agent**: server-mode + your own tool loop.
     Adapt: same shape as the OpenAI custom loop, pointed at the local endpoint.
 
-  - **MCP-server agent (any provider)** — Model Context Protocol gives you
+  - **MCP-server agent (any provider)**: Model Context Protocol gives you
     a uniform tool-call interface across providers. Highest portability path.
 
 In all cases, the framework's contract is the same: invoke() returns an
@@ -66,7 +66,7 @@ class GenericAgentClient:
            is single-model).
         4. If `session_id` is set, start a new persistable session with that ID.
            If `resume` is set, continue from that session ID. The framework
-           uses this for escalation + injection cycles — your runtime must
+           uses this for escalation + injection cycles - your runtime must
            support session resume to participate in those variants. If it
            doesn't, sequential-mode variants still work; raise here otherwise.
         5. Return InvocationResult with:
@@ -77,7 +77,7 @@ class GenericAgentClient:
            - num_turns:       actual turns used
            - input_tokens:    total billed input (including any cache reads)
            - output_tokens:   total output
-           - cached_input_tokens: optional, default 0 — the portion of
+           - cached_input_tokens: optional, default 0 - the portion of
                               input_tokens that hit the vendor's prompt cache.
                               The CostModel bills these at the discounted rate,
                               so reporting it is what earns the cache discount.
@@ -88,7 +88,7 @@ class GenericAgentClient:
                               else None. Raise on truly unrecoverable errors.
         """
         raise NotImplementedError(
-            f"{self.name!r}: implement invoke() — see GenericAgentClient docstring "
+            f"{self.name!r}: implement invoke(); see GenericAgentClient docstring "
             f"for the contract. Copy this file and adapt to your runtime."
         )
 

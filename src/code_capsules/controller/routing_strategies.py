@@ -9,7 +9,7 @@ Three shipped defaults:
 - CascadeRouter: returns a tiered VariantConfig that wraps a primary
   + escalation tier. Caller's runtime executes tiers in order, calling
   the configured CascadeTrigger between tiers. (The cascade orchestration
-  itself lives in the variant — this router just selects which cascade
+  itself lives in the variant - this router just selects which cascade
   config to use for the class label.)
 
 - DefaultRouter: trivial; always returns a hardcoded fallback config.
@@ -77,7 +77,7 @@ class CascadeRouter:
 
     Used for Flavor B adaptive composability (try cheap variant first,
     escalate to stronger variant if signals indicate stuck-ness). The
-    cascade orchestration itself runs inside the variant runner — this
+    cascade orchestration itself runs inside the variant runner - this
     router just packages the tiered config.
 
     Example config:

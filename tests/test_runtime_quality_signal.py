@@ -1,4 +1,4 @@
-"""Tests for controller/runtime_quality_signal.py — Phase 7C signal detection."""
+"""Tests for controller/runtime_quality_signal.py - signal detection."""
 import pytest
 from code_capsules.runtime.stream_parser import ToolCallRecord
 from code_capsules.runtime.quality_signal import (
@@ -109,7 +109,7 @@ class TestTestFailure:
         assert detect_test_failure(calls) is False
 
     def test_only_bash_outputs_inspected(self):
-        # A Read tool returning text containing 'FAILED' should not fire — only Bash
+        # A Read tool returning text containing 'FAILED' should not fire - only Bash
         calls = [_tc("Read", file_path="x.py", output="FAILED\nAssertionError")]
         assert detect_test_failure(calls) is False
 
@@ -126,7 +126,7 @@ class TestTraceback:
         assert detect_traceback(calls) is True
 
     def test_traceback_in_read_output_also_fires(self):
-        # Tracebacks anywhere are a problem — even if discovered by reading a log
+        # Tracebacks anywhere are a problem - even if discovered by reading a log
         calls = [_tc("Read", file_path="error.log",
                      output="Traceback (most recent call last):\n  ZeroDivisionError")]
         assert detect_traceback(calls) is True
@@ -182,7 +182,7 @@ class TestNoProgress:
         assert detect_no_progress(calls) is False
 
     def test_only_tail_counts(self):
-        # 4 reads early on, then a write, then 1 read — should NOT fire on the tail
+        # 4 reads early on, then a write, then 1 read - should NOT fire on the tail
         calls = [
             _tc("Read", file_path="a.py", turn=0),
             _tc("Read", file_path="b.py", turn=1),
@@ -225,7 +225,7 @@ class TestPatchAttemptFailed:
         assert detect_patch_attempt_failed(calls) is False
 
     def test_bash_failure_before_any_write_does_not_fire(self):
-        # The baseline (FAIL_TO_PASS) tests fail before any fix is attempted —
+        # The baseline (FAIL_TO_PASS) tests fail before any fix is attempted - 
         # don't treat that as a patch-attempt failure.
         calls = [
             _tc("Read", file_path="x.py", turn=0),

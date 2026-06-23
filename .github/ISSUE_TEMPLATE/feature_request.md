@@ -20,7 +20,7 @@ CascadeTrigger / CostModel / ModelClient) the feature touches. -->
 
 <!-- Optional: how you'd suggest implementing it. The maintainer may
 suggest a different approach. Please wait for acknowledgment before
-sending a PR — see CONTRIBUTING.md. -->
+sending a PR - see CONTRIBUTING.md. -->
 
 ## Impact on existing claims
 

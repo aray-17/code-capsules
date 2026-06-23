@@ -22,7 +22,7 @@ env/
 .idea/
 *.swp
 
-# Environment / secrets — never commit API keys
+# Environment / secrets - never commit API keys
 .env
 .env.*
 
@@ -41,3 +41,6 @@ paper/*.toc
 paper/*.fls
 paper/*.fdb_latexmk
 texput.log
+
+# arXiv source bundle lives only in the private repo (this repo is PDF-only)
+code-capsules-arxiv.tar.gz

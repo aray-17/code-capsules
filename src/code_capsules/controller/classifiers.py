@@ -15,13 +15,13 @@ Three shipped defaults:
   (code_capsules/config/swe_bench_repo_classes.yaml) and registers under
   the name "yaml_mapping"; users for other domains pass their own table.
 
-- BenchmarkSaturatedClassifier: trivial — always returns
+- BenchmarkSaturatedClassifier: trivial - always returns
   "saturated_workload". Used for HumanEval / MBPP / simple bug-fix
   workloads where the recommendation is uniformly the cheapest tier.
 
 User-defined classifiers conform to the WorkloadClassifier Protocol.
 Domain logic (specific repo names, custom keywords) stays in user code
-or config files — NOT in this module.
+or config files - NOT in this module.
 """
 from __future__ import annotations
 
@@ -54,11 +54,11 @@ class GenericPromptClassifier:
 
     def classify(self, task: TaskDescriptor) -> str:
         """Returns one of:
-          find_named         — issue text names specific files/classes/traceback
-          find_symptom       — issue text describes symptoms without naming code
-          task_refactor      — task verbs suggest refactor
-          task_feature       — task verbs suggest new feature
-          task_bugfix        — task verbs suggest bug fix (default fallback)
+          find_named         - issue text names specific files/classes/traceback
+          find_symptom       - issue text describes symptoms without naming code
+          task_refactor      - task verbs suggest refactor
+          task_feature       - task verbs suggest new feature
+          task_bugfix        - task verbs suggest bug fix (default fallback)
         """
         text = task.text or ""
 

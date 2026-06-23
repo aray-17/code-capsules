@@ -158,9 +158,8 @@ def run_result_to_legacy_jsonl(
         # The captured git diff, persisted so a future scorer change can be
         # verified by a MODEL-FREE re-score of the stored patch
         # (benchmarks/swebench/rescore_from_patch.py) instead of an online
-        # re-run. Lesson from the 2026-06 scorer-bug correction: cells that
-        # archived their patch were re-scored for $0; cells that did not had to
-        # be re-run. Every runtime-produced eval row now carries its patch.
+        # re-run. A row that archives its patch can be re-graded offline for $0;
+        # every runtime-produced eval row carries its patch for this reason.
         "model_patch": result.patch or None,
         "resolved": result.resolved,
         "eval_note": eval_note,

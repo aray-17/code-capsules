@@ -4,7 +4,7 @@ Code-Capsules core data types.
 The dataclasses every extension primitive exchanges: the task descriptor that
 enters the framework, the variant config that parameterises a run, the session
 state and finished attempt the signals/gates read, and the per-invocation and
-per-run result records. These carry no behaviour — they are the typed payloads
+per-run result records. These carry no behaviour, they are the typed payloads
 that flow between the eight Protocols.
 
 The Protocol interfaces themselves (the extension contract) and the catalogue of
@@ -36,7 +36,7 @@ class VariantConfig:
     """Configuration describing how a Variant should run a task.
 
     Maps to harness flags (turn_budget, prompt_variant, preselect_top_n, etc.)
-    but is harness-agnostic — variant implementations interpret it according
+    but is harness-agnostic - variant implementations interpret it according
     to their orchestration mode.
     """
     name: str                                   # e.g. "plan_then_execute"
@@ -61,7 +61,7 @@ class SessionState:
     """Snapshot of a session in progress or completed.
 
     Signals are computed from this. Signal implementations should not require
-    any other context — pass everything in here.
+    any other context - pass everything in here.
     """
     tool_calls: list = field(default_factory=list)
     num_turns: int = 0
@@ -76,7 +76,7 @@ class SessionState:
 
 @dataclass
 class Attempt:
-    """A finished attempt — a patch (or equivalent) and metadata about how
+    """A finished attempt: a patch (or equivalent) and metadata about how
     it was produced. Quality gates evaluate Attempts.
     """
     patch: str

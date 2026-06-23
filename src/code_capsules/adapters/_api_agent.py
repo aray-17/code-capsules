@@ -10,7 +10,7 @@ Tool definitions match what claude provides natively: Read, Write, Edit, Bash.
 A subclass implements `_call_api(messages, tools)` returning `_ProviderResponse`;
 this base class drives the loop end-to-end.
 
-Tool execution is sandboxed to `cwd` — no path can escape the worktree.
+Tool execution is sandboxed to `cwd` - no path can escape the worktree.
 Bash runs in a subprocess with a wall-clock cap. Each tool call result is
 fed back to the model as a tool_result message.
 
@@ -33,7 +33,7 @@ from code_capsules.api import InvocationResult
 
 # Cross-call session cache (per-process). Keys: session_id. Values: list of
 # provider-specific message dicts (the conversation history). Persistence
-# across processes / harness restarts is the caller's job — for benchmarking
+# across processes / harness restarts is the caller's job - for benchmarking
 # runs that stay in one Python process this is sufficient.
 _SESSIONS: dict[str, list[Any]] = {}
 
@@ -164,7 +164,7 @@ def _execute_tool(name: str, args: dict, cwd: Path,
                   *, bash_timeout: int = 60) -> tuple[str, int]:
     """Execute one tool call. Returns (output_text, output_size_bytes).
 
-    Errors are returned as text rather than raised — the model can recover.
+    Errors are returned as text rather than raised - the model can recover.
     """
     try:
         if name == "Read":
@@ -302,7 +302,7 @@ class APIBasedAgent:
             # Retry-on-degenerate-response: if the API returns no text, no
             # tool calls, AND no error, it's almost always a transient
             # capacity / throttling issue (observed on Gemini AI Studio
-            # free tier under parallel load — silent truncation, no 503).
+            # free tier under parallel load - silent truncation, no 503).
             # Up to 3 retries with exponential backoff before giving up.
             resp = None
             for retry_idx in range(3):
@@ -344,9 +344,9 @@ class APIBasedAgent:
 
             if not resp.tool_calls:
                 # Empty tool-call response. Two cases to distinguish:
-                #   (a) genuine completion — model made progress earlier
+                #   (a) genuine completion - model made progress earlier
                 #       (read/wrote/ran) and is now wrapping up
-                #   (b) indecision — model emitted brief acknowledgement
+                #   (b) indecision - model emitted brief acknowledgement
                 #       text without ever calling a tool ("I'll start now",
                 #       "Sure, here's my plan: ...")
                 # Without this guard, (b) silently exits the loop and the

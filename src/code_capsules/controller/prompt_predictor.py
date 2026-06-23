@@ -2,8 +2,8 @@
 Prompt-based DAG topology predictor.
 
 Predicts DAG shape (par_ratio, file count, scope, independent edits) from
-the user prompt alone — before any tool calls fire. This is the "predictive"
-half of the routing pipeline (Phase 4).
+the user prompt alone, before any tool calls fire. This is the "predictive"
+half of the routing pipeline.
 
 The "reactive" half (observed runtime features) is supplied by the caller as
 observed_* arguments; this predictor fills in the gaps before any tool data is
@@ -37,7 +37,7 @@ _COUNT_PATTERN = re.compile(
 # Single-file signals
 _SINGLE_FILE_PATTERNS: list[re.Pattern] = [re.compile(p, re.IGNORECASE) for p in [
     r"\bthis file\b", r"\bthe file\b", r"\bthis module\b",
-    # Explicit filename references — language-neutral list
+    # Explicit filename references - language-neutral list
     r"\bin [\w./]+" + r"\.(?:py|ts|tsx|js|jsx|go|rs|java|cpp|cc|c|h|hpp|rb|swift|kt|cs|php|scala|ex|exs)\b",
 ]]
 
@@ -120,7 +120,7 @@ def predict_from_prompt(prompt: str, task_type: str) -> PromptPrediction:
         confidence += 1
 
     # ── Scope ────────────────────────────────────────────────────────────────
-    # Single-file signal is checked first — it has highest specificity.
+    # Single-file signal is checked first - it has highest specificity.
     is_single = any(pat.search(prompt) for pat in _SINGLE_FILE_PATTERNS)
     is_codebase = not is_single and any(pat.search(prompt) for pat in _CODEBASE_PATTERNS)
     is_module = not is_codebase and not is_single and any(pat.search(prompt) for pat in _MODULE_PATTERNS)
@@ -196,7 +196,7 @@ def _estimate_par_ratio(
 ) -> float:
     """
     par_ratio = width / (width + depth) from the predicted DAG.
-    Conservative estimates — par_ratio is reactive; this is a prior.
+    Conservative estimates - par_ratio is reactive; this is a prior.
 
     Design logic:
     - Sequential task types (bug_fix, explain): par_ratio = 0.0

@@ -159,14 +159,14 @@ def test_agreement_reading_no_signal_split():
 
 def test_cascade_no_signal_ships_fallback_or_escalates():
     # no_signal -> NOT doom: escalate when a stronger stage remains (opt-in
-    # escalation), else STOP = ship-fallback (mirrors the EXP-4 harness
+    # escalation), else STOP = ship-fallback (mirrors the benchmark harness
     # NO_REPRO_FALLBACK -- the framework used to ABANDON this band).
     sig = {"n_samples": 2, "n_resolved": 0, "failure_kind": "no_signal",
            "all_failed": False}
     assert C.decision(sig, current_tier=1) == C.STOP          # no escalation -> ship
     assert E.decision(sig, current_tier=1) == E.ESCALATE_TIER  # a stage remains
     assert E.decision(sig, current_tier=2) == E.STOP           # top of ladder -> ship
-    # absent failure_kind (hand-built / logged EXP-4 signals) -> branch inert
+    # absent failure_kind (hand-built / logged signals) -> branch inert
     legacy = {"n_samples": 2, "n_resolved": 0, "all_failed": True}
     assert C.decision(legacy, current_tier=1) == C.ABANDON
 

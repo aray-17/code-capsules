@@ -5,38 +5,38 @@ This module defines the eight Protocol interfaces that constitute Code-Capsules'
 contribution surface. Users (developers, deployers, researchers) extend the
 framework by implementing any of these Protocols against their own domain.
 The framework ships concrete defaults for each, calibrated on SWE-bench Lite,
-HumanEval, and MBPP — but the defaults are reference data, not the contribution.
+HumanEval, and MBPP, but the defaults are reference data, not the contribution.
 
 ## The eight extension primitives
 
-WorkloadClassifier   — maps a task descriptor to a class label used for routing.
+WorkloadClassifier   - maps a task descriptor to a class label used for routing.
                        Registered: generic_prompt (text heuristics),
                        benchmark_saturated (trivial), yaml_mapping (ships the
                        SWE-bench repo→class table; pass a path for other domains).
 
-RoutingStrategy      — picks a Variant config for a given task class.
+RoutingStrategy      - picks a Variant config for a given task class.
                        Registered: rule_based (reads policy.yaml routes),
                        cascade (tiered try-cheap-then-expensive), default
                        (fixed fallback).
 
-Variant              — runs a single task end-to-end and returns a result.
+Variant              - runs a single task end-to-end and returns a result.
                        Registered (7): signaled_budget, plan_then_execute,
                        two_pass_critique, stuck_signal_injection,
                        per_tool_class_hint, phase_staged, relevance_ranker.
                        (implicit_budget / unbounded_budget are budget-knob
                        framings selected via CodeCapsulesPolicy, not variants.)
 
-Signal               — computes a derived value from session state. Used by
+Signal               - computes a derived value from session state. Used by
                        cascade triggers and result analysis.
                        Registered: cap_pressure, file_thrash, test_failure,
                        traceback, patch_attempt_failed.
 
-QualityGate          — validates an attempt; returns True iff it passes.
+QualityGate          - validates an attempt; returns True iff it passes.
                        Registered: docker_eval (SWE-bench gold tests under
                        Docker; binds the evaluator lazily), binary_tests,
                        python_ast, always_pass.
 
-CascadeTrigger       — decides whether to escalate/re-attempt after a gate
+CascadeTrigger       - decides whether to escalate/re-attempt after a gate
                        verdict.
                        Registered: heuristic (cap_pressure + any signal),
                        always_escalate (forces stage 2), never_escalate,
@@ -44,7 +44,7 @@ CascadeTrigger       — decides whether to escalate/re-attempt after a gate
                        diverse_agreement (the regression-gated hybrid governor;
                        back-compat alias cross_sample_agreement).
 
-CostModel            — maps token usage to dollar cost. Used for $/task
+CostModel            - maps token usage to dollar cost. Used for $/task
                        reporting and cost-aware routing.
                        Registered: anthropic_public, openai_public,
                        gemini_public (date-stamped public pricing; 10% cache
@@ -70,9 +70,9 @@ CostModel            — maps token usage to dollar cost. Used for $/task
 
 See:
   - paper §3 (data-driven variant selection methodology)
-  - paper §6 (per-axis findings — cross-tier validated)
-  - paper §7 (deployment guidance — uses these primitives)
-  - paper §10 (limitations — what's outside the calibration set)
+  - paper §6 (per-axis findings, cross-tier validated)
+  - paper §7 (deployment guidance, uses these primitives)
+  - paper §10 (limitations, what's outside the calibration set)
 """
 from __future__ import annotations
 
@@ -124,7 +124,7 @@ class Variant(Protocol):
     optional escalation / injection / cascade. They should respect VariantConfig
     fields they understand and ignore the rest.
 
-    Variants are the primary deployment surface — most users won't write one,
+    Variants are the primary deployment surface - most users won't write one,
     but the option exists for custom orchestration modes (plan-vote-execute,
     role-specialization, etc.).
     """
@@ -227,7 +227,7 @@ class ModelClient(Protocol):
         resume: Optional[str] = None,
     ) -> InvocationResult:
         """Run one round-trip; return telemetry. Should not raise on
-        recoverable agent errors — surface them as InvocationResult.error."""
+        recoverable agent errors - surface them as InvocationResult.error."""
         ...
 
 

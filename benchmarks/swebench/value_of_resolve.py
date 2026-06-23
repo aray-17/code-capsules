@@ -18,9 +18,8 @@ modeled cost_usd surfaces. The numbers reproduced:
 
 Provenance: the algorithm is the agreement_signal.py probe-and-escalate convention (doomed =
 the 2-config diverse probe both-fail set; escalate the whole doomed set to Opus; cost per
-recovered resolve = sum of Opus cost over the doomed set / union recovered). It is re-derived
-on canonical per-instance labels rather than the raw `resolved` field, which carried a scorer
-bug; the full re-derivation is committed at evals/scopeC/value_of_resolve_corrected.json.
+recovered resolve = sum of Opus cost over the doomed set / union recovered). Resolution
+labels are the gold-graded canonical per-instance labels (canonical_resolved).
 
   python3 benchmarks/swebench/value_of_resolve.py
 """

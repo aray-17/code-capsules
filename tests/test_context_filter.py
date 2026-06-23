@@ -1,4 +1,4 @@
-"""Tests for controller/context_filter.py — Phase 8 dependency analyzer."""
+"""Tests for controller/context_filter.py - dependency analyzer."""
 import pytest
 from code_capsules.runtime.stream_parser import ToolCallRecord
 from code_capsules.core.context_filter import (

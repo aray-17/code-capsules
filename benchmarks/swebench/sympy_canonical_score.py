@@ -34,8 +34,9 @@ TARGET_TOTAL = 77     # "all 77 sympy instances"
 # The canonical bin/test re-score (glob the timestamp so the scorer is robust to it).
 SCORE_GLOB = "h2h_agentless_sonnet_150_300_sympyfixed_*.jsonl"
 # eval_note tags written by the canonical re-score: patched rows scored under the
-# canonical runner ("canonical"), and rows that carried no patch ("no_patch (rescore)").
-CANONICAL_NOTES = {"canonical", "no_patch (rescore)"}
+# canonical bin/test runner ("canonical" or "docker(sympy)"), and rows that carried
+# no patch ("no_patch (rescore)").
+CANONICAL_NOTES = {"canonical", "docker(sympy)", "no_patch (rescore)"}
 
 
 def load(path: Path) -> list[dict]:

@@ -3,7 +3,7 @@ YAML policy DSL for RoutingConfig.
 
 Developers configure routing thresholds, weights, and gating criteria in a
 plain YAML file without touching Python. Same model as Agentic-Capsules'
-policy layer — mechanism (formula.py) is separate from policy (here).
+policy layer: mechanism (formula.py) is separate from policy (here).
 
 Schema (all keys optional; omitted keys keep RoutingConfig defaults):
 
@@ -230,10 +230,10 @@ def _parse(raw: dict, source: str) -> RoutingConfig:
 
     # ── Scope keywords ────────────────────────────────────────────────────────
     if "scope_keywords" in r:
-        # Full replacement — caller owns the list
+        # Full replacement - caller owns the list
         cfg.scope_keywords = list(r["scope_keywords"])
     if "scope_keywords_extra" in r:
-        # Additive — merges with whatever scope_keywords currently holds
+        # Additive - merges with whatever scope_keywords currently holds
         cfg.scope_keywords = list(cfg.scope_keywords) + list(r["scope_keywords_extra"])
 
     return cfg

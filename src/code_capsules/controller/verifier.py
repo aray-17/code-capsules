@@ -2,16 +2,16 @@
 Execution verifier: grade a candidate patch's *execution* outcome into a coarse
 class the controller can act on.
 
-This is the linchpin primitive behind the adaptive-compute controller. EXP-1
-(n=50 django, 2026-06-01) established the empirical basis: the agent's
-self-report does NOT separate winnable from doomed escalations, but the
-execution reading separates the *confident tails* cleanly --
+This is the linchpin primitive behind the adaptive-compute controller. A
+controlled study (n=50 django, 2026-06-01) established the empirical basis: the
+agent's self-report does NOT separate winnable from doomed escalations, but the
+execution reading separates the *confident tails* cleanly:
 
     RESOLVED -> 100% eventually resolve  (stop-for-success: don't escalate)
     FLAT     ->   0% eventually resolve  (confident doomed: drop)
 
 while the middle (NOPATCH/PARTIAL/BROKEN) does not separate (NOPATCH at a low
-floor budget is 43% winnable -- "no patch yet" means *needs more turns*, not
+floor budget is 43% winnable, "no patch yet" means *needs more turns*, not
 doomed). So the controller acts on the tails and defaults to escalate on the
 middle (see VerifierGate in cascade_triggers).
 
@@ -35,9 +35,9 @@ UNKNOWN = "UNKNOWN"     # no readable execution signal
 
 GRADES = (RESOLVED, PARTIAL, FLAT, BROKEN, NOPATCH, UNKNOWN)
 
-# The confident tails EXP-1 validated: RESOLVED is a stop-for-success; the
-# ABANDON set is the confident-doomed tail. Default {FLAT} is the zero-resolve-
-# loss point; {FLAT, BROKEN} saves more at ~1 lost resolve per EXP-1.
+# The confident tails the controlled study validated: RESOLVED is a stop-for-
+# success; the ABANDON set is the confident-doomed tail. Default {FLAT} is the
+# zero-resolve-loss point; {FLAT, BROKEN} saves more at ~1 lost resolve.
 STOP_GRADE = RESOLVED
 DEFAULT_ABANDON = frozenset({FLAT})
 
@@ -93,8 +93,8 @@ class ReproVerifier:
     docker-backed callables (see tools/repro_verifier); another domain supplies
     its own (its CI, a local test runner, ...).
 
-    PASS_TO_PASS partial-spec caveat: in the EXP-4 benchmark harness the
-    regression channel ran the SWE-bench PASS_TO_PASS subset -- a PARTIAL spec
+    PASS_TO_PASS partial-spec caveat: in the benchmark harness the
+    regression channel ran the SWE-bench PASS_TO_PASS subset, a PARTIAL spec
     of "the existing tests". A deployment runs the repo's OWN suite instead;
     that is a partial-spec dependency of the validated numbers, not gold
     leakage (PASS_TO_PASS names pre-existing tests, never the held-out verdict).

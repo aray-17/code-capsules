@@ -3,7 +3,7 @@ Concrete Variant implementations shipped with Code-Capsules.
 
 Seven variants, each conforming to the Variant Protocol from code_capsules.api.
 They cover the three orchestration modes (sequential, escalating, injection_loop)
-in the configurations validated cross-tier in Phase 7C / Phase 10.
+in the configurations validated cross-tier.
 
 The package's `register_builtins()` registers all seven under their canonical
 names so policy.yaml routes can reference them by string. The registry's lazy

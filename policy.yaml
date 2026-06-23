@@ -11,7 +11,7 @@ routing:
   compound_threshold: 0.45
 
   # bash_ratio > bash_sequential_threshold → force SEQUENTIAL (hard override)
-  # Empirically set from Phase 2 sweep (674 traces). Validate in Phase 6.
+  # Empirically set from the routing-formula sweep (674 traces).
   bash_sequential_threshold: 0.40
 
   # Minimum predicted/observed par_ratio to consider COMPOUND
@@ -32,7 +32,7 @@ routing:
   # ── Formula weights (score_v2) ──────────────────────────────────────────────
   # Positive: increases score toward COMPOUND/SEQUENTIAL
   # Negative: decreases score toward FINE
-  # Winner from Phase 2 Pareto sweep (99.7% accuracy on 674 traces).
+  # Winner from the routing-formula Pareto sweep (99.7% accuracy on 674 traces).
   formula_weights:
     parallelizable_ratio: 0.40
     context_load_ratio: 0.20
@@ -72,24 +72,23 @@ routing:
   #   - entire corpus
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Deployment defaults — the validated menu (held-out + n=300 deep evaluation, 2026-06-10)
+# Deployment defaults - the validated menu (held-out + n=300 deep evaluation, 2026-06-10)
 # ──────────────────────────────────────────────────────────────────────────────
-# The deployment menu, validated from
-# logged sweeps; SWE-bench Lite first-150 unless noted). Cost source: the
-# LEAK-FREE re-runs under evals/leakfree/ (gold used to SCORE only, never to
-# decide) — for the full disclosure set (in-loop gate leakage; siginject
-# gold-in-loop; FAIL_TO_PASS test IDs in prompts) see the paper's leakage and
-# limitations sections, summarized in CLAIMS.md (claim C7).
+# The deployment menu, validated from logged sweeps (SWE-bench Lite first-150
+# unless noted). Cost source: the re-runs under evals/leakfree/ (gold used to
+# SCORE only, never to decide). For the control-channel discipline (deployable
+# signals drive every control decision; gold scores only) see the paper's
+# leakage and limitations sections.
 #
 # Numbers are resolved/150 and $/resolve on the one modeled cost surface.
 # Every menu entry beats Agentless on the head-to-head (172/300 vs 152/300,
-# 14.7% lower cost per resolve); the Opus implicit-budget knee additionally
+# 13.8% lower cost per resolve); the Opus implicit-budget knee additionally
 # dominates the best Sonnet config on BOTH axes.
 
 deployment_defaults:
 
   # ── Saturated benchmarks (HumanEval / MBPP / simple bug-fix) ─────────
-  # Sequential single-pass cells — unaffected by the two-pass/siginject
+  # Sequential single-pass cells - unaffected by the two-pass/siginject
   # leakage findings. All tiers reach 94-100%; Haiku is the cost-axis winner.
   # Schema: deployment_defaults[workload_class][tier][knee] -> a CodeCapsulesPolicy
   # entry (loadable via CodeCapsulesPolicy.from_yaml). `config:` is the legacy
@@ -134,8 +133,8 @@ deployment_defaults:
         escalating_stage2_mode: enriched
         force_stage2: true                   # DEPLOYABLE two-pass: stage 2 runs
                                              # unconditionally - never reads the gold
-                                             # verdict (replaces the leaky
-                                             # always_escalate; see CLAIMS.md C7)
+                                             # verdict (replaces always_escalate,
+                                             # which reads the gold gate)
         prompt_variant: two_pass_critique
         pass_rate: 0.653                     # 98/150
         cost_per_task: 0.41
@@ -173,7 +172,7 @@ deployment_defaults:
         source: leak-free sweeps (evals/leakfree/); see CLAIMS.md C6
 
 # ──────────────────────────────────────────────────────────────────────────────
-# The validated menu as DATA (plan §4 item 6) — read this block programmatically;
+# The validated menu as DATA (plan §4 item 6) - read this block programmatically;
 # the deployment_defaults rows above carry the corresponding knobs.
 # resolved/n on SWE-bench Lite first-150; $/resolve on the one modeled cost
 # surface; leak-free cost source evals/leakfree/. Config keys are the functional
@@ -201,7 +200,7 @@ menu:
 #     for fewer resolves); selection adds zero (77 vs 77); stopping destroys 28
 #     real resolves.
 #   - siginject as a candidate generator is GOLD-IN-LOOP as historically run
-#     (historical leakage disclosure, CLAIMS.md C7); any future use needs a
+#     (see the paper's leakage and limitations sections); any future use needs a
 #     repro-verifier stop.
 #   - GBM/learned abandon predictors: no model cleared the pre-registered
 #     promote tests (the lone lift rode a scoring-contaminated dur_s feature).
@@ -258,19 +257,19 @@ controller:
   ship_gate: repro_or_regok        # | repro_and_regok (precision knob, OFF by default:
                                    # buys SHIP precision 75% (first-150) / 77% (held-out) -
                                    # an auto-merge confidence label, not a default)
-  no_signal: ship_fallback         # ship_fallback | escalate | abandon — the no-reading
+  no_signal: ship_fallback         # ship_fallback | escalate | abandon - the no-reading
                                    # band (every grade UNKNOWN/NOPATCH is NOT doom):
                                    # ship_fallback mirrors the no-reproduction fallback
   min_samples: 2                   # K>=2 for the doomed call (precision: see CLAIMS.md)
   escalation:                      # replaces bare `escalate_on_agreement` (kept as a
                                    # deprecated alias: true == {mode: gate}, empty ladder)
-    mode: "off"                    # "off" | gate (quote "off" — bare off is YAML boolean)
+    mode: "off"                    # "off" | gate (quote "off" - bare off is YAML boolean)
     ladder:                        # rungs AFTER the base (tiers[0] x configs) stage;
                                    # consulted only when mode: gate
       - {tier: opus, configs: [floor], trigger: regok_true}   # the regression-gated escalation shape
     voi: {value_per_resolve: 1.37, cost_per_escalation: 0.42} # default C/V for any
                                    # trigger: voi rung (escalate iff p*V > C); the
                                    # escalation band runs $1.37-$2.71 per recovered resolve
-  p_source: null                   # pluggable VOI belief — SHIPS DISABLED until the
+  p_source: null                   # pluggable VOI belief - SHIPS DISABLED until the
                                    # the promotion criteria are met; to enable:
                                    # {kind: resolvability_gbm, model: <joblib path>, features: static}

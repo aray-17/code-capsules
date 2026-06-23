@@ -1,10 +1,10 @@
-"""Cross-sample diverse-agreement as the DOOMED signal — the paper's Figure 4
+"""Cross-sample diverse-agreement as the DOOMED signal - the paper's Figure 4
 (fig:agreement, §9.1) computed offline from the existing 10-config Sonnet sweeps
 (zero new compute). This is the signal the generated repro never gave: the repro is
 a "done" signal (good for verifier-SELECT, the quality lever) but has no reliable
 "doomed" signal.
 
-FIGURE UNIVERSE (§9.1): the n=126 IN-FAMILY Sonnet intersection — the instances
+FIGURE UNIVERSE (§9.1): the n=126 IN-FAMILY Sonnet intersection - the instances
 that EVERY shipped configuration attempts. Some configurations attempted fewer than
 150 instances (phaseStaged 127, toolAlloc 143, floor/siginject/planFirst/twopass
 149); intersecting their attempted sets yields n=126, all sympy-free. The per-config
@@ -95,7 +95,7 @@ def load_configs(pattern="evals/p10_sonnet_*n150*.jsonl", restrict_to=None):
     """Load resolved/cost/turns from the raw Sonnet sweeps. The `resolved` field in
     these files is already canonical (verified identical to the canonical overlays).
     When `restrict_to` (a {config_name: attempted_set} map) is given, each config is
-    restricted to the instances it actually attempted — this is what carves the
+    restricted to the instances it actually attempted - this is what carves the
     n=126 in-family universe out of the 150-row raw files."""
     configs = {}
     for f in sorted(glob.glob(str(ROOT / pattern))):
@@ -251,7 +251,7 @@ def opus_tier_boundary():
     print(f"  Opus floor {len(ofR)} | Opus siginject {len(osR)} | union {len(union)} "
           f"(diverse: +{len(osR-ofR)}/{len(ofR-osR)} each unique)")
     print(f"  escalate-tier reach {len(union)}/{len(the_doomed)} ({len(union)/len(the_doomed):.0%}) at modeled "
-          f"${oc:.2f} = ${oc/max(1,len(union)):.2f}/resolve (vs $1.40 base => marginal; confirms Phase 8/9 negative)")
+          f"${oc:.2f} = ${oc/max(1,len(union)):.2f}/resolve (vs $1.40 base => marginal; confirms the cascade is uneconomical)")
     print(f"  both-Opus-fail {len(bof)}; Agentless recovers {len(ag_rec)} => ABANDON precision "
           f"{1-len(ag_rec)/max(1,len(bof)):.0%} (doomed across 5 configs / 2 tiers / 2 harnesses)")
     print(f"  -> ABANDON is the economical default; the agreement mechanism FIRES at the Opus tier.")
@@ -297,7 +297,7 @@ def figure_reproduction():
     computed dict + a list of (label, computed, target, ok) checks."""
     keysets = _attempted_keysets()
     if not keysets:
-        print("ERROR: canonical menu overlays not found under evals/scopeC/menu/ — cannot define n=126 universe.")
+        print("ERROR: canonical menu overlays not found under evals/scopeC/menu/ - cannot define n=126 universe.")
         return None, None, keysets
     configs = load_configs(restrict_to=keysets)
     ids = sorted(set.intersection(*[set(d) for d in configs.values()]))
@@ -397,7 +397,7 @@ def main():
         print(f"\nMATCH: all {len(results)} Figure 4 (fig:agreement, §9.1) numbers reproduce the paper EXACTLY "
               f"on the n=126 in-family Sonnet intersection.")
 
-    # Separate n=150 cross-tier escalation analyses (§11/§12 economics) — NOT the figure.
+    # Separate n=150 cross-tier escalation analyses (§11/§12 economics) - NOT the figure.
     cross_model_replication()
     opus_tier_boundary()
     haiku_to_high_escalation()

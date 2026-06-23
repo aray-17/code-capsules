@@ -1,8 +1,8 @@
 """Live end-to-end smoke test of the shipped ModelClient adapters.
 
-Exercises the FULL real path for each vendor — registry lookup -> adapter
+Exercises the FULL real path for each vendor - registry lookup -> adapter
 `invoke()` -> live API call -> multi-turn tool loop (Read/Write/Edit/Bash in a
-sandboxed worktree) -> InvocationResult — by handing each provider a tiny but
+sandboxed worktree) -> InvocationResult - by handing each provider a tiny but
 genuine coding task (a one-line bug to fix) and grading the result the way a
 deployment would: re-import the patched module in a fresh subprocess and check
 behaviour. No mocks, no replay.
@@ -13,7 +13,7 @@ Providers (the three the framework ships adapters for):
     google     -> gemini_api    (google-genai tool loop; gemini-2.5-flash)
 
 A provider is SKIPPED (not failed) when its API key is absent or its vendor SDK
-is not importable. Marked `integration` — costs real tokens; run explicitly:
+is not importable. Marked `integration` - costs real tokens; run explicitly:
 
     pytest tests/test_e2e_providers.py -m integration -v
     # or, for a standalone report with per-provider telemetry:
@@ -34,7 +34,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 # ── The task each provider must solve ────────────────────────────────────────
-# `add` subtracts instead of adding — a single-character bug a competent agent
+# `add` subtracts instead of adding - a single-character bug a competent agent
 # fixes in one edit. The accompanying test lets a diligent agent self-verify.
 _BUGGY = "def add(a, b):\n    return a - b  # BUG: should add\n"
 _TEST = (
@@ -164,7 +164,7 @@ def test_provider_e2e(label, tmp_path):
     r = run_one(label, tmp_path)
     assert r["error"] is None, f"{label}: adapter returned error: {r['error']}"
     assert r["n_tool_calls"] > 0, f"{label}: model made no tool calls"
-    assert r["graded_ok"], f"{label}: bug not fixed — {r['grade_detail']}"
+    assert r["graded_ok"], f"{label}: bug not fixed - {r['grade_detail']}"
 
 
 # ── standalone report ────────────────────────────────────────────────────────
@@ -176,14 +176,14 @@ def _main() -> int:
     os.environ["PATH"] = venv_bin + os.pathsep + os.environ.get("PATH", "")
 
     print("=" * 72)
-    print("Code-Capsules live e2e — provider adapter smoke test")
+    print("Code-Capsules live e2e - provider adapter smoke test")
     print("=" * 72)
 
     rows, ran = [], []
     for label in PROVIDERS:
         reason = _availability(label)
         if reason:
-            print(f"\n[{label}] SKIP — {reason}")
+            print(f"\n[{label}] SKIP - {reason}")
             rows.append((label, "SKIP", reason))
             continue
         client_name, model, _ = PROVIDERS[label]

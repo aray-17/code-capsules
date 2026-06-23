@@ -1,9 +1,9 @@
-"""Phase 8.5 regression gate: gold-patch smoke test for the SWE-bench Docker eval.
+"""Regression gate: gold-patch smoke test for the SWE-bench Docker eval.
 
 For every new benchmark integration we should be running the benchmark's own
 reference solutions through our eval. If a known-correct solution doesn't
-resolve, the eval is broken. We learned this the hard way during Phase 8
-Gap-3 — see ~/.claude/memory/engineering_validate_benchmark_eval_with_reference.md.
+resolve, the eval is broken (not the solution). Running the benchmark's own
+reference solutions through the eval is the cheapest guard against this.
 
 These tests are slow (each spins up a Docker container ~20-40s) and have an
 external dependency on the SWE-bench Docker images being pullable. They run
@@ -42,7 +42,7 @@ def _gold_resolves(harness, start: int) -> bool:
         f"Failed to pull image for {inst['instance_id']}"
     res = docker_eval(inst.get("patch", ""), inst, timeout=300)
     assert res.get("resolved") is True, (
-        f"Gold patch for {inst['instance_id']} did NOT resolve — eval harness "
+        f"Gold patch for {inst['instance_id']} did NOT resolve - eval harness "
         f"is broken. note={res.get('note')} stdout_tail={(res.get('stdout') or '')[-300:]!r}"
     )
     return True
@@ -51,7 +51,7 @@ def _gold_resolves(harness, start: int) -> bool:
 def _gold_resolves_for_repo(harness, repo_prefix: str) -> bool:
     """Run the gold patch for the first instance whose id starts with repo_prefix.
 
-    Robust to dataset ordering (unlike a hardcoded index) — used for repos that
+    Robust to dataset ordering (unlike a hardcoded index) - used for repos that
     don't sit at the front of SWE-bench Lite (e.g. sympy lives at index ~150+).
     """
     load_instances, docker_eval, ensure_image = harness
@@ -63,7 +63,7 @@ def _gold_resolves_for_repo(harness, repo_prefix: str) -> bool:
         f"Failed to pull image for {inst['instance_id']}"
     res = docker_eval(inst.get("patch", ""), inst, timeout=600)
     assert res.get("resolved") is True, (
-        f"Gold patch for {inst['instance_id']} did NOT resolve — eval harness "
+        f"Gold patch for {inst['instance_id']} did NOT resolve - eval harness "
         f"is broken. note={res.get('note')} stdout_tail={(res.get('stdout') or '')[-300:]!r}"
     )
     return True
@@ -115,7 +115,7 @@ def test_gold_patch_astropy_resolves(harness):
 def test_gold_patch_django_resolves(harness):
     """Reference patch from a Django instance must resolve under our eval.
 
-    This is the regression that motivated Phase 8.5: before commit ec6245e,
+    This is the regression guarded here: before the Django scorer fix,
     Django gold patches failed because (a) test_patch wasn't applied and
     (b) `_django_dotted()` produced unimportable dotted labels.
     """
@@ -125,9 +125,9 @@ def test_gold_patch_django_resolves(harness):
 def test_gold_patch_sympy_resolves(harness):
     """Reference patch from a sympy instance must resolve under our eval.
 
-    Regression for the sympy eval bug (found 2026-05-30): sympy's testbed has no
-    pytest, so the default `python -m pytest` path scored every sympy patch 0
-    (`No module named pytest`). The fix routes sympy through `bin/test -C
-    --verbose` + a verbose-log parser. If this test fails, sympy is unscorable.
+    sympy's testbed has no pytest, so a `python -m pytest` path scores every
+    sympy patch 0 (`No module named pytest`); sympy must be routed through
+    `bin/test -C --verbose` + a verbose-log parser. If this test fails, sympy
+    is unscorable.
     """
     _gold_resolves_for_repo(harness, "sympy__")

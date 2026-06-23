@@ -7,8 +7,8 @@ a single signal's boolean as a Signal Protocol implementation, allowing
 cascade triggers to consume them by name.
 
 Why wrap rather than rewrite: the underlying compute_signals function is
-proven (Phase 7C onward, called in run_one_escalating + run_one_injection_loop).
-Splitting into per-signal classes is purely an API-conformance refactor —
+proven (called in run_one_escalating + run_one_injection_loop).
+Splitting into per-signal classes is purely an API-conformance refactor,
 no logic change.
 """
 from __future__ import annotations
@@ -30,7 +30,7 @@ def _compute(state: SessionState) -> dict[str, bool]:
     signals = compute_signals(state.tool_calls)
     # QualitySignals dataclass exposes flags + names_fired
     return {
-        "cap_pressure": False,  # not derived from tool_calls — see CapPressure below
+        "cap_pressure": False,  # not derived from tool_calls - see CapPressure below
         "file_thrash": signals.file_thrash,
         "test_failure": signals.test_failure,
         "traceback": signals.traceback,
@@ -56,7 +56,7 @@ class CapPressure:
     def compute(self, state: SessionState) -> Any:
         # We need the turn budget to compute cap pressure; conventionally
         # callers stash it in state's extra metadata. Without budget context,
-        # return None (caller treats as "unknown — don't fire").
+        # return None (caller treats as "unknown - don't fire").
         # In the runtime, the orchestrator sets state.num_turns and the
         # variant config has turn_budget; cascade trigger combines them.
         return state.num_turns  # raw number; trigger does the threshold check
@@ -66,9 +66,9 @@ class FileThrash:
     """Fires when the model re-read the same file 3+ times in the last 5 calls.
 
     Indicates the model is spinning on a file rather than committing to
-    an edit. From Iter-C Investigation B: file_thrash + test_failure is
+    an edit. From per-instance analysis: file_thrash + test_failure is
     the signal-pair most predictive of "stage-1 ran out of turns without
-    converging" — escalate or inject.
+    converging", escalate or inject.
     """
 
     name = "file_thrash"
@@ -80,7 +80,7 @@ class FileThrash:
 class TestFailure:
     """Fires when the session emitted test output with failures.
 
-    Indicates the model attempted a patch but tests don't pass yet —
+    Indicates the model attempted a patch but tests don't pass yet,
     typical escalation candidate (more turns might let the model refine).
     """
 
@@ -93,8 +93,9 @@ class TestFailure:
 class Traceback:
     """Fires when the session emitted a traceback in tool output.
 
-    Indicates an exception during model exploration — useful for
-    targeted injection (V2 mechanism: parse traceback file:line, inject).
+    Indicates an exception during model exploration, useful for
+    targeted injection (the stuck-signal-injection mechanism: parse traceback
+    file:line, inject).
     """
 
     name = "traceback"
@@ -106,7 +107,7 @@ class Traceback:
 class PatchAttemptFailed:
     """Fires when the model produced a patch but git apply failed.
 
-    Most surgical V2-injection candidate: the diff fragment can be passed
+    Most surgical signal-injection candidate: the diff fragment can be passed
     directly to the next stage with "your patch had a conflict here; refine."
     """
 

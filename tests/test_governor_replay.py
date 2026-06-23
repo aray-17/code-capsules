@@ -1,6 +1,6 @@
-"""Replay-fixture tests pinning the governor numbers (EXP-4 n=300, 2026-06-10).
+"""Replay-fixture tests pinning the governor numbers (n=300 deep-evaluation).
 
-Loads the two EXP-4 lever JSONLs (first-150 + held-out second-150) and replays
+Loads the two lever JSONLs (first-150 + held-out second-150) and replays
 the three governor modes over the logged per-instance rows, asserting the EXACT
 anchor tuples from the deep-eval (arm 1, independently verified):
 

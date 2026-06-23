@@ -1,4 +1,4 @@
-"""Tests for the VOI escalation formula (design §1), calibrated on EXP-1."""
+"""Tests for the VOI escalation formula (design §1), calibrated on the stage-1 grade study."""
 from __future__ import annotations
 
 import sys
@@ -23,7 +23,7 @@ def test_emv_and_breakeven():
 
 def test_grade_belief_reproduces_exp1_gate():
     """With a C/V break-even between FLAT's p (0) and NOPATCH's p (0.435),
-    the formula reproduces the EXP-1 asymmetric gate: escalate NOPATCH,
+    the formula reproduces the asymmetric gate: escalate NOPATCH,
     drop FLAT/PARTIAL. The C/V ratio is the principled version of the
     abandon-set knob."""
     V, C = 1.0, 0.25          # break-even p = 0.25

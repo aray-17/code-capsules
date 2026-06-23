@@ -31,7 +31,7 @@ same data split, same scorer across systems.
 
 | Claim | Result | Scorer | Evidence |
 |---|---|---|---|
-| Head-to-head vs. Agentless (Pareto) | Code-Capsules 172/300 resolved (57.3%) @ \$0.445/inst vs. Agentless 152/300 (50.7%) @ \$0.456, **more resolved at lower cost** (McNemar p=0.0055, 13.8% lower cost per resolve) | [`benchmarks/swebench/h2h_combine_score.py`](benchmarks/swebench/h2h_combine_score.py) | [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), [`tb_forcestage2_second150.jsonl`](evals/leakfree/tb_forcestage2_second150.jsonl), [`evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl`](evals/h2h_agentless_sonnet_n150_run1_20260528.jsonl) |
+| Head-to-head vs. Agentless (Pareto) | Code-Capsules 172/300 resolved (57.3%) @ \$0.445/inst vs. Agentless 152/300 (50.7%) @ \$0.456, **more resolved at lower cost** (McNemar p=0.0055, 13.8% lower cost per resolve) | [`benchmarks/swebench/h2h_canonical_score.py`](benchmarks/swebench/h2h_canonical_score.py) | [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), [`tb_forcestage2_second150.jsonl`](evals/leakfree/tb_forcestage2_second150.jsonl), [`evals/scopeC/canonical_tp_h2h.jsonl`](evals/scopeC/canonical_tp_h2h.jsonl), [`evals/scopeC/h2h_agentless_n300_scored_20260616.jsonl`](evals/scopeC/h2h_agentless_n300_scored_20260616.jsonl) |
 | Calibrated cross-tier Pareto menu (resolved/150) | cost-min 80 @ \$0.183 (\$0.34/res) · balanced 98 @ \$0.408 (\$0.62/res) · quality 111 @ \$0.466 (\$0.63/res) · quality-max 128 @ \$0.480 (\$0.56/res) · ceiling 138 @ \$0.604 (\$0.66/res) (quality-max out-resolves quality at lower \$/resolve) | [`benchmarks/swebench/cross_tier_pareto_menu.py`](benchmarks/swebench/cross_tier_pareto_menu.py) | one committed JSONL per cell: cost-min [`evals/p10_sonnet_p8c_n150_20260515T235913.jsonl`](evals/p10_sonnet_p8c_n150_20260515T235913.jsonl), balanced [`evals/leakfree/tb_forcestage2_first150.jsonl`](evals/leakfree/tb_forcestage2_first150.jsonl), quality (leak-free re-run) [`evals/leakfree/exp4_lever_floor100_siginject.jsonl`](evals/leakfree/exp4_lever_floor100_siginject.jsonl), quality-max [`evals/p9_opus_implicit20_n150_combined_20260527.jsonl`](evals/p9_opus_implicit20_n150_combined_20260527.jsonl), ceiling [`evals/p9_opus_floor_n150_combined_20260527.jsonl`](evals/p9_opus_floor_n150_combined_20260527.jsonl) |
 
 ## Mechanism claims
@@ -50,8 +50,8 @@ instances are doomed at this tier, while the oracle union resolves
 
 **C2. The run-both lever lands within two instances of the oracle, yet
 adds nothing deployable.** Running a diverse pair and selecting between
-candidates resolves 122/150 @ \$118.75 — within two instances of the
-per-instance oracle union (124/150) — but selection adds zero net
+candidates resolves 122/150 @ \$118.75 - within two instances of the
+per-instance oracle union (124/150) - but selection adds zero net
 resolves over its best single member. Deployed as a single-tier abandon
 rule it is dominated by the unbounded floor (111/150 @ \$0.63/resolve)
 and resolves 84/150 honest at \$1.41/resolve (+124% cost for fewer
@@ -81,7 +81,7 @@ models, data, and scorer: 172/300 (57.3%) @ \$0.445 vs. Agentless
 oracle@k 152/300 (50.7%) @ \$0.456, more resolved at lower
 per-instance cost, a +20-instance (+6.7pp) win at McNemar p=0.0055 and
 13.8% lower cost per resolve. Scorer
-[`benchmarks/swebench/h2h_combine_score.py`](benchmarks/swebench/h2h_combine_score.py).
+[`benchmarks/swebench/h2h_canonical_score.py`](benchmarks/swebench/h2h_canonical_score.py).
 
 **C6. The shipped policy menu is a calibrated cross-tier Pareto
 frontier.** Five presets span the frontier (resolved/150): cost-min
@@ -99,12 +99,13 @@ evidence [`evals/cross_vendor_humaneval_n164_postfix_20260525.csv`](evals/cross_
 [`evals/cross_vendor_mbpp_n500_postfix_20260525.csv`](evals/cross_vendor_mbpp_n500_postfix_20260525.csv).
 
 **C12. Plan-then-execute and two-pass critique both add lift on every
-vendor.** Over the signaled-budget baseline (always-run, leak-free,
+vendor.** Over the signaled-budget baseline (always-run,
 first-150), the lift ladder rises monotonically on both vendors:
 Sonnet 84 (56.0%) → plan-then-execute 93 (62.0%) → two-pass critique
 98 (65.3%); gpt-5-codex 46 (30.7%) → plan-then-execute 49 (32.7%) →
-two-pass critique mean 66.7 (44.5%). Two-pass critique adds lift on
-both (Sonnet +3pp, codex +12pp). gpt-5-codex is the cheaper per-resolve
+two-pass critique 66 (44.0%) for the committed run (the paper reports
+the three-run mean, 66.7, 44.5%). Two-pass critique adds lift on
+both (Sonnet +3pp, codex +11pp). gpt-5-codex is the cheaper per-resolve
 corner (\$0.43 vs. Sonnet \$0.62), but it emits empty patches on ~44%
 of instances (failing cheaply), which caps its ceiling roughly 21pp
 below Sonnet. Scorer
@@ -151,7 +152,7 @@ non-comparable escalation options over different doomed sets. Scorer
   evaluation run (per-instance rows, resolved / cost, aggregates).
 - Quality is measured by the SWE-bench resolution verdict (the
   patch's effect on the held-out test suite). The held-out verdict
-  is used only to *score* — never inside the agent's control flow:
+  is used only to *score* - never inside the agent's control flow:
   deployable signals (reproduction scripts, regression suites, patch
   presence) drive every control decision.
 - Cross-vendor absolute pass rates are not directly comparable across
@@ -160,9 +161,9 @@ non-comparable escalation options over different doomed sets. Scorer
 
 ## Operational data not in this repository
 
-A larger body of operational evaluation work — per-instance stream
+A larger body of operational evaluation work - per-instance stream
 archives (~1.2 GB), overnight resilience harnesses, gap audits, and
-multi-week eval logs — is maintained outside this public repository.
+multi-week eval logs - is maintained outside this public repository.
 If your work depends on understanding *how* the paper's numbers were
 produced (rather than verifying *that* they reproduce), email
 **research@anindaray.com**.
