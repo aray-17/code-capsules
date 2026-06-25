@@ -1,16 +1,16 @@
-"""Patch archival is the verify-without-rerun guarantee.
+"""Patch archival is the score-from-committed-data guarantee.
 
-A scorer change must be checkable by a MODEL-FREE re-score of the stored patch
-(see benchmarks/swebench/rescore_from_patch.py). That only works if every eval
-row carries the model's git diff. These gold-free tests lock that in:
+A verdict must be checkable offline by scoring the stored patch
+(see benchmarks/swebench/score_stored_patches.py). That only works if every
+eval row carries the model's git diff. These gold-free tests lock that in:
 
   1. run_result_to_legacy_jsonl persists RunResult.patch as `model_patch`.
-  2. the re-score utility auto-detects the patch field and refuses (loudly) to
-     pretend it can re-score rows that carry only a `has_patch` boolean.
+  2. the scoring utility auto-detects the patch field and refuses (loudly) to
+     pretend it can score rows that carry only a `has_patch` boolean.
 """
 from code_capsules.api.types import RunResult
 from code_capsules.evaluation.swe_bench_adapter import run_result_to_legacy_jsonl
-from benchmarks.swebench.rescore_from_patch import _detect_patch_field
+from benchmarks.swebench.score_stored_patches import _detect_patch_field
 
 import pytest
 
@@ -21,7 +21,7 @@ INSTANCE = {"instance_id": "astropy__astropy-1", "repo": "astropy/astropy"}
 def test_legacy_jsonl_persists_model_patch():
     rr = RunResult(task_id="astropy__astropy-1", resolved=False, patch=PATCH)
     row = run_result_to_legacy_jsonl(rr, INSTANCE, mode="sequential")
-    assert row["model_patch"] == PATCH, "model_patch must carry the diff for offline re-score"
+    assert row["model_patch"] == PATCH, "model_patch must carry the diff for offline scoring"
     assert row["has_patch"] is True
 
 
@@ -43,8 +43,8 @@ def test_detect_patch_field_falls_back_to_h2h():
 
 
 def test_detect_patch_field_refuses_boolean_only_rows():
-    # rows that recorded only has_patch (the pre-fix CC failure mode) cannot be
-    # re-scored offline -- the utility must error, not silently no-op.
+    # rows that recorded only has_patch (no stored diff) cannot be scored
+    # offline -- the utility must error, not silently no-op.
     rows = [{"has_patch": True, "resolved": False}]
     with pytest.raises(SystemExit):
         _detect_patch_field(rows, None)

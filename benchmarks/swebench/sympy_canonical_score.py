@@ -7,7 +7,7 @@ PAPER CLAIM (paper.tex):
       reference patches); the Agentless oracle@k baseline resolves 31/77.
 
 WHAT THIS SCORER DOES (fully offline, no Docker / no API / no model):
-  The committed re-score `h2h_agentless_sonnet_150_300_sympyfixed_*.jsonl`
+  The committed scored file `h2h_agentless_sonnet_150_300_sympyfixed_*.jsonl`
   carries the per-instance `resolved` verdict produced by sympy's canonical
   ``bin/test`` runner (rows tagged eval_note == "docker(sympy)"). The scorer
   counts the resolved sympy rows and asserts the paper's 31/77 under that

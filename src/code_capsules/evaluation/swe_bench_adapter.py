@@ -155,11 +155,11 @@ def run_result_to_legacy_jsonl(
         "total_output_tokens": result.output_tokens,
         "cost_usd": result.cost_usd,
         "has_patch": bool(result.patch.strip()),
-        # The captured git diff, persisted so a future scorer change can be
-        # verified by a MODEL-FREE re-score of the stored patch
-        # (benchmarks/swebench/rescore_from_patch.py) instead of an online
-        # re-run. A row that archives its patch can be re-graded offline for $0;
-        # every runtime-produced eval row carries its patch for this reason.
+        # The captured git diff, persisted so the verdict can be graded offline
+        # from committed data with no model call
+        # (benchmarks/swebench/score_stored_patches.py): a row that archives its
+        # patch can be graded in the SWE-bench Docker container for $0. Every
+        # runtime-produced eval row carries its patch for this reason.
         "model_patch": result.patch or None,
         "resolved": result.resolved,
         "eval_note": eval_note,
