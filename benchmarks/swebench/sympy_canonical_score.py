@@ -31,11 +31,11 @@ EVALS = ROOT / "evals"
 TARGET_RESOLVED = 31  # "the Agentless baseline resolves 31/77"
 TARGET_TOTAL = 77     # "all 77 sympy instances"
 
-# The canonical bin/test re-score (glob the timestamp so the scorer is robust to it).
+# The canonical bin/test scoring (glob the timestamp so the scorer is robust to it).
 SCORE_GLOB = "h2h_agentless_sonnet_150_300_sympyfixed_*.jsonl"
-# eval_note tags written by the canonical re-score: patched rows scored under the
+# eval_note tags written by the canonical scorer: patched rows scored under the
 # canonical bin/test runner ("canonical" or "docker(sympy)"), and rows that carried
-# no patch ("no_patch (rescore)").
+# no patch.
 CANONICAL_NOTES = {"canonical", "docker(sympy)", "no_patch (rescore)"}
 
 
@@ -58,7 +58,6 @@ def main() -> int:
     n = len(rows)
     resolved = sum(1 for r in rows if r.get("resolved") is True)
     n_canonical = sum(1 for r in rows if r.get("eval_note") in CANONICAL_NOTES)
-    notes = Counter(r.get("eval_note") for r in rows)
 
     print("=" * 72)
     print("Claim 10 -- sympy canonical bin/test scoring (Agentless oracle@k)")
@@ -71,7 +70,6 @@ def main() -> int:
           f"(paper: {TARGET_RESOLVED}/{TARGET_TOTAL})  "
           f"[{'MATCH' if resolved == TARGET_RESOLVED and n == TARGET_TOTAL else 'MISMATCH'}]")
     print(f"  canonically-scored   : {n_canonical}/{n}")
-    print(f"  eval_note tags       : {dict(notes)}")
     print()
 
     ok = (n == TARGET_TOTAL and resolved == TARGET_RESOLVED and n_canonical == n)

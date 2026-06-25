@@ -153,7 +153,7 @@ async function openDetail(f, seed){
   setActive(f.path);
   detail.innerHTML="";
   detail.appendChild(el("div","dlabel", f.label || f.path.split("/").pop()));
-  const pr=el("div","dpath"); pr.appendChild(el("span",null,f.path+"  "));
+  const pr=el("div","dpath");
   const a=el("a",null,"open raw"); a.href=BASE+f.path; a.target="_blank"; a.rel="noopener"; pr.appendChild(a); detail.appendChild(pr);
   if(f.claims && f.claims.length){ const cb=el("div","note"); cb.appendChild(el("span",null,"backs: "));
     f.claims.forEach(c=>{ const s=el("span","cl", c.id); s.title=c.title; cb.appendChild(s); }); detail.appendChild(cb); }
@@ -215,7 +215,6 @@ function claimCard(c){
   if(!ours.length) r.appendChild(el("span","note","(run build_evidence_index.py to list evidence files)"));
   ours.forEach(f=>{ const b=el("button","filebtn"); b.dataset.path=f.path;
     b.appendChild(el("div","fl", f.label||f.path.split("/").pop()));
-    b.appendChild(el("div","fp", f.path));
     const sm=[f.n_rows+" rows"]; if(f.resolved!=null) sm.push(f.resolved+" resolved ("+f.resolved_pct+"%)"); if(f.mean_cost!=null) sm.push("$"+f.mean_cost+"/row");
     b.appendChild(el("div","fs", sm.join("  .  ")));
     b.onclick=()=>openDetail(f); r.appendChild(b); });
@@ -246,7 +245,6 @@ function catalog(){
       top.appendChild(el("span","fmt", (f.format||"jsonl").toUpperCase()));
       f.claims.forEach(c=>top.appendChild(el("span","cl", c.id)));
       b.appendChild(top);
-      b.appendChild(el("div","fp", f.path));
       const m=[f.n_rows+" rows"]; if(f.resolved!=null) m.push(f.resolved+" resolved ("+f.resolved_pct+"%)"); if(f.mean_cost!=null) m.push("mean $"+f.mean_cost+"/row"); if(repos.length) m.push(repos.length+" repo/provider");
       b.appendChild(el("div","fs", m.join("  .  ")));
       // Transparency: if the query matched repos/instances INSIDE the file (not its

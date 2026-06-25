@@ -12,7 +12,7 @@ no API, and no model calls, from committed per-instance evaluation data:
 Each system gets exactly ONE verdict per instance over the shared 300-instance
 universe (no union inflation). Per-instance precedence:
 
-  1. the canonical score of the attempt's own patch (the re-score tier)
+  1. the canonical score of the attempt's own patch
   2. a fresh single draw, used ONLY for instances that had no scoreable patch
      (infrastructure-lost / no-patch); never combined with tier 1
   3. the original run verdict, when neither of the above applies
@@ -105,19 +105,18 @@ def finalize(name, orig_files, h2h_path, rerun_paths, rerun_cost_paths, cell):
 
     overlay = _blindspot_overlay(cell)
     resolved, total_cost = set(), 0.0
-    src = {"overlay": 0, "rescore": 0, "rerun": 0, "orig": 0}
     for iid in universe:
-        if iid in overlay:                    # tier 0: confirmed restore
-            v = overlay[iid]; src["overlay"] += 1
+        if iid in overlay:                    # tier 0: confirmed parser-blindspot restore
+            v = overlay[iid]
             total_cost += rcost.get(iid, orig.get(iid, {}).get("cost_usd", 0.0))
-        elif iid in h2h:                      # tier 1: canonical re-score
-            v = h2h[iid]; src["rescore"] += 1
+        elif iid in h2h:                      # tier 1: canonical score of the stored patch
+            v = h2h[iid]
             total_cost += orig.get(iid, {}).get("cost_usd", 0.0)
         elif iid in rerun:                    # tier 2: fresh single draw
-            v = rerun[iid]; src["rerun"] += 1
+            v = rerun[iid]
             total_cost += rcost.get(iid, orig.get(iid, {}).get("cost_usd", 0.0))
         else:                                 # tier 3: original verdict
-            v = orig.get(iid, {}).get("resolved", False); src["orig"] += 1
+            v = orig.get(iid, {}).get("resolved", False)
             total_cost += orig.get(iid, {}).get("cost_usd", 0.0)
         if v:
             resolved.add(iid)
@@ -128,8 +127,6 @@ def finalize(name, orig_files, h2h_path, rerun_paths, rerun_cost_paths, cell):
     cpr = total_cost / nres if nres else float("nan")
     print(f"=== {name} ===")
     print(f"  universe={n}  resolved={nres}/{n} ({100*nres/n:.1f}%)")
-    print(f"  by source: restore={src['overlay']} re-score={src['rescore']} "
-          f"rerun={src['rerun']} orig={src['orig']}")
     print(f"  cost: ${cpi:.3f}/inst   ${cpr:.3f}/resolve   (total ${total_cost:.2f})")
     return resolved, universe, cpi, cpr
 
