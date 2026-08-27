@@ -139,13 +139,12 @@ benchmarking and are not part of CI.
   title  = {The Economics of Coding Agents: Calibrating the Cost-Quality Frontier},
   author = {Ray, Aninda},
   year   = {2026},
-  note   = {arXiv preprint, forthcoming.},
+  note   = {Working paper.},
   url    = {https://github.com/aray-17/code-capsules}
 }
 ```
 
-The arXiv URL will be added here once the preprint is live. See also
-[`CITATION.cff`](CITATION.cff).
+See also [`CITATION.cff`](CITATION.cff).
 
 ## Issues and pull requests
 

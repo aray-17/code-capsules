@@ -175,7 +175,7 @@ produced (rather than verifying *that* they reproduce), email
   title  = {The Economics of Coding Agents: Calibrating the Cost-Quality Frontier},
   author = {Ray, Aninda},
   year   = {2026},
-  note   = {arXiv preprint, forthcoming.},
+  note   = {Working paper.},
   url    = {https://github.com/aray-17/code-capsules}
 }
 ```
